@@ -1,10 +1,9 @@
 public struct BenchmarkRegistry {
-    public var benchmarks: [String: Benchmark] = [:]
+    public var benchmarks: [String: AnyBenchmark] = [:]
 
-    public mutating func register(name: String, benchmark: Benchmark) throws {
+    public mutating func register(name: String, benchmark: AnyBenchmark) {
         if benchmarks[name] != nil {
-            throw BenchmarkError(
-                reason: "benchmark with name `\(name)` already exists in the registry")
+            fatalError("benchmark with name `\(name)` already exists in the registry")
         } else {
             benchmarks[name] = benchmark
         }

@@ -1,20 +1,20 @@
-public protocol Benchmark {
-    func run()
+public protocol AnyBenchmark {
+    func run() -> Any
 }
 
-private class ClosureBenchmark: Benchmark {
-    let closure: () -> Void
+private class ClosureBenchmark: AnyBenchmark {
+    let closure: () -> Any
 
-    init(_ closure: @escaping () -> Void) {
+    init(_ closure: @escaping () -> Any) {
         self.closure = closure
     }
 
-    func run() {
-        self.closure()
+    func run() -> Any {
+        return self.closure()
     }
 }
 
-public func benchmark(name: String, f: @escaping () -> Void) throws {
+public func benchmark(_ name: String, f: @escaping () -> Any) {
     let benchmark = ClosureBenchmark(f)
-    try defaultBenchmarkRegistry.register(name: name, benchmark: benchmark)
+    defaultBenchmarkRegistry.register(name: name, benchmark: benchmark)
 }
