@@ -1,6 +1,7 @@
 public struct BenchmarkRunner {
     let registry: BenchmarkRegistry
     var results: [BenchmarkResult] = []
+    var outputs: [Any] = []
 
     init(_ registry: BenchmarkRegistry) {
         self.registry = registry
@@ -8,21 +9,31 @@ public struct BenchmarkRunner {
 
     mutating func run() {
         var clock = BenchmarkClock()
-        var outputs: [Any] = []
         let n = registry.benchmarks.count
         results = []
         results.reserveCapacity(n)
+        outputs = []
         outputs.reserveCapacity(n)
 
         for (benchmarkName, benchmark) in registry.benchmarks {
-            clock.recordStart()
-            let output = benchmark.run()
-            clock.recordEnd()
-            outputs.append(output)
-            let result = BenchmarkResult(
-                name: benchmarkName,
-                elapsed: clock.elapsed)
-            results.append(result)
+            for run in 1...10 {
+                var iterations: UInt64 = 0
+                var elapsed: UInt64 = 0
+                clock.recordStart()
+                while elapsed < 1_000_000_000 {
+                    iterations += 1
+                    let output = benchmark.run()
+                    clock.recordEnd()
+                    elapsed = clock.elapsed
+                    outputs.append(output)
+                }
+                let result = BenchmarkResult(
+                    name: benchmarkName,
+                    elapsed: clock.elapsed,
+                    iterations: iterations,
+                    run: run)
+                results.append(result)
+            }
         }
     }
 }

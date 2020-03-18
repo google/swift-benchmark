@@ -5,7 +5,8 @@ protocol BenchmarkReporter {
 struct PlainTextReporter: BenchmarkReporter {
     func report(results: [BenchmarkResult]) {
         for result in results {
-            print("result \(result.benchmarkName) is \(result.elapsedTime) ns")
+            let time = Double(result.elapsedTime) / Double(result.iterations)
+            print("result \(result.benchmarkName) is \(time) ns / iteration")
         }
     }
 }
