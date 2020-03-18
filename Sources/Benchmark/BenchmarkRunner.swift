@@ -1,10 +1,12 @@
 public struct BenchmarkRunner {
     let registry: BenchmarkRegistry
+    let reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
     var outputs: [Any] = []
 
-    init(_ registry: BenchmarkRegistry) {
+    init(registry: BenchmarkRegistry, reporter: BenchmarkReporter) {
         self.registry = registry
+        self.reporter = reporter
     }
 
     mutating func run() {
@@ -17,6 +19,8 @@ public struct BenchmarkRunner {
 
         for (benchmarkName, benchmark) in registry.benchmarks {
             for run in 1...10 {
+                reporter.report(running: benchmarkName, run: run)
+
                 var iterations: UInt64 = 0
                 var elapsed: UInt64 = 0
                 clock.recordStart()
@@ -35,12 +39,14 @@ public struct BenchmarkRunner {
                 results.append(result)
             }
         }
+
+        reporter.report(results: results)
     }
 }
 
 public func main() {
-    var runner = BenchmarkRunner(defaultBenchmarkRegistry)
+    var runner = BenchmarkRunner(
+        registry: defaultBenchmarkRegistry,
+        reporter: PlainTextReporter())
     runner.run()
-    let reporter = PlainTextReporter()
-    reporter.report(results: runner.results)
 }
