@@ -1,20 +1,18 @@
 import Benchmark
 
 benchmark("add string no capacity") {
-    var x: String = ""
+    var x1: String = ""
     for _ in 1...1000 {
-        x += "hi"
+        x1 += "hi"
     }
-    return x
 }
 
 benchmark("add string reserved capacity") {
-    var x: String = ""
-    x.reserveCapacity(1000)
+    var x2: String = ""
+    x2.reserveCapacity(1000)
     for _ in 1...1000 {
-        x += "hi"
+        x2 += "hi"
     }
-    return x
 }
 
 Benchmark.main()

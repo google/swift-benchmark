@@ -1,50 +1,39 @@
 public struct BenchmarkRunner {
     let registry: BenchmarkRegistry
     let reporter: BenchmarkReporter
-    let runs: Int
-    let iterationTimeout: Int
-    var results: [BenchmarkResult] = []
-    var outputs: [Any] = []
+    let iterations: Int
 
     init(
         registry: BenchmarkRegistry, reporter: BenchmarkReporter,
-        runs: Int, iterationTimeout: Int
+        iterations: Int
     ) {
         self.registry = registry
         self.reporter = reporter
-        self.runs = runs
-        self.iterationTimeout = iterationTimeout
+        self.iterations = iterations
     }
 
     mutating func run() {
-        var clock = BenchmarkClock()
-        let n = registry.benchmarks.count
-        results = []
-        results.reserveCapacity(n)
-        outputs = []
-        outputs.reserveCapacity(n)
+        var results: [BenchmarkResult] = []
+        results.reserveCapacity(registry.benchmarks.count)
 
         for (benchmarkName, benchmark) in registry.benchmarks {
-            for run in 1...runs {
-                reporter.report(running: benchmarkName, run: run)
+            reporter.report(running: benchmarkName)
 
-                var iterations: UInt64 = 0
-                var elapsed: UInt64 = 0
+            var clock = BenchmarkClock()
+            var measurements: [Double] = []
+            measurements.reserveCapacity(iterations)
+
+            for _ in 1...iterations {
                 clock.recordStart()
-                while elapsed < iterationTimeout {
-                    iterations += 1
-                    let output = benchmark.run()
-                    clock.recordEnd()
-                    elapsed = clock.elapsed
-                    outputs.append(output)
-                }
-                let result = BenchmarkResult(
-                    name: benchmarkName,
-                    elapsed: clock.elapsed,
-                    iterations: iterations,
-                    run: run)
-                results.append(result)
+                benchmark.run()
+                clock.recordEnd()
+                measurements.append(Double(clock.elapsed))
             }
+
+            let result = BenchmarkResult(
+                name: benchmarkName,
+                measurements: measurements)
+            results.append(result)
         }
 
         reporter.report(results: results)
@@ -55,7 +44,6 @@ public func main() {
     var runner = BenchmarkRunner(
         registry: defaultBenchmarkRegistry,
         reporter: PlainTextReporter(),
-        runs: 10,
-        iterationTimeout: 1_000_000_000)
+        iterations: 10000)
     runner.run()
 }
