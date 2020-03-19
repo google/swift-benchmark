@@ -9,7 +9,7 @@ benchmark("add string no capacity") {
 
 benchmark("add string reserved capacity") {
     var x2: String = ""
-    x2.reserveCapacity(1000)
+    x2.reserveCapacity(2000)
     for _ in 1...1000 {
         x2 += "hi"
     }
