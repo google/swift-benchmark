@@ -16,7 +16,10 @@ let package = Package(
             name: "Benchmark",
             dependencies: []),
         .target(
-            name: "BenchmarkExample",
+            name: "BenchmarkMinimalExample",
+            dependencies: ["Benchmark"]),
+        .target(
+            name: "BenchmarkSuiteExample",
             dependencies: ["Benchmark"]),
         .testTarget(
             name: "BenchmarkTests",

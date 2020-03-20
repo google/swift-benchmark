@@ -1,11 +1,14 @@
 public protocol AnyBenchmark {
+    var name: String { get }
     func run()
 }
 
-private class ClosureBenchmark: AnyBenchmark {
+internal class ClosureBenchmark: AnyBenchmark {
+    let name: String
     let closure: () -> Void
 
-    init(_ closure: @escaping () -> Void) {
+    init(_ name: String, _ closure: @escaping () -> Void) {
+        self.name = name
         self.closure = closure
     }
 
@@ -15,6 +18,5 @@ private class ClosureBenchmark: AnyBenchmark {
 }
 
 public func benchmark(_ name: String, f: @escaping () -> Void) {
-    let benchmark = ClosureBenchmark(f)
-    defaultBenchmarkRegistry.register(name: name, benchmark: benchmark)
+    defaultBenchmarkSuite.benchmark(name, f)
 }

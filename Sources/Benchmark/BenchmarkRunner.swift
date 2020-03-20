@@ -1,49 +1,49 @@
 public struct BenchmarkRunner {
-    let registry: BenchmarkRegistry
+    let suites: [BenchmarkSuite]
     let reporter: BenchmarkReporter
     let iterations: Int
+    var results: [BenchmarkResult] = []
 
     init(
-        registry: BenchmarkRegistry, reporter: BenchmarkReporter,
+        suites: [BenchmarkSuite], reporter: BenchmarkReporter,
         iterations: Int
     ) {
-        self.registry = registry
+        self.suites = suites
         self.reporter = reporter
         self.iterations = iterations
     }
 
     mutating func run() {
-        var results: [BenchmarkResult] = []
-        results.reserveCapacity(registry.benchmarks.count)
-
-        for (benchmarkName, benchmark) in registry.benchmarks {
-            reporter.report(running: benchmarkName)
-
-            var clock = BenchmarkClock()
-            var measurements: [Double] = []
-            measurements.reserveCapacity(iterations)
-
-            for _ in 1...iterations {
-                clock.recordStart()
-                benchmark.run()
-                clock.recordEnd()
-                measurements.append(Double(clock.elapsed))
-            }
-
-            let result = BenchmarkResult(
-                name: benchmarkName,
-                measurements: measurements)
-            results.append(result)
+        for suite in suites {
+            run(suite: suite)
         }
-
         reporter.report(results: results)
     }
-}
 
-public func main() {
-    var runner = BenchmarkRunner(
-        registry: defaultBenchmarkRegistry,
-        reporter: PlainTextReporter(),
-        iterations: 10000)
-    runner.run()
+    mutating func run(suite: BenchmarkSuite) {
+        for benchmark in suite.benchmarks {
+            run(benchmark: benchmark, suite: suite)
+        }
+    }
+
+    mutating func run(benchmark: AnyBenchmark, suite: BenchmarkSuite) {
+        reporter.report(running: benchmark.name)
+
+        var clock = BenchmarkClock()
+        var measurements: [Double] = []
+        measurements.reserveCapacity(iterations)
+
+        for _ in 1...iterations {
+            clock.recordStart()
+            benchmark.run()
+            clock.recordEnd()
+            measurements.append(Double(clock.elapsed))
+        }
+
+        let result = BenchmarkResult(
+            benchmarkName: benchmark.name,
+            suiteName: suite.name,
+            measurements: measurements)
+        results.append(result)
+    }
 }

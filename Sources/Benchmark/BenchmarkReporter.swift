@@ -18,7 +18,13 @@ struct PlainTextReporter: BenchmarkReporter {
         var widths: [Int] = []
 
         for result in results {
-            nameColumn.append(result.benchmarkName)
+            let name: String
+            if result.suiteName != "" {
+                name = "\(result.suiteName): \(result.benchmarkName)"
+            } else {
+                name = result.benchmarkName
+            }
+            nameColumn.append(name)
             timeColumn.append("\(median(result.measurements)) ns")
             stdColumn.append("± \(std(result.measurements))")
             iterationsColumn.append(String(result.measurements.count))
