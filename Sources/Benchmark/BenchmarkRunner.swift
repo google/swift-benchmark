@@ -27,7 +27,7 @@ public struct BenchmarkRunner {
     }
 
     mutating func run(benchmark: AnyBenchmark, suite: BenchmarkSuite) {
-        reporter.report(running: benchmark.name)
+        reporter.report(running: benchmark.name, suite: suite.name)
 
         var clock = BenchmarkClock()
         var measurements: [Double] = []

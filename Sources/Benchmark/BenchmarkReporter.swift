@@ -1,13 +1,19 @@
 import Foundation
 
 protocol BenchmarkReporter {
-    func report(running name: String)
+    func report(running name: String, suite: String)
     func report(results: [BenchmarkResult])
 }
 
 struct PlainTextReporter: BenchmarkReporter {
-    func report(running name: String) {
-        print("running \(name)")
+    func report(running name: String, suite: String) {
+        let prefix: String
+        if suite != "" {
+            prefix = "\(suite): "
+        } else {
+            prefix = ""
+        }
+        print("running \(prefix)\(name)")
     }
 
     func report(results: [BenchmarkResult]) {
