@@ -6,6 +6,11 @@ public class BenchmarkSuite {
         self.name = name
     }
 
+    public init(name: String, _ f: (BenchmarkSuite) -> Void) {
+        self.name = name
+        f(self)
+    }
+
     public func register(benchmark: AnyBenchmark) {
         benchmarks.append(benchmark)
     }
