@@ -39,7 +39,7 @@ struct PlainTextReporter: BenchmarkReporter {
             }
             print("")
             if index == 0 {
-                let len = widths.reduce(0, +) + widths.count * 2
+                let len = widths.reduce(0, +) + (widths.count - 1) * 2
                 let line = "".padding(toLength: len, withPad: "-", startingAt: 0)
                 print(line)
             }
