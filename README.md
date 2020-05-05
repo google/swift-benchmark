@@ -2,7 +2,7 @@
 # swift-benchmark
 
 A swift library to benchmark code snippets, similar to
-(google/benchmark)[https://github.com/google/benchmark].  Example:
+[google/benchmark](https://github.com/google/benchmark).  Example:
 
 
 ```
