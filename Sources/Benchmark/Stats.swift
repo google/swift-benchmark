@@ -1,3 +1,5 @@
+// Statistics utility functions, ported from google/benchmark.
+
 func sum(_ v: [Double]) -> Double {
     var total: Double = 0
     for x in v {
