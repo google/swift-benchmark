@@ -5,7 +5,7 @@ A swift library to benchmark code snippets, similar to
 [google/benchmark](https://github.com/google/benchmark).  Example:
 
 
-```
+```swift
 import Benchmark
 
 benchmark("add string reserved capacity") {
@@ -26,7 +26,7 @@ Sources/BenchmarkSuiteExample subprojects.
 
 To use the library, add the following lines to your swiftpm package definition:
 
-```
+```swift
 dependencies: [
     .package(url: "https://github.com/google/swift-benchmark",
              .branch("master")),
@@ -41,4 +41,3 @@ for benchmarking. Feel free to file issues and feature requests to help us prior
 ## Contributing
 
 Please see CONTRIBUTING.md file for details.
-
