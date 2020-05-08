@@ -28,8 +28,8 @@ To use the library, add the following lines to your swiftpm package definition:
 
 ```
 dependencies: [
-    .package(url: "sso://user/shabalin/swift-benchmark",
-             .branch("master"))
+    .package(url: "https://github.com/google/swift-benchmark",
+             .branch("master")),
 ]
 ```
 
