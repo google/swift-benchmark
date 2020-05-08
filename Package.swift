@@ -21,10 +21,9 @@ let package = Package(
     products: [
         .library(
             name: "Benchmark",
-            targets: ["Benchmark"]),
+            targets: ["Benchmark"])
     ],
-    dependencies: [
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "Benchmark",
