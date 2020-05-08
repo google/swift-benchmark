@@ -1,9 +1,9 @@
-
 # swift-benchmark
 
-A swift library to benchmark code snippets, similar to
-[google/benchmark](https://github.com/google/benchmark).  Example:
+A Swift library for benchmarking code snippets, similar to
+[google/benchmark](https://github.com/google/benchmark).
 
+Example:
 
 ```swift
 import Benchmark
@@ -19,25 +19,27 @@ benchmark("add string reserved capacity") {
 Benchmark.main()
 ```
 
-For more examples see Sources/BenchmarkMinimalExample and
-Sources/BenchmarkSuiteExample subprojects.
+For more examples, see Sources/BenchmarkMinimalExample and
+Sources/BenchmarkSuiteExample.
 
 ## Usage
 
-To use the library, add the following lines to your swiftpm package definition:
+Add this library as a SwiftPM dependency:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/google/swift-benchmark",
-             .branch("master")),
+    .package(url: "https://github.com/google/swift-benchmark", .branch("master")),
 ]
 ```
 
 ## Roadmap
 
-The project is still in early stages, and only offers a basic set of utilities
-for benchmarking. Feel free to file issues and feature requests to help us prioritize what features are going to be added next. 
+The project is in an early stage and offers only a basic set of benchmarking
+utilities. Feel free to file issues and feature requests to help us prioritize
+what to do next.
 
 ## Contributing
 
-Please see CONTRIBUTING.md file for details.
+Please see [CONTRIBUTING.md] for details.
+
+[CONTRIBUTING.md]: CONTRIBUTING.md
