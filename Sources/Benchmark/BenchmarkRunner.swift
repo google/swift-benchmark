@@ -47,6 +47,9 @@ public struct BenchmarkRunner {
         var measurements: [Double] = []
         measurements.reserveCapacity(iterations)
 
+        // Perform a warm-up iteration.
+        benchmark.run()
+
         for _ in 1...iterations {
             clock.recordStart()
             benchmark.run()
