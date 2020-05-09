@@ -15,16 +15,13 @@
 public struct BenchmarkRunner {
     let suites: [BenchmarkSuite]
     let reporter: BenchmarkReporter
-    let iterations: Int
     var results: [BenchmarkResult] = []
 
     init(
-        suites: [BenchmarkSuite], reporter: BenchmarkReporter,
-        iterations: Int
+        suites: [BenchmarkSuite], reporter: BenchmarkReporter
     ) {
         self.suites = suites
         self.reporter = reporter
-        self.iterations = iterations
     }
 
     mutating func run() {
@@ -45,9 +42,9 @@ public struct BenchmarkRunner {
 
         var clock = BenchmarkClock()
         var measurements: [Double] = []
-        measurements.reserveCapacity(iterations)
+        measurements.reserveCapacity(benchmark.defaultIterations)
 
-        for _ in 1...iterations {
+        for _ in 1...benchmark.defaultIterations {
             clock.recordStart()
             benchmark.run()
             clock.recordEnd()

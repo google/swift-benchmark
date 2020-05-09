@@ -14,15 +14,18 @@
 
 public protocol AnyBenchmark {
     var name: String { get }
+    var defaultIterations: Int { get }
     func run()
 }
 
 internal class ClosureBenchmark: AnyBenchmark {
     let name: String
+    let defaultIterations: Int
     let closure: () -> Void
 
-    init(_ name: String, _ closure: @escaping () -> Void) {
+    init(_ name: String, defaultIterations: Int, _ closure: @escaping () -> Void) {
         self.name = name
+        self.defaultIterations = defaultIterations
         self.closure = closure
     }
 

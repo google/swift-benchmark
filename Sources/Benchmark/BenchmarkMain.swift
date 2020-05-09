@@ -15,8 +15,7 @@
 public func main(_ suites: [BenchmarkSuite]) {
     var runner = BenchmarkRunner(
         suites: suites,
-        reporter: PlainTextReporter(),
-        iterations: 10000)
+        reporter: PlainTextReporter())
     runner.run()
 }
 

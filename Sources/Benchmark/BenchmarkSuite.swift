@@ -29,8 +29,8 @@ public class BenchmarkSuite {
         benchmarks.append(benchmark)
     }
 
-    public func benchmark(_ name: String, _ f: @escaping () -> Void) {
-        let benchmark = ClosureBenchmark(name, f)
+    public func benchmark(_ name: String, defaultIterations: Int = 10000, _ f: @escaping () -> Void) {
+        let benchmark = ClosureBenchmark(name, defaultIterations: defaultIterations, f)
         register(benchmark: benchmark)
     }
 }
