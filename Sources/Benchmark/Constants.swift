@@ -19,5 +19,3 @@ let debugBuildErrorMessage: String =
     like to run the benchmark without optimizations, pass the `--allow-debug-build`
     flag.
     """
-
-let defaultIterations: Int = 10000

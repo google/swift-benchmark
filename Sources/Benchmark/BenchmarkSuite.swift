@@ -14,14 +14,28 @@
 
 public class BenchmarkSuite {
     public let name: String
+    public let settings: [BenchmarkSetting]
     public var benchmarks: [AnyBenchmark] = []
 
     public init(name: String) {
         self.name = name
+        self.settings = []
     }
 
-    public init(name: String, _ f: (BenchmarkSuite) -> Void) {
+    public init(name: String, settings: BenchmarkSetting...) {
         self.name = name
+        self.settings = settings
+    }
+
+    public init(name: String, using f: (BenchmarkSuite) -> Void) {
+        self.name = name
+        self.settings = []
+        f(self)
+    }
+
+    public init(name: String, settings: BenchmarkSetting..., using f: (BenchmarkSuite) -> Void) {
+        self.name = name
+        self.settings = settings
         f(self)
     }
 
@@ -29,8 +43,22 @@ public class BenchmarkSuite {
         benchmarks.append(benchmark)
     }
 
-    public func benchmark(_ name: String, _ f: @escaping () -> Void) {
-        let benchmark = ClosureBenchmark(name, f)
+    public func benchmark(_ name: String, using f: @escaping () -> Void) {
+        let benchmark = ClosureBenchmark(name, settings: [], using: f)
+        register(benchmark: benchmark)
+    }
+
+    public func benchmark(
+        _ name: String, settings: BenchmarkSetting..., using f: @escaping () -> Void
+    ) {
+        let benchmark = ClosureBenchmark(name, settings: settings, using: f)
+        register(benchmark: benchmark)
+    }
+
+    public func benchmark(
+        _ name: String, settings: [BenchmarkSetting], using f: @escaping () -> Void
+    ) {
+        let benchmark = ClosureBenchmark(name, settings: settings, using: f)
         register(benchmark: benchmark)
     }
 }

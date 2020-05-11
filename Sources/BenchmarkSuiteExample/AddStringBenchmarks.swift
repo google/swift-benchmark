@@ -14,7 +14,8 @@
 
 import Benchmark
 
-let addStringBenchmarks = BenchmarkSuite(name: "add string") { suite in
+let addStringBenchmarks = BenchmarkSuite(name: "add string", settings: .iterations(10000)) {
+    suite in
     suite.benchmark("no capacity") {
         var x1: String = ""
         for _ in 1...1000 {
@@ -22,7 +23,7 @@ let addStringBenchmarks = BenchmarkSuite(name: "add string") { suite in
         }
     }
 
-    suite.benchmark("reserved capacity") {
+    suite.benchmark("reserved capacity", settings: .iterations(10001)) {
         var x2: String = ""
         x2.reserveCapacity(2000)
         for _ in 1...1000 {
