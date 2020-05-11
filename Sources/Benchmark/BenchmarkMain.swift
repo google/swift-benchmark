@@ -13,10 +13,12 @@
 // limitations under the License.
 
 public func main(_ suites: [BenchmarkSuite]) {
+    let options = BenchmarkRunnerOptions.parseOrExit()
+
     var runner = BenchmarkRunner(
         suites: suites,
         reporter: PlainTextReporter())
-    runner.run()
+    runner.run(options: options)
 }
 
 public func main() {
