@@ -19,6 +19,7 @@ import XCTest
         return [
             testCase(BenchmarkRunnerOptionsTests.allTests),
             testCase(BenchmarkRunnerTests.allTests),
+            testCase(BenchmarkSettingTests.allTests),
             testCase(StatsTests.allTests),
         ]
     }

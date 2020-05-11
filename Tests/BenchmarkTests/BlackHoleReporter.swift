@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public func main(_ suites: [BenchmarkSuite]) {
-    let options = BenchmarkRunnerOptions.parseOrExit()
+@testable import Benchmark
 
-    var runner = BenchmarkRunner(
-        suites: suites,
-        reporter: PlainTextReporter())
-    runner.run(options: options)
-}
-
-public func main() {
-    main([defaultBenchmarkSuite])
+struct BlackHoleReporter: BenchmarkReporter {
+    func report(running name: String, suite: String) {}
+    func report(results: [BenchmarkResult]) {}
 }

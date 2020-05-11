@@ -12,15 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public func main(_ suites: [BenchmarkSuite]) {
-    let options = BenchmarkRunnerOptions.parseOrExit()
-
-    var runner = BenchmarkRunner(
-        suites: suites,
-        reporter: PlainTextReporter())
-    runner.run(options: options)
+public enum BenchmarkSetting {
+    case iterations(Int)
 }
 
-public func main() {
-    main([defaultBenchmarkSuite])
+struct BenchmarkSettings {
+    let iterations: Int
+
+    init(_ settings: [[BenchmarkSetting]]) {
+        self.init(Array(settings.joined()))
+    }
+
+    init(_ settings: [BenchmarkSetting]) {
+        var iterations: Int = -1
+
+        for setting in settings {
+            switch setting {
+            case .iterations(let value):
+                iterations = value
+            }
+        }
+
+        self.iterations = iterations
+    }
 }
+
+let defaultSettings: [BenchmarkSetting] = [
+    .iterations(100000)
+]

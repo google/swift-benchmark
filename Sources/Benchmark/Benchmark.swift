@@ -14,15 +14,18 @@
 
 public protocol AnyBenchmark {
     var name: String { get }
+    var settings: [BenchmarkSetting] { get }
     func run()
 }
 
 internal class ClosureBenchmark: AnyBenchmark {
     let name: String
+    let settings: [BenchmarkSetting]
     let closure: () -> Void
 
-    init(_ name: String, _ closure: @escaping () -> Void) {
+    init(_ name: String, settings: [BenchmarkSetting], closure: @escaping () -> Void) {
         self.name = name
+        self.settings = settings
         self.closure = closure
     }
 
@@ -31,6 +34,12 @@ internal class ClosureBenchmark: AnyBenchmark {
     }
 }
 
-public func benchmark(_ name: String, f: @escaping () -> Void) {
-    defaultBenchmarkSuite.benchmark(name, f)
+public func benchmark(_ name: String, function: @escaping () -> Void) {
+    defaultBenchmarkSuite.benchmark(name, function: function)
+}
+
+public func benchmark(
+    _ name: String, settings: BenchmarkSetting..., function: @escaping () -> Void
+) {
+    defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
 }
