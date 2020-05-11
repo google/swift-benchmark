@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
+@testable import Benchmark
 
-#if !canImport(ObjectiveC)
-    public func allTests() -> [XCTestCaseEntry] {
-        return [
-            testCase(BenchmarkRunnerOptionsTests.allTests),
-            testCase(BenchmarkRunnerTests.allTests),
-            testCase(BenchmarkSettingTests.allTests),
-            testCase(StatsTests.allTests),
-        ]
-    }
-#endif
+struct BlackHoleReporter: BenchmarkReporter {
+    func report(running name: String, suite: String) {}
+    func report(results: [BenchmarkResult]) {}
+}

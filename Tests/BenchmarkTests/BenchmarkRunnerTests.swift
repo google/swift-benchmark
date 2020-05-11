@@ -60,9 +60,4 @@ extension BenchmarkRunnerTests {
         runner.run(options: options)
         return benchmarksRun
     }
-
-    struct BlackHoleReporter: BenchmarkReporter {
-        func report(running name: String, suite: String) {}
-        func report(results: [BenchmarkResult]) {}
-    }
 }
