@@ -81,19 +81,23 @@ internal struct BenchmarkRunnerOptions: ParsableCommand {
 
     mutating func validate() throws {
         var isDebug = false
-        assert({ isDebug = true; return true }())
+        assert(
+            {
+                isDebug = true
+                return true
+            }())
         if isDebug && !allowDebugBuild {
             throw ValidationError(debugBuildErrorMessage)
         }
     }
 
     var debugBuildErrorMessage: String {
-            """
-Please build with optimizations enabled (`-c release` if using SwiftPM,
-`-c opt` if using bazel, or `-O` if using swiftc directly). If you would really
-like to run the benchmark without optimizations, pass the `--allow-debug-build`
-flag.
-"""
+        """
+        Please build with optimizations enabled (`-c release` if using SwiftPM,
+        `-c opt` if using bazel, or `-O` if using swiftc directly). If you would really
+        like to run the benchmark without optimizations, pass the `--allow-debug-build`
+        flag.
+        """
     }
 }
 
