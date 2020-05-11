@@ -39,7 +39,7 @@ public func benchmark(_ name: String, using f: @escaping () -> Void) {
 }
 
 public func benchmark(
-    _ name: String, settings: BenchmarkSetting..., function f: @escaping () -> Void
+    _ name: String, settings: BenchmarkSetting..., function: @escaping () -> Void
 ) {
-    defaultBenchmarkSuite.benchmark(name, settings: settings, function: f)
+    defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
 }
