@@ -35,7 +35,7 @@ internal class ClosureBenchmark: AnyBenchmark {
 }
 
 public func benchmark(_ name: String, function: @escaping () -> Void) {
-    defaultBenchmarkSuite.benchmark(name, function: f)
+    defaultBenchmarkSuite.benchmark(name, function: function)
 }
 
 public func benchmark(

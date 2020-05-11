@@ -36,7 +36,7 @@ public class BenchmarkSuite {
     public init(name: String, settings: BenchmarkSetting..., suiteBuilder: (BenchmarkSuite) -> Void) {
         self.name = name
         self.settings = settings
-        f(self)
+        suiteBuilder(self)
     }
 
     public func register(benchmark: AnyBenchmark) {
