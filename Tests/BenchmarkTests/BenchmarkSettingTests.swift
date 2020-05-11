@@ -67,9 +67,4 @@ final class BenchmarkSettingTests: XCTestCase {
         ("testBenchmarkSetting", testBenchmarkSetting),
         ("testBenchmarkSettingOverridesSuiteSetting", testBenchmarkSettingOverridesSuiteSetting),
     ]
-
-    struct BlackHoleReporter: BenchmarkReporter {
-        func report(running name: String, suite: String) {}
-        func report(results: [BenchmarkResult]) {}
-    }
 }
