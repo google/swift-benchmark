@@ -55,8 +55,7 @@ extension BenchmarkRunnerTests {
 
         var runner = BenchmarkRunner(
             suites: [suite1, suite2],
-            reporter: BlackHoleReporter(),
-            iterations: 1)
+            reporter: BlackHoleReporter())
 
         runner.run(options: options)
         return benchmarksRun
