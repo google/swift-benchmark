@@ -27,10 +27,10 @@ public class BenchmarkSuite {
         self.settings = settings
     }
 
-    public init(name: String, function f: (BenchmarkSuite) -> Void) {
+    public init(name: String, suiteBuilder: (BenchmarkSuite) -> Void) {
         self.name = name
         self.settings = []
-        f(self)
+        suiteBuilder(self)
     }
 
     public init(name: String, settings: BenchmarkSetting..., function f: (BenchmarkSuite) -> Void) {
