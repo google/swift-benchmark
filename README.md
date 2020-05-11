@@ -19,6 +19,23 @@ benchmark("add string reserved capacity") {
 Benchmark.main()
 ```
 
+At runtime, you can filter which benchmarks to run by using the `--filter` command line flag. For
+more details on what options are available, pass either the `-h` or `--help` command line flags.
+
+Example:
+
+```bash
+$ swift run -c release BenchmarkMinimalExample -h
+USAGE: benchmark-runner-options --filter <filter> [--allow-debug-build]
+
+OPTIONS:
+  --filter <filter>       Run only benchmarks whose names match the regular expression.
+  --allow-debug-build     Overrides check to verify optimized build.
+  -h, --help              Show help information.
+
+$
+```
+
 For more examples, see Sources/BenchmarkMinimalExample and
 Sources/BenchmarkSuiteExample.
 
