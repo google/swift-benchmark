@@ -90,15 +90,6 @@ internal struct BenchmarkRunnerOptions: ParsableCommand {
             throw ValidationError(debugBuildErrorMessage)
         }
     }
-
-    var debugBuildErrorMessage: String {
-        """
-        Please build with optimizations enabled (`-c release` if using SwiftPM,
-        `-c opt` if using bazel, or `-O` if using swiftc directly). If you would really
-        like to run the benchmark without optimizations, pass the `--allow-debug-build`
-        flag.
-        """
-    }
 }
 
 extension BenchmarkRunnerOptions {

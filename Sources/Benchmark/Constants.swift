@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public func main(_ suites: [BenchmarkSuite]) {
-    let options = BenchmarkRunnerOptions.parseOrExit()
+let debugBuildErrorMessage: String =
+    """
+    Please build with optimizations enabled (`-c release` if using SwiftPM,
+    `-c opt` if using bazel, or `-O` if using swiftc directly). If you would really
+    like to run the benchmark without optimizations, pass the `--allow-debug-build`
+    flag.
+    """
 
-    var runner = BenchmarkRunner(
-        suites: suites,
-        reporter: PlainTextReporter(),
-        iterations: defaultIterations)
-    runner.run(options: options)
-}
-
-public func main() {
-    main([defaultBenchmarkSuite])
-}
+let defaultIterations: Int = 10000
