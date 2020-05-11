@@ -33,7 +33,7 @@ public class BenchmarkSuite {
         suiteBuilder(self)
     }
 
-    public init(name: String, settings: BenchmarkSetting..., function f: (BenchmarkSuite) -> Void) {
+    public init(name: String, settings: BenchmarkSetting..., suiteBuilder: (BenchmarkSuite) -> Void) {
         self.name = name
         self.settings = settings
         f(self)
