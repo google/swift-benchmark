@@ -77,7 +77,11 @@ extension BenchmarkRunnerOptionsTests {
 
     var testsAreRunningInDebugBuild: Bool {
         var isDebug = false
-        assert({ isDebug = true; return true }())  // assert takes an autoclosure!
+        assert(
+            {
+                isDebug = true
+                return true
+            }())  // assert takes an autoclosure!
         return isDebug
     }
 }
