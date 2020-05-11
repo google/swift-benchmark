@@ -23,10 +23,10 @@ internal class ClosureBenchmark: AnyBenchmark {
     let settings: [BenchmarkSetting]
     let closure: () -> Void
 
-    init(_ name: String, settings: [BenchmarkSetting], using f: @escaping () -> Void) {
+    init(_ name: String, settings: [BenchmarkSetting], closure: @escaping () -> Void) {
         self.name = name
         self.settings = settings
-        self.closure = f
+        self.closure = closure
     }
 
     func run() {
@@ -35,10 +35,11 @@ internal class ClosureBenchmark: AnyBenchmark {
 }
 
 public func benchmark(_ name: String, using f: @escaping () -> Void) {
-    defaultBenchmarkSuite.benchmark(name, using: f)
+    defaultBenchmarkSuite.benchmark(name, function: f)
 }
 
-public func benchmark(_ name: String, settings: BenchmarkSetting..., using f: @escaping () -> Void)
-{
-    defaultBenchmarkSuite.benchmark(name, settings: settings, using: f)
+public func benchmark(
+    _ name: String, settings: BenchmarkSetting..., function f: @escaping () -> Void
+) {
+    defaultBenchmarkSuite.benchmark(name, settings: settings, function: f)
 }
