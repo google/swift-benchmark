@@ -65,13 +65,65 @@ final class BenchmarkCommandTests: XCTestCase {
             XCTFail("Options successfully parsed when they should not have.")
         } catch {
             let message = BenchmarkCommand.message(for: error)
-            XCTAssert(message.starts(with: "Please make sure that number of iterations"), message)
+            XCTAssert(
+                message.starts(
+                    with: "Value provided via --iterations must be a positive integer number."))
         }
     }
 
     func testParseWarmupIterations() throws {
         AssertParse(["--warmup-iterations", "42", "--allow-debug-build"]) { settings in
             XCTAssertEqual(settings.warmupIterations, 42)
+        }
+    }
+
+    func testParseZeroWarmupIterationsError() throws {
+        do {
+            _ = try BenchmarkCommand.parse(["--warmup-iterations", "0", "--allow-debug-build"])
+            XCTFail("Options successfully parsed when they should not have.")
+        } catch {
+            let message = BenchmarkCommand.message(for: error)
+            XCTAssert(
+                message.starts(
+                    with:
+                        "Value provided via --warmup-iterations must be a positive integer number.")
+            )
+        }
+    }
+
+    func testParseMaxIterations() throws {
+        AssertParse(["--max-iterations", "42", "--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.maxIterations, 42)
+        }
+    }
+
+    func testParseZeroMaxIterationsError() throws {
+        do {
+            _ = try BenchmarkCommand.parse(["--max-iterations", "0", "--allow-debug-build"])
+            XCTFail("Options successfully parsed when they should not have.")
+        } catch {
+            let message = BenchmarkCommand.message(for: error)
+            XCTAssert(
+                message.starts(
+                    with: "Value provided via --max-iterations must be a positive integer number."))
+        }
+    }
+
+    func testParseMinTime() throws {
+        AssertParse(["--min-time", "42", "--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.minTime, 42)
+        }
+    }
+
+    func testParseZeroMinTimeError() throws {
+        do {
+            _ = try BenchmarkCommand.parse(["--min-time", "0", "--allow-debug-build"])
+            XCTFail("Options successfully parsed when they should not have.")
+        } catch {
+            let message = BenchmarkCommand.message(for: error)
+            XCTAssert(
+                message.starts(
+                    with: "Value provided via --min-time must be a positive floating number."))
         }
     }
 
@@ -82,6 +134,11 @@ final class BenchmarkCommandTests: XCTestCase {
         ("testParseIterations", testParseIterations),
         ("testParseZeroIterationsError", testParseZeroIterationsError),
         ("testParseWarmupIterations", testParseWarmupIterations),
+        ("testParseZeroWarmupIterationsError", testParseZeroWarmupIterationsError),
+        ("testParseMaxIterations", testParseWarmupIterations),
+        ("testParseZeroMaxIterationsError", testParseZeroWarmupIterationsError),
+        ("testParseMinTime", testParseMinTime),
+        ("testParseZeroMinTimeError", testParseZeroMinTimeError),
     ]
 }
 
