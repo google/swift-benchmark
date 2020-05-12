@@ -29,17 +29,32 @@ internal struct BenchmarkCommand: ParsableCommand {
     @Option(help: "Number of warm-up iterations to run.")
     var warmupIterations: Int?
 
+    @Option(help: "Minimal time to run when automatically detecting number iterations.")
+    var minTime: Double?
+
+    @Option(
+        help: "Maximum number of iterations to run when automatically detecting number iterations.")
+    var maxIterations: Int?
+
     var settings: [BenchmarkSetting] {
         var result: [BenchmarkSetting] = []
-        if filter != nil {
-            result.append(.filter(filter!))
+
+        if let value = filter {
+            result.append(.filter(value))
         }
-        if iterations != nil {
-            result.append(.iterations(iterations!))
+        if let value = iterations {
+            result.append(.iterations(value))
         }
-        if warmupIterations != nil {
-            result.append(.warmupIterations(warmupIterations!))
+        if let value = warmupIterations {
+            result.append(.warmupIterations(value))
         }
+        if let value = minTime {
+            result.append(.minTime(seconds: value))
+        }
+        if let value = maxIterations {
+            result.append(.maxIterations(value))
+        }
+
         return result
     }
 
@@ -54,7 +69,17 @@ internal struct BenchmarkCommand: ParsableCommand {
             throw ValidationError(debugBuildErrorMessage)
         }
         if iterations != nil && iterations! <= 0 {
-            throw ValidationError(iterationsErrorMessage)
+            throw ValidationError(positiveNumberError(flag: "--iterations", of: "integer"))
+        }
+        if warmupIterations != nil && warmupIterations! <= 0 {
+            throw ValidationError(positiveNumberError(flag: "--warmup-iterations", of: "integer"))
+        }
+        if maxIterations != nil && maxIterations! <= 0 {
+            throw ValidationError(positiveNumberError(flag: "--max-iterations", of: "integer"))
+        }
+        if minTime != nil && minTime! <= 0 {
+            throw ValidationError(
+                positiveNumberError(flag: "--min-time", of: "floating point number"))
         }
     }
 
@@ -67,7 +92,7 @@ internal struct BenchmarkCommand: ParsableCommand {
         """
     }
 
-    var iterationsErrorMessage: String {
-        "Please make sure that number of iterations is a positive integer number."
+    func positiveNumberError(flag: String, of type: String) -> String {
+        return "Value provided via \(flag) must be a positive \(type)."
     }
 }

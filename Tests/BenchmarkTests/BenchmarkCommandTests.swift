@@ -60,19 +60,45 @@ final class BenchmarkCommandTests: XCTestCase {
     }
 
     func testParseZeroIterationsError() throws {
-        do {
-            _ = try BenchmarkCommand.parse(["--iterations", "0", "--allow-debug-build"])
-            XCTFail("Options successfully parsed when they should not have.")
-        } catch {
-            let message = BenchmarkCommand.message(for: error)
-            XCTAssert(message.starts(with: "Please make sure that number of iterations"), message)
-        }
+        AssertFailsToParse(
+            ["--iterations", "0", "--allow-debug-build"],
+            with: "Value provided via --iterations must be a positive integer.")
     }
 
     func testParseWarmupIterations() throws {
         AssertParse(["--warmup-iterations", "42", "--allow-debug-build"]) { settings in
             XCTAssertEqual(settings.warmupIterations, 42)
         }
+    }
+
+    func testParseZeroWarmupIterationsError() throws {
+        AssertFailsToParse(
+            ["--warmup-iterations", "0", "--allow-debug-build"],
+            with: "Value provided via --warmup-iterations must be a positive integer.")
+    }
+
+    func testParseMaxIterations() throws {
+        AssertParse(["--max-iterations", "42", "--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.maxIterations, 42)
+        }
+    }
+
+    func testParseZeroMaxIterationsError() throws {
+        AssertFailsToParse(
+            ["--warmup-iterations", "0", "--allow-debug-build"],
+            with: "Value provided via --max-iterations must be a positive integer.")
+    }
+
+    func testParseMinTime() throws {
+        AssertParse(["--min-time", "42", "--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.minTime, 42)
+        }
+    }
+
+    func testParseZeroMinTimeError() throws {
+        AssertFailsToParse(
+            ["--min-time", "0", "--allow-debug-build"],
+            with: "Value provided via --min-time must be a positive floating point number.")
     }
 
     static var allTests = [
@@ -82,6 +108,11 @@ final class BenchmarkCommandTests: XCTestCase {
         ("testParseIterations", testParseIterations),
         ("testParseZeroIterationsError", testParseZeroIterationsError),
         ("testParseWarmupIterations", testParseWarmupIterations),
+        ("testParseZeroWarmupIterationsError", testParseZeroWarmupIterationsError),
+        ("testParseMaxIterations", testParseWarmupIterations),
+        ("testParseZeroMaxIterationsError", testParseZeroWarmupIterationsError),
+        ("testParseMinTime", testParseMinTime),
+        ("testParseZeroMinTimeError", testParseZeroMinTimeError),
     ]
 }
 
@@ -104,6 +135,16 @@ extension BenchmarkCommandTests {
             return
         }
         closure(settings)
+    }
+
+    func AssertFailsToParse(_ arguments: [String], with message: String) {
+        do {
+            _ = try BenchmarkCommand.parse(arguments)
+            XCTFail("Options successfully parsed when they should not have.")
+        } catch {
+            let message = BenchmarkCommand.message(for: error)
+            XCTAssert(message.starts(with: message))
+        }
     }
 
     var testsAreRunningInDebugBuild: Bool {

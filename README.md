@@ -9,10 +9,10 @@ Example:
 import Benchmark
 
 benchmark("add string reserved capacity") {
-    var x2: String = ""
-    x2.reserveCapacity(2000)
+    var x: String = ""
+    x.reserveCapacity(2000)
     for _ in 1...1000 {
-        x2 += "hi"
+        x += "hi"
     }
 }
 
@@ -26,14 +26,20 @@ Example:
 
 ```bash
 $ swift run -c release BenchmarkMinimalExample -h
-USAGE: benchmark-runner-options --filter <filter> [--allow-debug-build]
+[3/3] Linking BenchmarkMinimalExample
+USAGE: benchmark-command [--allow-debug-build] [--filter <filter>] [--iterations <iterations>] [--warmup-iterations <warmup-iterations>] [--min-time <min-time>] [--max-iterations <max-iterations>]
 
 OPTIONS:
-  --filter <filter>       Run only benchmarks whose names match the regular expression.
   --allow-debug-build     Overrides check to verify optimized build.
+  --filter <filter>       Run only benchmarks whose names match the regular expression.
+  --iterations <iterations>
+                          Number of iterations to run.
+  --warmup-iterations <warmup-iterations>
+                          Number of warm-up iterations to run.
+  --min-time <min-time>   Minimal time to run when automatically detecting number iterations.
+  --max-iterations <max-iterations>
+                          Maximum number of iterations to run when automatically detecting number iterations.
   -h, --help              Show help information.
-
-$
 ```
 
 For more examples, see Sources/BenchmarkMinimalExample and
