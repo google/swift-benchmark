@@ -51,8 +51,8 @@ public struct BenchmarkRunner {
 
         reporter.report(running: benchmark.name, suite: suite.name)
 
-        if settings.warmupIterations > 0 {
-            let _ = doNIterations(settings.warmupIterations, benchmark: benchmark, suite: suite)
+        if let n = settings.warmupIterations {
+            let _ = doNIterations(n, benchmark: benchmark, suite: suite)
         }
 
         var measurements: [Double] = []
@@ -118,7 +118,7 @@ public struct BenchmarkRunner {
 
         while true {
             measurements = doNIterations(n, benchmark: benchmark, suite: suite)
-            if shouldReportResults(measurements, settings: settings) { break }
+            if n != 1 && shouldReportResults(measurements, settings: settings) { break }
             n = predictNumberOfIterationsNeeded(measurements, settings: settings)
         }
 

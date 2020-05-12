@@ -22,7 +22,7 @@ public enum BenchmarkSetting {
 
 struct BenchmarkSettings {
     let iterations: Int?
-    let warmupIterations: Int
+    let warmupIterations: Int?
     let maxIterations: Int
     let filter: BenchmarkFilter
     let minTime: Double
@@ -33,7 +33,7 @@ struct BenchmarkSettings {
 
     init(_ settings: [BenchmarkSetting]) throws {
         var iterations: Int? = nil
-        var warmupIterations: Int = -1
+        var warmupIterations: Int? = nil
         var maxIterations: Int = -1
         var filter: String? = nil
         var minTime: Double = -1
@@ -62,7 +62,7 @@ struct BenchmarkSettings {
     }
 
     init(
-        iterations: Int?, warmupIterations: Int, maxIterations: Int, filter: String?,
+        iterations: Int?, warmupIterations: Int?, maxIterations: Int, filter: String?,
         minTime: Double
     ) throws {
         self.iterations = iterations
@@ -74,7 +74,6 @@ struct BenchmarkSettings {
 }
 
 let defaultSettings: [BenchmarkSetting] = [
-    .warmupIterations(1),
     .maxIterations(1_000_000_000),
     .minTime(1.0),
 ]
