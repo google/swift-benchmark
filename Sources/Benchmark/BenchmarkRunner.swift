@@ -14,33 +14,44 @@
 
 public struct BenchmarkRunner {
     let suites: [BenchmarkSuite]
+    let settings: [BenchmarkSetting]
     let reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
 
-    init(suites: [BenchmarkSuite], reporter: BenchmarkReporter) {
+    init(suites: [BenchmarkSuite], settings: [BenchmarkSetting], reporter: BenchmarkReporter) {
         self.suites = suites
+        self.settings = settings
         self.reporter = reporter
     }
 
-    mutating func run(command: BenchmarkCommand) {
+    mutating func run() throws {
         for suite in suites {
-            run(suite: suite, command: command)
+            try run(suite: suite)
         }
         reporter.report(results: results)
     }
 
-    mutating func run(suite: BenchmarkSuite, command: BenchmarkCommand) {
+    mutating func run(suite: BenchmarkSuite) throws {
         for benchmark in suite.benchmarks {
-            if !command.matches(suiteName: suite.name, benchmarkName: benchmark.name) { continue }
-            run(benchmark: benchmark, suite: suite)
+            try run(benchmark: benchmark, suite: suite)
         }
     }
 
-    mutating func run(benchmark: AnyBenchmark, suite: BenchmarkSuite) {
+    mutating func run(benchmark: AnyBenchmark, suite: BenchmarkSuite) throws {
+        let settings = try BenchmarkSettings([
+            defaultSettings, 
+            self.settings, 
+            suite.settings, 
+            benchmark.settings
+        ])
+
+        if !settings.filter.matches(suiteName: suite.name, benchmarkName: benchmark.name) {
+            return
+        }
+
         reporter.report(running: benchmark.name, suite: suite.name)
 
         var clock = BenchmarkClock()
-        let settings = BenchmarkSettings([defaultSettings, suite.settings, benchmark.settings])
         var measurements: [Double] = []
         measurements.reserveCapacity(settings.iterations)
 

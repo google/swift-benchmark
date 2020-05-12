@@ -14,11 +14,14 @@
 
 public func main(_ suites: [BenchmarkSuite]) {
     let command = BenchmarkCommand.parseOrExit()
+    let settings = command.settings
+    let reporter = PlainTextReporter()
 
     var runner = BenchmarkRunner(
         suites: suites,
-        reporter: PlainTextReporter())
-    runner.run(command: command)
+        settings: settings,
+        reporter: reporter)
+    try! runner.run()
 }
 
 public func main() {

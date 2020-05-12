@@ -19,14 +19,17 @@ import XCTest
 final class BenchmarkSettingTests: XCTestCase {
 
     func assertNumberOfIterations(suite: BenchmarkSuite, counts expected: [Int]) throws {
-        let options = try BenchmarkCommand(filter: ".*")
-        var reporter = BlackHoleReporter()
-        var runner = BenchmarkRunner(suites: [suite], reporter: reporter)
-        runner.run(command: options)
-
-        XCTAssertEqual(runner.results.count, expected.count)
-        let counts = Array(runner.results.map(\.measurements.count))
-        XCTAssertEqual(counts, expected)
+        let settings: [BenchmarkSetting] = [.iterations(100000)]
+        let reporter = BlackHoleReporter()
+        var runner = BenchmarkRunner(suites: [suite], settings: settings, reporter: reporter)
+        do { 
+            try runner.run()
+            XCTAssertEqual(runner.results.count, expected.count)
+            let counts = Array(runner.results.map(\.measurements.count))
+            XCTAssertEqual(counts, expected)
+        } catch {
+            XCTAssertTrue(false)
+        }
     }
 
     func testDefaultSetting() throws {

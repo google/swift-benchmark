@@ -18,34 +18,34 @@ import XCTest
 
 final class BenchmarkCommandTests: XCTestCase {
     func testAllowDebugBuild() throws {
-        AssertParse(["--allow-debug-build"]) { options in
-            XCTAssert(options.allowDebugBuild)
-        }
+         AssertParse(["--allow-debug-build"]) { settings in
+             XCTAssert(settings.allowDebugBuild)
+         }
     }
 
     func testDebugBuildError() {
-        // Note: this can only be tested in debug builds!
-        if testsAreRunningInDebugBuild {
-            do {
-                _ = try BenchmarkCommand.parse([])
-                XCTFail("Options successfully parsed when they should not have.")
-            } catch {
-                let message = BenchmarkCommand.message(for: error)
-                XCTAssert(message.starts(with: "Please build with optimizations enabled"), message)
-            }
-        }
+         // Note: this can only be tested in debug builds!
+         if testsAreRunningInDebugBuild {
+             do {
+                 _ = try BenchmarkCommand.parse([])
+                 XCTFail("Options successfully parsed when they should not have.")
+             } catch {
+                 let message = BenchmarkCommand.message(for: error)
+                 XCTAssert(message.starts(with: "Please build with optimizations enabled"), message)
+             }
+         }
     }
 
     func testParseFilter() throws {
-        AssertParse(["--filter", "bar", "--allow-debug-build"]) { options in
-            XCTAssertFalse(options.matches(suiteName: "foo", benchmarkName: "baz"))
-            XCTAssert(options.matches(suiteName: "foo", benchmarkName: "bar"))
+        AssertParse(["--filter", "bar", "--allow-debug-build"]) { settings in
+            XCTAssertFalse(settings.filter.matches(suiteName: "foo", benchmarkName: "baz"))
+            XCTAssert(settings.filter.matches(suiteName: "foo", benchmarkName: "bar"))
         }
 
-        AssertParse(["--filter", "foo/bar", "--allow-debug-build"]) { options in
-            XCTAssertFalse(options.matches(suiteName: "foo", benchmarkName: "baz"))
-            XCTAssertFalse(options.matches(suiteName: "foobar", benchmarkName: "baz"))
-            XCTAssert(options.matches(suiteName: "foo", benchmarkName: "bar"))
+        AssertParse(["--filter", "foo/bar", "--allow-debug-build"]) { settings in
+            XCTAssertFalse(settings.filter.matches(suiteName: "foo", benchmarkName: "baz"))
+            XCTAssertFalse(settings.filter.matches(suiteName: "foobar", benchmarkName: "baz"))
+            XCTAssert(settings.filter.matches(suiteName: "foo", benchmarkName: "bar"))
         }
     }
 
@@ -62,17 +62,19 @@ extension BenchmarkCommandTests {
         _ arguments: [String],
         file: StaticString = #file,
         line: UInt = #line,
-        closure: (BenchmarkCommand) -> Void
+        closure: (BenchmarkSettings) -> Void
     ) {
         let parsed: BenchmarkCommand
+        let settings: BenchmarkSettings
         do {
             parsed = try BenchmarkCommand.parse(arguments)
+            settings = try BenchmarkSettings(parsed.settings)
         } catch {
             let message = BenchmarkCommand.message(for: error)
             XCTFail("\"\(message)\" - \(error)", file: file, line: line)
             return
         }
-        closure(parsed)
+        closure(settings)
     }
 
     var testsAreRunningInDebugBuild: Bool {

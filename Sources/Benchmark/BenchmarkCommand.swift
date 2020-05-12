@@ -17,10 +17,8 @@ import Foundation
 
 /// Allows dynamic configuration of the benchmark execution.
 internal struct BenchmarkCommand: ParsableCommand {
-    @Option(
-        help: "Run only benchmarks whose names match the regular expression.",
-        transform: BenchmarkFilter.init)
-    var filter: BenchmarkFilter?
+    @Option(help: "Run only benchmarks whose names match the regular expression.")
+    var filter: String?
 
     @Flag(help: "Overrides check to verify optimized build.")
     var allowDebugBuild: Bool
@@ -45,32 +43,13 @@ internal struct BenchmarkCommand: ParsableCommand {
         flag.
         """
     }
-}
 
-extension BenchmarkCommand {
-    func matches(suiteName: String, benchmarkName: String) -> Bool {
-        guard let filter = filter else { return true }
-        return filter.matches(suiteName: suiteName, benchmarkName: benchmarkName)
-    }
-
-    init(filter: String) throws {
-        self.filter = try BenchmarkFilter(filter)
-        self.allowDebugBuild = false
-    }
-}
-
-internal struct BenchmarkFilter {
-    let underlying: NSRegularExpression
-
-    init(_ regularExpression: String) throws {
-        underlying = try NSRegularExpression(
-            pattern: regularExpression,
-            options: [.caseInsensitive, .anchorsMatchLines])
-    }
-
-    func matches(suiteName: String, benchmarkName: String) -> Bool {
-        let str = "\(suiteName)/\(benchmarkName)"
-        let range = NSRange(location: 0, length: str.utf16.count)
-        return underlying.firstMatch(in: str, range: range) != nil
+    var settings: [BenchmarkSetting] {
+        var result: [BenchmarkSetting] = []
+        if filter != nil {
+            result.append(.filter(filter!))
+        }
+        result.append(.allowDebugBuild(allowDebugBuild))
+        return result
     }
 }
