@@ -67,7 +67,7 @@ final class BenchmarkCommandTests: XCTestCase {
             let message = BenchmarkCommand.message(for: error)
             XCTAssert(
                 message.starts(
-                    with: "Value provided via --iterations must be a positive integer number."))
+                    with: "Value provided via --iterations must be a positive integer."))
         }
     }
 
@@ -86,7 +86,7 @@ final class BenchmarkCommandTests: XCTestCase {
             XCTAssert(
                 message.starts(
                     with:
-                        "Value provided via --warmup-iterations must be a positive integer number.")
+                        "Value provided via --warmup-iterations must be a positive integer.")
             )
         }
     }
@@ -105,7 +105,7 @@ final class BenchmarkCommandTests: XCTestCase {
             let message = BenchmarkCommand.message(for: error)
             XCTAssert(
                 message.starts(
-                    with: "Value provided via --max-iterations must be a positive integer number."))
+                    with: "Value provided via --max-iterations must be a positive integer."))
         }
     }
 
@@ -123,7 +123,8 @@ final class BenchmarkCommandTests: XCTestCase {
             let message = BenchmarkCommand.message(for: error)
             XCTAssert(
                 message.starts(
-                    with: "Value provided via --min-time must be a positive floating number."))
+                    with: "Value provided via --min-time must be a positive floating point number.")
+            )
         }
     }
 

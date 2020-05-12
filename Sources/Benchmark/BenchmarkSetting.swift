@@ -75,5 +75,5 @@ struct BenchmarkSettings {
 
 let defaultSettings: [BenchmarkSetting] = [
     .maxIterations(1_000_000_000),
-    .minTime(1.0),
+    .minTime(seconds: 1.0),
 ]

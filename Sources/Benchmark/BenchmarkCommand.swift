@@ -49,7 +49,7 @@ internal struct BenchmarkCommand: ParsableCommand {
             result.append(.warmupIterations(value))
         }
         if let value = minTime {
-            result.append(.minTime(value))
+            result.append(.minTime(seconds: value))
         }
         if let value = maxIterations {
             result.append(.maxIterations(value))
@@ -78,7 +78,8 @@ internal struct BenchmarkCommand: ParsableCommand {
             throw ValidationError(positiveNumberError(flag: "--max-iterations", of: "integer"))
         }
         if minTime != nil && minTime! <= 0 {
-            throw ValidationError(positiveNumberError(flag: "--min-time", of: "floating point number"))
+            throw ValidationError(
+                positiveNumberError(flag: "--min-time", of: "floating point number"))
         }
     }
 
