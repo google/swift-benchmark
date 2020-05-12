@@ -71,17 +71,6 @@ final class BenchmarkCommandTests: XCTestCase {
         }
     }
 
-    func testParseNegativeWarmupIterationsError() throws {
-        do {
-            _ = try BenchmarkCommand.parse(["--warmup-iterations", "-1", "--allow-debug-build"])
-            XCTFail("Options successfully parsed when they should not have.")
-        } catch {
-            let message = BenchmarkCommand.message(for: error)
-            XCTAssert(
-                message.starts(with: "Please make sure that number of warmup iterations"), message)
-        }
-    }
-
     static var allTests = [
         ("testAllowDebugBuild", testAllowDebugBuild),
         ("testDebugBuildError", testDebugBuildError),
