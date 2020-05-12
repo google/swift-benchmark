@@ -18,18 +18,18 @@ import XCTest
 
 final class BenchmarkRunnerTests: XCTestCase {
     func testFilterBenchmarksSuffix() throws {
-        let options = try BenchmarkRunnerOptions(filter: "b1")
-        XCTAssertEqual(Set(["suite1/b1", "suite2/b1"]), runBenchmarks(options: options))
+        let command = try BenchmarkCommand(filter: "b1")
+        XCTAssertEqual(Set(["suite1/b1", "suite2/b1"]), runBenchmarks(command: command))
     }
 
     func testFilterBenchmarksSuiteName() throws {
-        let options = try BenchmarkRunnerOptions(filter: "suite1")
-        XCTAssertEqual(Set(["suite1/b1", "suite1/b2"]), runBenchmarks(options: options))
+        let command = try BenchmarkCommand(filter: "suite1")
+        XCTAssertEqual(Set(["suite1/b1", "suite1/b2"]), runBenchmarks(command: command))
     }
 
     func testFilterBenchmarksFullName() throws {
-        let options = try BenchmarkRunnerOptions(filter: "suite1/b1")
-        XCTAssertEqual(Set(["suite1/b1"]), runBenchmarks(options: options))
+        let command = try BenchmarkCommand(filter: "suite1/b1")
+        XCTAssertEqual(Set(["suite1/b1"]), runBenchmarks(command: command))
     }
 
     static var allTests = [
@@ -40,9 +40,9 @@ final class BenchmarkRunnerTests: XCTestCase {
 }
 
 extension BenchmarkRunnerTests {
-    /// Builds and runs a few suites of benchmarks with provided options; returns the set of
+    /// Builds and runs a few suites of benchmarks with provided command; returns the set of
     /// benchmark names that were run.
-    func runBenchmarks(options: BenchmarkRunnerOptions) -> Set<String> {
+    func runBenchmarks(command: BenchmarkCommand) -> Set<String> {
         let suite1 = BenchmarkSuite(name: "suite1")
         let suite2 = BenchmarkSuite(name: "suite2")
 
@@ -57,7 +57,7 @@ extension BenchmarkRunnerTests {
             suites: [suite1, suite2],
             reporter: BlackHoleReporter())
 
-        runner.run(options: options)
+        runner.run(command: command)
         return benchmarksRun
     }
 }

@@ -19,10 +19,10 @@ import XCTest
 final class BenchmarkSettingTests: XCTestCase {
 
     func assertNumberOfIterations(suite: BenchmarkSuite, counts expected: [Int]) throws {
-        let options = try BenchmarkRunnerOptions(filter: ".*")
+        let options = try BenchmarkCommand(filter: ".*")
         var reporter = BlackHoleReporter()
         var runner = BenchmarkRunner(suites: [suite], reporter: reporter)
-        runner.run(options: options)
+        runner.run(command: options)
 
         XCTAssertEqual(runner.results.count, expected.count)
         let counts = Array(runner.results.map(\.measurements.count))

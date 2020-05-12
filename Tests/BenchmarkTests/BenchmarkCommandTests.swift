@@ -16,7 +16,7 @@ import XCTest
 
 @testable import Benchmark
 
-final class BenchmarkRunnerOptionsTests: XCTestCase {
+final class BenchmarkCommandTests: XCTestCase {
     func testAllowDebugBuild() throws {
         AssertParse(["--allow-debug-build"]) { options in
             XCTAssert(options.allowDebugBuild)
@@ -27,10 +27,10 @@ final class BenchmarkRunnerOptionsTests: XCTestCase {
         // Note: this can only be tested in debug builds!
         if testsAreRunningInDebugBuild {
             do {
-                _ = try BenchmarkRunnerOptions.parse([])
+                _ = try BenchmarkCommand.parse([])
                 XCTFail("Options successfully parsed when they should not have.")
             } catch {
-                let message = BenchmarkRunnerOptions.message(for: error)
+                let message = BenchmarkCommand.message(for: error)
                 XCTAssert(message.starts(with: "Please build with optimizations enabled"), message)
             }
         }
@@ -56,19 +56,19 @@ final class BenchmarkRunnerOptionsTests: XCTestCase {
     ]
 }
 
-extension BenchmarkRunnerOptionsTests {
+extension BenchmarkCommandTests {
     /// Parse `arguments` and call `closure` with the resulting options.
     func AssertParse(
         _ arguments: [String],
         file: StaticString = #file,
         line: UInt = #line,
-        closure: (BenchmarkRunnerOptions) -> Void
+        closure: (BenchmarkCommand) -> Void
     ) {
-        let parsed: BenchmarkRunnerOptions
+        let parsed: BenchmarkCommand
         do {
-            parsed = try BenchmarkRunnerOptions.parse(arguments)
+            parsed = try BenchmarkCommand.parse(arguments)
         } catch {
-            let message = BenchmarkRunnerOptions.message(for: error)
+            let message = BenchmarkCommand.message(for: error)
             XCTFail("\"\(message)\" - \(error)", file: file, line: line)
             return
         }
