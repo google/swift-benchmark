@@ -17,11 +17,14 @@ import Foundation
 
 /// Allows dynamic configuration of the benchmark execution.
 internal struct BenchmarkCommand: ParsableCommand {
+    @Flag(help: "Overrides check to verify optimized build.")
+    var allowDebugBuild: Bool
+
     @Option(help: "Run only benchmarks whose names match the regular expression.")
     var filter: String?
 
-    @Flag(help: "Overrides check to verify optimized build.")
-    var allowDebugBuild: Bool
+    @Option(help: "Number of iterations to run.")
+    var iterations: Int?
 
     mutating func validate() throws {
         var isDebug = false
@@ -32,6 +35,9 @@ internal struct BenchmarkCommand: ParsableCommand {
             }())
         if isDebug && !allowDebugBuild {
             throw ValidationError(debugBuildErrorMessage)
+        }
+        if iterations != nil && iterations! <= 0 {
+            throw ValidationError(iterationsErrorMessage)
         }
     }
 
@@ -44,12 +50,19 @@ internal struct BenchmarkCommand: ParsableCommand {
         """
     }
 
+    var iterationsErrorMessage: String {
+        "Please make sure that number of iterations provided is a positive integer number."
+    }
+
     var settings: [BenchmarkSetting] {
         var result: [BenchmarkSetting] = []
+        result.append(.allowDebugBuild(allowDebugBuild))
         if filter != nil {
             result.append(.filter(filter!))
         }
-        result.append(.allowDebugBuild(allowDebugBuild))
+        if iterations != nil {
+            result.append(.iterations(iterations!))
+        }
         return result
     }
 }

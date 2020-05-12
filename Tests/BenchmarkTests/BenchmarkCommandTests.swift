@@ -49,10 +49,28 @@ final class BenchmarkCommandTests: XCTestCase {
         }
     }
 
+    func testParseIterations() throws {
+        AssertParse(["--iterations", "42", "--allow-debug-build"]) { settings in 
+            XCTAssertEqual(settings.iterations, 42)
+        }
+    }
+
+    func testParseZeroIterationsError() throws {
+         do {
+             _ = try BenchmarkCommand.parse(["--iterations", "0", "--allow-debug-build"])
+             XCTFail("Options successfully parsed when they should not have.")
+         } catch {
+             let message = BenchmarkCommand.message(for: error)
+             XCTAssert(message.starts(with: "Please make sure that number of iterations"), message)
+         }
+    }
+
     static var allTests = [
         ("testAllowDebugBuild", testAllowDebugBuild),
         ("testDebugBuildError", testDebugBuildError),
         ("testParseFilter", testParseFilter),
+        ("testParseIterations", testParseIterations),
+        // ("testParseZeroIterationsError", testParseZeroIterationsError),
     ]
 }
 
