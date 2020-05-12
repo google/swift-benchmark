@@ -49,11 +49,11 @@ struct BenchmarkSettings {
         }
 
         try self.init(
-            iterations: iterations, 
+            iterations: iterations,
             warmupIterations: warmupIterations,
-            filter: filter, 
-            allowDebugBuild: 
-            allowDebugBuild)
+            filter: filter,
+            allowDebugBuild:
+                allowDebugBuild)
     }
 
     init(iterations: Int, warmupIterations: Int, filter: String?, allowDebugBuild: Bool) throws {

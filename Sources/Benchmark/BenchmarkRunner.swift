@@ -39,10 +39,10 @@ public struct BenchmarkRunner {
 
     mutating func run(benchmark: AnyBenchmark, suite: BenchmarkSuite) throws {
         let settings = try BenchmarkSettings([
-            defaultSettings, 
-            self.settings, 
-            suite.settings, 
-            benchmark.settings
+            defaultSettings,
+            self.settings,
+            suite.settings,
+            benchmark.settings,
         ])
 
         if !settings.filter.matches(suiteName: suite.name, benchmarkName: benchmark.name) {

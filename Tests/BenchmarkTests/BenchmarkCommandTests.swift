@@ -18,22 +18,22 @@ import XCTest
 
 final class BenchmarkCommandTests: XCTestCase {
     func testAllowDebugBuild() throws {
-         AssertParse(["--allow-debug-build"]) { settings in
-             XCTAssert(settings.allowDebugBuild)
-         }
+        AssertParse(["--allow-debug-build"]) { settings in
+            XCTAssert(settings.allowDebugBuild)
+        }
     }
 
     func testDebugBuildError() {
-         // Note: this can only be tested in debug builds!
-         if testsAreRunningInDebugBuild {
-             do {
-                 _ = try BenchmarkCommand.parse([])
-                 XCTFail("Options successfully parsed when they should not have.")
-             } catch {
-                 let message = BenchmarkCommand.message(for: error)
-                 XCTAssert(message.starts(with: "Please build with optimizations enabled"), message)
-             }
-         }
+        // Note: this can only be tested in debug builds!
+        if testsAreRunningInDebugBuild {
+            do {
+                _ = try BenchmarkCommand.parse([])
+                XCTFail("Options successfully parsed when they should not have.")
+            } catch {
+                let message = BenchmarkCommand.message(for: error)
+                XCTAssert(message.starts(with: "Please build with optimizations enabled"), message)
+            }
+        }
     }
 
     func testParseFilter() throws {
@@ -50,35 +50,36 @@ final class BenchmarkCommandTests: XCTestCase {
     }
 
     func testParseIterations() throws {
-        AssertParse(["--iterations", "42", "--allow-debug-build"]) { settings in 
+        AssertParse(["--iterations", "42", "--allow-debug-build"]) { settings in
             XCTAssertEqual(settings.iterations, 42)
         }
     }
 
     func testParseZeroIterationsError() throws {
-         do {
-             _ = try BenchmarkCommand.parse(["--iterations", "0", "--allow-debug-build"])
-             XCTFail("Options successfully parsed when they should not have.")
-         } catch {
-             let message = BenchmarkCommand.message(for: error)
-             XCTAssert(message.starts(with: "Please make sure that number of iterations"), message)
-         }
+        do {
+            _ = try BenchmarkCommand.parse(["--iterations", "0", "--allow-debug-build"])
+            XCTFail("Options successfully parsed when they should not have.")
+        } catch {
+            let message = BenchmarkCommand.message(for: error)
+            XCTAssert(message.starts(with: "Please make sure that number of iterations"), message)
+        }
     }
 
     func testParseWarmupIterations() throws {
-        AssertParse(["--warmup-iterations", "42", "--allow-debug-build"]) { settings in 
+        AssertParse(["--warmup-iterations", "42", "--allow-debug-build"]) { settings in
             XCTAssertEqual(settings.warmupIterations, 42)
         }
     }
 
     func testParseNegativeWarmupIterationsError() throws {
-         do {
-             _ = try BenchmarkCommand.parse(["--warmup-iterations", "-1", "--allow-debug-build"])
-             XCTFail("Options successfully parsed when they should not have.")
-         } catch {
-             let message = BenchmarkCommand.message(for: error)
-             XCTAssert(message.starts(with: "Please make sure that number of warmup iterations"), message)
-         }
+        do {
+            _ = try BenchmarkCommand.parse(["--warmup-iterations", "-1", "--allow-debug-build"])
+            XCTFail("Options successfully parsed when they should not have.")
+        } catch {
+            let message = BenchmarkCommand.message(for: error)
+            XCTAssert(
+                message.starts(with: "Please make sure that number of warmup iterations"), message)
+        }
     }
 
     static var allTests = [

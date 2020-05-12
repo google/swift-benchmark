@@ -23,12 +23,12 @@ internal struct BenchmarkFilter {
                 pattern: regularExpression!,
                 options: [.caseInsensitive, .anchorsMatchLines])
         } else {
-          self.underlying = nil
+            self.underlying = nil
         }
     }
 
     func matches(suiteName: String, benchmarkName: String) -> Bool {
-        if underlying == nil { 
+        if underlying == nil {
             return true
         } else {
             let str = "\(suiteName)/\(benchmarkName)"
