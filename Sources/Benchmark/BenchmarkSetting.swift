@@ -14,23 +14,29 @@
 
 public enum BenchmarkSetting {
     case iterations(Int)
+    case maxIterations(Int)
     case warmupIterations(Int)
     case filter(String)
+    case minTime(Double)
 }
 
 struct BenchmarkSettings {
-    let iterations: Int
+    let iterations: Int?
     let warmupIterations: Int
+    let maxIterations: Int
     let filter: BenchmarkFilter
+    let minTime: Double
 
     init(_ settings: [[BenchmarkSetting]]) throws {
         try self.init(Array(settings.joined()))
     }
 
     init(_ settings: [BenchmarkSetting]) throws {
-        var iterations: Int = -1
+        var iterations: Int? = nil
         var warmupIterations: Int = -1
+        var maxIterations: Int = -1
         var filter: String? = nil
+        var minTime: Double = -1
 
         for setting in settings {
             switch setting {
@@ -40,23 +46,35 @@ struct BenchmarkSettings {
                 warmupIterations = value
             case .filter(let value):
                 filter = value
+            case .maxIterations(let value):
+                maxIterations = value
+            case .minTime(let value):
+                minTime = value
             }
         }
 
         try self.init(
             iterations: iterations,
             warmupIterations: warmupIterations,
-            filter: filter)
+            maxIterations: maxIterations,
+            filter: filter,
+            minTime: minTime)
     }
 
-    init(iterations: Int, warmupIterations: Int, filter: String?) throws {
+    init(
+        iterations: Int?, warmupIterations: Int, maxIterations: Int, filter: String?,
+        minTime: Double
+    ) throws {
         self.iterations = iterations
         self.warmupIterations = warmupIterations
+        self.maxIterations = maxIterations
         self.filter = try BenchmarkFilter(filter)
+        self.minTime = minTime
     }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
-    .iterations(100000),
     .warmupIterations(1),
+    .maxIterations(1_000_000_000),
+    .minTime(1.0),
 ]
