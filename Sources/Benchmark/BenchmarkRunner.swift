@@ -17,7 +17,7 @@ import Foundation
 
 public struct BenchmarkRunner {
     let suites: [BenchmarkSuite]
-    let reporter: BenchmarkReporter
+    var reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
 
     init(suites: [BenchmarkSuite], reporter: BenchmarkReporter) {
@@ -56,6 +56,8 @@ public struct BenchmarkRunner {
             clock.recordEnd()
             measurements.append(Double(clock.elapsed))
         }
+
+        reporter.report(finishedRunning: benchmark.name, suite: suite.name)
 
         let result = BenchmarkResult(
             benchmarkName: benchmark.name,
