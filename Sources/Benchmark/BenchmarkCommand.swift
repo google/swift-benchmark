@@ -78,7 +78,7 @@ internal struct BenchmarkCommand: ParsableCommand {
             throw ValidationError(positiveNumberError(flag: "--max-iterations", of: "integer"))
         }
         if minTime != nil && minTime! <= 0 {
-            throw ValidationError(positiveNumberError(flag: "--min-time", of: "floating"))
+            throw ValidationError(positiveNumberError(flag: "--min-time", of: "floating point number"))
         }
     }
 
@@ -92,6 +92,6 @@ internal struct BenchmarkCommand: ParsableCommand {
     }
 
     func positiveNumberError(flag: String, of type: String) -> String {
-        return "Value provided via \(flag) must be a positive \(type) number."
+        return "Value provided via \(flag) must be a positive \(type)."
     }
 }

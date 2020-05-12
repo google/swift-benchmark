@@ -17,7 +17,7 @@ public enum BenchmarkSetting {
     case maxIterations(Int)
     case warmupIterations(Int)
     case filter(String)
-    case minTime(Double)
+    case minTime(seconds: Double)
 }
 
 struct BenchmarkSettings {
