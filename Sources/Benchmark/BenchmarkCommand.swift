@@ -31,7 +31,6 @@ internal struct BenchmarkCommand: ParsableCommand {
 
     var settings: [BenchmarkSetting] {
         var result: [BenchmarkSetting] = []
-        result.append(.allowDebugBuild(allowDebugBuild))
         if filter != nil {
             result.append(.filter(filter!))
         }

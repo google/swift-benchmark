@@ -18,8 +18,12 @@ import XCTest
 
 final class BenchmarkCommandTests: XCTestCase {
     func testAllowDebugBuild() throws {
-        AssertParse(["--allow-debug-build"]) { settings in
-            XCTAssert(settings.allowDebugBuild)
+        if testsAreRunningInDebugBuild {
+            do {
+                _ = try BenchmarkCommand.parse(["--allow-debug-build"])
+            } catch {
+                XCTFail("--alow-debug-build should not crash when running in debug build")
+            }
         }
     }
 
