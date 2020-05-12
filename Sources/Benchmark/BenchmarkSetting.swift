@@ -14,29 +14,49 @@
 
 public enum BenchmarkSetting {
     case iterations(Int)
+    case warmupIterations(Int)
+    case filter(String)
 }
 
 struct BenchmarkSettings {
     let iterations: Int
+    let warmupIterations: Int
+    let filter: BenchmarkFilter
 
-    init(_ settings: [[BenchmarkSetting]]) {
-        self.init(Array(settings.joined()))
+    init(_ settings: [[BenchmarkSetting]]) throws {
+        try self.init(Array(settings.joined()))
     }
 
-    init(_ settings: [BenchmarkSetting]) {
+    init(_ settings: [BenchmarkSetting]) throws {
         var iterations: Int = -1
+        var warmupIterations: Int = -1
+        var filter: String? = nil
 
         for setting in settings {
             switch setting {
             case .iterations(let value):
                 iterations = value
+            case .warmupIterations(let value):
+                warmupIterations = value
+            case .filter(let value):
+                filter = value
             }
         }
 
+        try self.init(
+            iterations: iterations,
+            warmupIterations: warmupIterations,
+            filter: filter)
+    }
+
+    init(iterations: Int, warmupIterations: Int, filter: String?) throws {
         self.iterations = iterations
+        self.warmupIterations = warmupIterations
+        self.filter = try BenchmarkFilter(filter)
     }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
-    .iterations(100000)
+    .iterations(100000),
+    .warmupIterations(1),
 ]
