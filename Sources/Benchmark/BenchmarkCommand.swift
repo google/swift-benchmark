@@ -26,6 +26,24 @@ internal struct BenchmarkCommand: ParsableCommand {
     @Option(help: "Number of iterations to run.")
     var iterations: Int?
 
+    @Option(help: "Number of warm-up iterations to run.")
+    var warmupIterations: Int?
+
+    var settings: [BenchmarkSetting] {
+        var result: [BenchmarkSetting] = []
+        result.append(.allowDebugBuild(allowDebugBuild))
+        if filter != nil {
+            result.append(.filter(filter!))
+        }
+        if iterations != nil {
+            result.append(.iterations(iterations!))
+        }
+        if warmupIterations != nil {
+            result.append(.warmupIterations(warmupIterations!))
+        }
+        return result
+    }
+
     mutating func validate() throws {
         var isDebug = false
         assert(
@@ -51,18 +69,6 @@ internal struct BenchmarkCommand: ParsableCommand {
     }
 
     var iterationsErrorMessage: String {
-        "Please make sure that number of iterations provided is a positive integer number."
-    }
-
-    var settings: [BenchmarkSetting] {
-        var result: [BenchmarkSetting] = []
-        result.append(.allowDebugBuild(allowDebugBuild))
-        if filter != nil {
-            result.append(.filter(filter!))
-        }
-        if iterations != nil {
-            result.append(.iterations(iterations!))
-        }
-        return result
+        "Please make sure that number of iterations is a positive integer number."
     }
 }

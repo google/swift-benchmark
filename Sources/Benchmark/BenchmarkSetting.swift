@@ -14,12 +14,14 @@
 
 public enum BenchmarkSetting {
     case iterations(Int)
+    case warmupIterations(Int)
     case filter(String)
     case allowDebugBuild(Bool)
 }
 
 struct BenchmarkSettings {
     let iterations: Int
+    let warmupIterations: Int
     let filter: BenchmarkFilter
     let allowDebugBuild: Bool
 
@@ -29,6 +31,7 @@ struct BenchmarkSettings {
 
     init(_ settings: [BenchmarkSetting]) throws {
         var iterations: Int = -1
+        var warmupIterations: Int = -1
         var filter: String? = nil
         var allowDebugBuild: Bool = false
 
@@ -36,6 +39,8 @@ struct BenchmarkSettings {
             switch setting {
             case .iterations(let value):
                 iterations = value
+            case .warmupIterations(let value):
+                warmupIterations = value
             case .filter(let value):
                 filter = value
             case .allowDebugBuild(let value):
@@ -43,11 +48,17 @@ struct BenchmarkSettings {
             }
         }
 
-        try self.init(iterations: iterations, filter: filter, allowDebugBuild: allowDebugBuild)
+        try self.init(
+            iterations: iterations, 
+            warmupIterations: warmupIterations,
+            filter: filter, 
+            allowDebugBuild: 
+            allowDebugBuild)
     }
 
-    init(iterations: Int, filter: String?, allowDebugBuild: Bool) throws {
+    init(iterations: Int, warmupIterations: Int, filter: String?, allowDebugBuild: Bool) throws {
         self.iterations = iterations
+        self.warmupIterations = warmupIterations
         self.filter = try BenchmarkFilter(filter)
         self.allowDebugBuild = allowDebugBuild
     }
@@ -55,5 +66,6 @@ struct BenchmarkSettings {
 
 let defaultSettings: [BenchmarkSetting] = [
     .iterations(100000),
+    .warmupIterations(1),
     .allowDebugBuild(false),
 ]
