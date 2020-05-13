@@ -21,7 +21,7 @@ protocol BenchmarkReporter {
 }
 
 struct PlainTextReporter: BenchmarkReporter {
-    mutating func report(running name: String, suite: String) {
+    func report(running name: String, suite: String) {
         let prefix: String
         if suite != "" {
             prefix = "\(suite): "
@@ -32,7 +32,7 @@ struct PlainTextReporter: BenchmarkReporter {
         fflush(stdout)  // Flush stdout to actually see the message...
     }
 
-    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
+    func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
         let timeDuration = String(format: "%.2f ms", Float(nanosTaken) / 1000000.0)
         print(" done! (\(timeDuration))")
     }
