@@ -32,10 +32,18 @@ final class BenchmarkRunnerTests: XCTestCase {
         XCTAssertEqual(Set(["suite1/b1"]), runBenchmarks(settings: settings))
     }
 
+    func testAutomaticallyDetectIterations() throws {
+        let settings: [BenchmarkSetting] = []
+        XCTAssertEqual(
+            Set(["suite2/b2", "suite2/b1", "suite1/b2", "suite1/b1"]),
+            runBenchmarks(settings: settings))
+    }
+
     static var allTests = [
         ("testFilterBenchmarksSuffix", testFilterBenchmarksSuffix),
         ("testFilterBenchmarksSuiteName", testFilterBenchmarksSuiteName),
         ("testFilterBenchmarksFullName", testFilterBenchmarksFullName),
+        ("testAutomaticallyDetectIterations", testAutomaticallyDetectIterations),
     ]
 }
 

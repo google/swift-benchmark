@@ -109,9 +109,9 @@ public struct BenchmarkRunner {
 
     /// Heuristic when to stop looking for new number of iterations, ported from google/benchmark.
     func hasCollectedEnoughData(_ measurements: [Double], settings: BenchmarkSettings) -> Bool {
-        let tooManyIterations = measurements.count > settings.maxIterations
+        let tooManyIterations = measurements.count >= settings.maxIterations
         let timeInSeconds = measurements.reduce(0, +) / 1000000000.0
-        let timeIsLargeEnough = timeInSeconds > settings.minTime
+        let timeIsLargeEnough = timeInSeconds >= settings.minTime
         return tooManyIterations || timeIsLargeEnough
     }
 
@@ -125,6 +125,7 @@ public struct BenchmarkRunner {
             measurements = doNIterations(n, benchmark: benchmark, suite: suite)
             if n != 1 && hasCollectedEnoughData(measurements, settings: settings) { break }
             n = predictNumberOfIterationsNeeded(measurements, settings: settings)
+            assert(n > measurements.count, "Number of iterations should increase with every retry.")
         }
 
         return measurements
