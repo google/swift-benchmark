@@ -14,29 +14,66 @@
 
 public enum BenchmarkSetting {
     case iterations(Int)
+    case maxIterations(Int)
+    case warmupIterations(Int)
+    case filter(String)
+    case minTime(seconds: Double)
 }
 
 struct BenchmarkSettings {
-    let iterations: Int
+    let iterations: Int?
+    let warmupIterations: Int?
+    let maxIterations: Int
+    let filter: BenchmarkFilter
+    let minTime: Double
 
-    init(_ settings: [[BenchmarkSetting]]) {
-        self.init(Array(settings.joined()))
+    init(_ settings: [[BenchmarkSetting]]) throws {
+        try self.init(Array(settings.joined()))
     }
 
-    init(_ settings: [BenchmarkSetting]) {
-        var iterations: Int = -1
+    init(_ settings: [BenchmarkSetting]) throws {
+        var iterations: Int? = nil
+        var warmupIterations: Int? = nil
+        var maxIterations: Int = -1
+        var filter: String? = nil
+        var minTime: Double = -1
 
         for setting in settings {
             switch setting {
             case .iterations(let value):
                 iterations = value
+            case .warmupIterations(let value):
+                warmupIterations = value
+            case .filter(let value):
+                filter = value
+            case .maxIterations(let value):
+                maxIterations = value
+            case .minTime(let value):
+                minTime = value
             }
         }
 
+        try self.init(
+            iterations: iterations,
+            warmupIterations: warmupIterations,
+            maxIterations: maxIterations,
+            filter: filter,
+            minTime: minTime)
+    }
+
+    init(
+        iterations: Int?, warmupIterations: Int?, maxIterations: Int, filter: String?,
+        minTime: Double
+    ) throws {
         self.iterations = iterations
+        self.warmupIterations = warmupIterations
+        self.maxIterations = maxIterations
+        self.filter = try BenchmarkFilter(filter)
+        self.minTime = minTime
     }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
-    .iterations(100000)
+    .maxIterations(1_000_000_000),
+    .minTime(seconds: 1.0),
 ]

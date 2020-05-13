@@ -18,18 +18,18 @@ import XCTest
 
 final class BenchmarkRunnerTests: XCTestCase {
     func testFilterBenchmarksSuffix() throws {
-        let options = try BenchmarkRunnerOptions(filter: "b1")
-        XCTAssertEqual(Set(["suite1/b1", "suite2/b1"]), runBenchmarks(options: options))
+        let settings: [BenchmarkSetting] = [.iterations(1), .filter("b1")]
+        XCTAssertEqual(Set(["suite1/b1", "suite2/b1"]), runBenchmarks(settings: settings))
     }
 
     func testFilterBenchmarksSuiteName() throws {
-        let options = try BenchmarkRunnerOptions(filter: "suite1")
-        XCTAssertEqual(Set(["suite1/b1", "suite1/b2"]), runBenchmarks(options: options))
+        let settings: [BenchmarkSetting] = [.iterations(1), .filter("suite1")]
+        XCTAssertEqual(Set(["suite1/b1", "suite1/b2"]), runBenchmarks(settings: settings))
     }
 
     func testFilterBenchmarksFullName() throws {
-        let options = try BenchmarkRunnerOptions(filter: "suite1/b1")
-        XCTAssertEqual(Set(["suite1/b1"]), runBenchmarks(options: options))
+        let settings: [BenchmarkSetting] = [.iterations(1), .filter("suite1/b1")]
+        XCTAssertEqual(Set(["suite1/b1"]), runBenchmarks(settings: settings))
     }
 
     static var allTests = [
@@ -40,9 +40,9 @@ final class BenchmarkRunnerTests: XCTestCase {
 }
 
 extension BenchmarkRunnerTests {
-    /// Builds and runs a few suites of benchmarks with provided options; returns the set of
+    /// Builds and runs a few suites of benchmarks with provided settings; returns the set of
     /// benchmark names that were run.
-    func runBenchmarks(options: BenchmarkRunnerOptions) -> Set<String> {
+    func runBenchmarks(settings: [BenchmarkSetting]) -> Set<String> {
         let suite1 = BenchmarkSuite(name: "suite1")
         let suite2 = BenchmarkSuite(name: "suite2")
 
@@ -55,9 +55,14 @@ extension BenchmarkRunnerTests {
 
         var runner = BenchmarkRunner(
             suites: [suite1, suite2],
+            settings: settings,
             reporter: BlackHoleReporter())
 
-        runner.run(options: options)
-        return benchmarksRun
+        do {
+            try runner.run()
+            return benchmarksRun
+        } catch {
+            return Set<String>()
+        }
     }
 }
