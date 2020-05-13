@@ -24,14 +24,11 @@ final class BenchmarkSettingTests: XCTestCase {
         cli settings: [BenchmarkSetting] = [.iterations(100000)]
     ) throws {
         var runner = BenchmarkRunner(suites: [suite], settings: settings, reporter: BlackHoleReporter())
-        do {
-            try runner.run()
-            XCTAssertEqual(runner.results.count, expected.count)
-            let counts = Array(runner.results.map(\.measurements.count))
-            XCTAssertEqual(counts, expected)
-        } catch {
-            XCTAssertTrue(false)
-        }
+
+        try runner.run()
+        XCTAssertEqual(runner.results.count, expected.count)
+        let counts = Array(runner.results.map(\.measurements.count))
+        XCTAssertEqual(counts, expected)
     }
 
     func testDefaultSetting() throws {
