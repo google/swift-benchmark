@@ -20,7 +20,7 @@ final class BenchmarkSettingTests: XCTestCase {
 
     func assertNumberOfIterations(suite: BenchmarkSuite, counts expected: [Int]) throws {
         let options = try BenchmarkRunnerOptions(filter: ".*")
-        var reporter = BlackHoleReporter()
+        let reporter = BlackHoleReporter()
         var runner = BenchmarkRunner(suites: [suite], reporter: reporter)
         runner.run(options: options)
 
