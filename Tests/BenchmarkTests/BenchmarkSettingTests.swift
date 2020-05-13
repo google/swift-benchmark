@@ -23,8 +23,7 @@ final class BenchmarkSettingTests: XCTestCase {
         counts expected: [Int],
         cli settings: [BenchmarkSetting] = [.iterations(100000)]
     ) throws {
-        let reporter = BlackHoleReporter()
-        var runner = BenchmarkRunner(suites: [suite], settings: settings, reporter: reporter)
+        var runner = BenchmarkRunner(suites: [suite], settings: settings, reporter: BlackHoleReporter())
 
         try runner.run()
         XCTAssertEqual(runner.results.count, expected.count)

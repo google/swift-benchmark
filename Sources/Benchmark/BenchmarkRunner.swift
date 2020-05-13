@@ -15,7 +15,7 @@
 public struct BenchmarkRunner {
     let suites: [BenchmarkSuite]
     let settings: [BenchmarkSetting]
-    let reporter: BenchmarkReporter
+    var reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
 
     init(suites: [BenchmarkSuite], settings: [BenchmarkSetting], reporter: BenchmarkReporter) {
@@ -50,6 +50,8 @@ public struct BenchmarkRunner {
         }
 
         reporter.report(running: benchmark.name, suite: suite.name)
+        var totalTime = BenchmarkClock()
+        totalTime.recordStart()
 
         if let n = settings.warmupIterations {
             let _ = doNIterations(n, benchmark: benchmark, suite: suite)
@@ -62,6 +64,9 @@ public struct BenchmarkRunner {
             measurements = doAdaptiveIterations(
                 benchmark: benchmark, suite: suite, settings: settings)
         }
+
+        totalTime.recordEnd()
+        reporter.report(finishedRunning: benchmark.name, suite: suite.name, nanosTaken: totalTime.elapsed)
 
         let result = BenchmarkResult(
             benchmarkName: benchmark.name,

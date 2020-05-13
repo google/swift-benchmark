@@ -15,8 +15,9 @@
 import Foundation
 
 protocol BenchmarkReporter {
-    func report(running name: String, suite: String)
-    func report(results: [BenchmarkResult])
+    mutating func report(running name: String, suite: String)
+    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
+    mutating func report(results: [BenchmarkResult])
 }
 
 struct PlainTextReporter: BenchmarkReporter {
@@ -27,7 +28,13 @@ struct PlainTextReporter: BenchmarkReporter {
         } else {
             prefix = ""
         }
-        print("running \(prefix)\(name)")
+        print("running \(prefix)\(name)...", terminator: "")
+        fflush(stdout)  // Flush stdout to actually see the message...
+    }
+
+    func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
+        let timeDuration = String(format: "%.2f ms", Float(nanosTaken) / 1000000.0)
+        print(" done! (\(timeDuration))")
     }
 
     func report(results: [BenchmarkResult]) {
