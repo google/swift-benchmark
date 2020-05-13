@@ -14,12 +14,6 @@
 
 import Foundation
 
-#if os(Linux)
-  import Glibc
-#else
-  import Darwin
-#endif
-
 protocol BenchmarkReporter {
     mutating func report(running name: String, suite: String)
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
