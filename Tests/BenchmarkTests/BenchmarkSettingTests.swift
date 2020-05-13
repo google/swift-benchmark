@@ -25,14 +25,11 @@ final class BenchmarkSettingTests: XCTestCase {
     ) throws {
         let reporter = BlackHoleReporter()
         var runner = BenchmarkRunner(suites: [suite], settings: settings, reporter: reporter)
-        do {
-            try runner.run()
-            XCTAssertEqual(runner.results.count, expected.count)
-            let counts = Array(runner.results.map(\.measurements.count))
-            XCTAssertEqual(counts, expected)
-        } catch {
-            XCTAssertTrue(false)
-        }
+
+        try runner.run()
+        XCTAssertEqual(runner.results.count, expected.count)
+        let counts = Array(runner.results.map(\.measurements.count))
+        XCTAssertEqual(counts, expected)
     }
 
     func testDefaultSetting() throws {
