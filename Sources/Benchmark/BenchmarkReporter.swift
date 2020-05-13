@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Dispatch
 import Foundation
 
 #if os(Linux)
@@ -23,15 +22,12 @@ import Foundation
 
 protocol BenchmarkReporter {
     mutating func report(running name: String, suite: String)
-    mutating func report(finishedRunning name: String, suite: String)
+    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
     mutating func report(results: [BenchmarkResult])
 }
 
 struct PlainTextReporter: BenchmarkReporter {
-    var benchmarkRunningState: (name: String, suite: String, startNanos: UInt64)? = nil
-
     mutating func report(running name: String, suite: String) {
-        assert(benchmarkRunningState == nil, "benchmark running state: \(benchmarkRunningState!)")
         let prefix: String
         if suite != "" {
             prefix = "\(suite): "
@@ -40,21 +36,10 @@ struct PlainTextReporter: BenchmarkReporter {
         }
         print("running \(prefix)\(name)...", terminator: "")
         fflush(stdout)  // Flush stdout to actually see the message...
-        benchmarkRunningState = (name, suite, DispatchTime.now().uptimeNanoseconds)
     }
 
-    mutating func report(finishedRunning name: String, suite: String) {
-        let end = DispatchTime.now().uptimeNanoseconds
-        assert(benchmarkRunningState != nil)
-        assert(
-            benchmarkRunningState!.name == name,
-            "Mismatch (name): \(name) vs \(benchmarkRunningState!)")
-        assert(
-            benchmarkRunningState!.suite == suite,
-            "Mismatch (suite): \(suite) vs \(benchmarkRunningState!)")
-        let delta = end - benchmarkRunningState!.startNanos
-        let timeDuration = String(format: "%.2f ms", Float(delta) / 1000000.0)
-        benchmarkRunningState = nil
+    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
+        let timeDuration = String(format: "%.2f ms", Float(nanosTaken) / 1000000.0)
         print(" done! (\(timeDuration))")
     }
 
