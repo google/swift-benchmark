@@ -24,7 +24,7 @@ more details on what options are available, pass either the `-h` or `--help` com
 
 Example:
 
-```bash
+```terminal
 $ swift run -c release BenchmarkMinimalExample -h
 [3/3] Linking BenchmarkMinimalExample
 USAGE: benchmark-command [--allow-debug-build] [--filter <filter>] [--iterations <iterations>] [--warmup-iterations <warmup-iterations>] [--min-time <min-time>] [--max-iterations <max-iterations>]
