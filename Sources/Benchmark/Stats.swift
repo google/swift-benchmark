@@ -14,55 +14,60 @@
 
 // Statistics utility functions, ported from google/benchmark.
 
-func sum(_ v: [Double]) -> Double {
-    var total: Double = 0
-    for x in v {
-        total += x
-    }
-    return total
-}
+// TODO: consider making these generic over more Collection and Element types.
+// For now, however, they are intentionally limited in scope.
+extension Array where Element == Double {
 
-func sumSquared(_ v: [Double]) -> Double {
-    var total: Double = 0
-    for x in v {
-        total += x * x
-    }
-    return total
-}
-
-func mean(_ v: [Double]) -> Double {
-    if v.count == 0 {
-        return 0
-    } else {
-        let invCount: Double = 1.0 / Double(v.count)
-        return sum(v) * invCount
-    }
-}
-
-func median(_ v: [Double]) -> Double {
-    guard v.count >= 2 else { return mean(v) }
-
-    // If we have odd number of elements, then
-    // center element is the median.
-    let sorted = v.sorted()
-    let center = v.count / 2
-    if v.count % 2 == 1 {
-        return sorted[center]
+    var sum: Double {
+        var total: Double = 0
+        for x in self {
+            total += x
+        }
+        return total
     }
 
-    // If have even number of elements we need
-    // to return an average between two middle elements.
-    let center2 = v.count / 2 - 1
-    return (sorted[center] + sorted[center2]) / 2
-}
+    var sumSquared: Double {
+        var total: Double = 0
+        for x in self {
+            total += x * x
+        }
+        return total
+    }
 
-func std(_ v: [Double]) -> Double {
-    let count = Double(v.count)
-    // Standard deviation is undefined for n = 0 or 1.
-    guard count > 0 else { return 0 }
-    guard count > 1 else { return 0 }
+    var mean: Double {
+        if count == 0 {
+            return 0
+        } else {
+            let invCount: Double = 1.0 / Double(count)
+            return sum * invCount
+        }
+    }
 
-    let meanValue = mean(v)
-    let avgSquares = sumSquared(v) * (1.0 / count)
-    return (count / (count - 1) * (avgSquares - meanValue * meanValue)).squareRoot()
+    var median: Double {
+        guard count >= 2 else { return mean }
+
+        // If we have odd number of elements, then
+        // center element is the median.
+        let s = self.sorted()
+        let center = count / 2
+        if count % 2 == 1 {
+            return s[center]
+        }
+
+        // If have even number of elements we need
+        // to return an average between two middle elements.
+        let center2 = count / 2 - 1
+        return (s[center] + s[center2]) / 2
+    }
+
+    var std: Double {
+        let c = Double(count)
+        // Standard deviation is undefined for n = 0 or 1.
+        guard c > 0 else { return 0 }
+        guard c > 1 else { return 0 }
+
+        let meanValue = mean
+        let avgSquares = sumSquared * (1.0 / c)
+        return (c / (c - 1) * (avgSquares - meanValue * meanValue)).squareRoot()
+    }
 }

@@ -52,8 +52,11 @@ struct PlainTextReporter: BenchmarkReporter {
                 name = result.benchmarkName
             }
             nameColumn.append(name)
-            timeColumn.append("\(median(result.measurements)) ns")
-            stdColumn.append("± \(String(format: "%.2f", std(result.measurements)))")
+            let median = result.measurements.median
+            let stddev = result.measurements.std
+            let stddevRatio = (stddev / median) * 100
+            timeColumn.append("\(median) ns")
+            stdColumn.append("± \(String(format: "%6.2f %%", stddevRatio))")
             iterationsColumn.append(String(result.measurements.count))
         }
 
