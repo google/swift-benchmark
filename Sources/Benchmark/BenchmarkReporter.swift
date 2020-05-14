@@ -53,7 +53,7 @@ struct PlainTextReporter: BenchmarkReporter {
             }
             nameColumn.append(name)
             timeColumn.append("\(median(result.measurements)) ns")
-            stdColumn.append("± \(std(result.measurements))")
+            stdColumn.append("± \(String(format: "%.2f", std(result.measurements)))")
             iterationsColumn.append(String(result.measurements.count))
         }
 
