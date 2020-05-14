@@ -18,10 +18,22 @@ public struct BenchmarkRunner {
     var reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
 
-    init(suites: [BenchmarkSuite], settings: [BenchmarkSetting], reporter: BenchmarkReporter) {
+    init(suites: [BenchmarkSuite], settings: [BenchmarkSetting]) {
         self.suites = suites
         self.settings = settings
-        self.reporter = reporter
+
+        var format: BenchmarkFormat = .console
+        for case .benchmarkFormat(let value) in settings {
+            format = value
+            break
+        }
+
+        switch format {
+        case .console:
+            self.reporter = PlainTextReporter()
+        case .json:
+            self.reporter = JSONReporter()
+        }
     }
 
     mutating func run() throws {

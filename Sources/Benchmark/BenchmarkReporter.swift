@@ -79,3 +79,28 @@ struct PlainTextReporter: BenchmarkReporter {
         }
     }
 }
+
+struct JSONReporter: BenchmarkReporter {
+    func report(running name: String, suite: String) {}
+
+    func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {}
+
+    func report(results: [BenchmarkResult]) {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+
+        if #available(macOS 10.12, *) {
+            encoder.dateEncodingStrategy = .iso8601
+        }
+
+        do {
+            let report = BenchmarkReport(results: results)
+            let data = try encoder.encode(report)
+            if let json = String(data: data, encoding: .utf8) {
+                print(json)
+            }
+        } catch {
+            fatalError("\(error)")
+        }
+    }
+}

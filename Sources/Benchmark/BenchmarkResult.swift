@@ -23,3 +23,18 @@ public struct BenchmarkResult {
         self.measurements = measurements
     }
 }
+
+extension BenchmarkResult: Encodable {
+    private enum CodingKeys: String, CodingKey {
+        case name
+        case iterations
+        case realTime = "real_time"
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode("\(suiteName)/\(benchmarkName)", forKey: .name)
+        try container.encode(measurements.count, forKey: .iterations)
+        try container.encode(sum(measurements), forKey: .realTime)
+    }
+}

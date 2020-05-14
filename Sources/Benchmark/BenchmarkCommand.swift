@@ -36,6 +36,9 @@ internal struct BenchmarkCommand: ParsableCommand {
         help: "Maximum number of iterations to run when automatically detecting number iterations.")
     var maxIterations: Int?
 
+    @Option(help: "Number of warm-up iterations to run.")
+    var benchmarkFormat: BenchmarkFormat?
+
     var settings: [BenchmarkSetting] {
         var result: [BenchmarkSetting] = []
 
@@ -54,6 +57,10 @@ internal struct BenchmarkCommand: ParsableCommand {
         if let value = maxIterations {
             result.append(.maxIterations(value))
         }
+        if let value = benchmarkFormat {
+            result.append(.benchmarkFormat(value))
+        }
+
 
         return result
     }
