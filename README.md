@@ -24,7 +24,7 @@ more details on what options are available, pass either the `-h` or `--help` com
 
 Example:
 
-```bash
+```terminal
 $ swift run -c release BenchmarkMinimalExample -h
 [3/3] Linking BenchmarkMinimalExample
 USAGE: benchmark-command [--allow-debug-build] [--filter <filter>] [--iterations <iterations>] [--warmup-iterations <warmup-iterations>] [--min-time <min-time>] [--max-iterations <max-iterations>]
@@ -40,10 +40,20 @@ OPTIONS:
   --max-iterations <max-iterations>
                           Maximum number of iterations to run when automatically detecting number iterations.
   -h, --help              Show help information.
+
+$ swift run -c release BenchmarkMinimalExample
+running add string no capacity... done! (1795.09 ms)
+running add string reserved capacity... done! (1815.80 ms)
+
+name                          time        std                  iterations
+-------------------------------------------------------------------------
+add string no capacity        35380.0 ns  ± 5035.122635576142  38603
+add string reserved capacity  37466.0 ns  ± 4940.675061813501  36990
 ```
 
-For more examples, see Sources/BenchmarkMinimalExample and
-Sources/BenchmarkSuiteExample.
+For more examples, see
+[Sources/BenchmarkMinimalExample](./Sources/BenchmarkMinimalExample) and
+[Sources/BenchmarkSuiteExample](./Sources/BenchmarkSuiteExample).
 
 ## Usage
 
