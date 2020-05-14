@@ -51,8 +51,9 @@ add string no capacity        35380.0 ns  ± 5035.122635576142  38603
 add string reserved capacity  37466.0 ns  ± 4940.675061813501  36990
 ```
 
-For more examples, see Sources/BenchmarkMinimalExample and
-Sources/BenchmarkSuiteExample.
+For more examples, see
+[Sources/BenchmarkMinimalExample](./Sources/BenchmarkMinimalExample) and
+[Sources/BenchmarkSuiteExample](./Sources/BenchmarkSuiteExample).
 
 ## Usage
 
