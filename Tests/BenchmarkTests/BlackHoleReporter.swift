@@ -15,6 +15,8 @@
 @testable import Benchmark
 
 struct BlackHoleReporter: BenchmarkReporter {
+    var columns: [Column]
+    
     func report(running name: String, suite: String) {}
     func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {}
     func report(results: [BenchmarkResult]) {}
