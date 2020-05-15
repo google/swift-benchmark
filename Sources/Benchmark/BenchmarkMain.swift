@@ -15,7 +15,7 @@
 public func main(_ suites: [BenchmarkSuite]) {
     let command = BenchmarkCommand.parseOrExit()
     let settings = command.settings
-    let reporter = PlainTextReporter()
+    let reporter = PlainTextReporter(columns: command.selectedColumns)
 
     var runner = BenchmarkRunner(
         suites: suites,

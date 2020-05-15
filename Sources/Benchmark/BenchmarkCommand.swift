@@ -15,6 +15,12 @@
 import ArgumentParser
 import Foundation
 
+public enum Column: String, ExpressibleByArgument {
+    case time
+    case std
+    case iterations
+}
+
 /// Allows dynamic configuration of the benchmark execution.
 internal struct BenchmarkCommand: ParsableCommand {
     @Flag(help: "Overrides check to verify optimized build.")
@@ -36,6 +42,9 @@ internal struct BenchmarkCommand: ParsableCommand {
         help: "Maximum number of iterations to run when automatically detecting number iterations.")
     var maxIterations: Int?
 
+    @Option(parsing: .upToNextOption, help: "Desired columns to be included in the output")
+    private var columns: [Column]
+
     var settings: [BenchmarkSetting] {
         var result: [BenchmarkSetting] = []
 
@@ -55,6 +64,12 @@ internal struct BenchmarkCommand: ParsableCommand {
             result.append(.maxIterations(value))
         }
 
+        return result
+    }
+    
+    var selectedColumns: [Column] {
+        let result = columns.count > 0 ? columns : [ .time, .std, .iterations]
+        
         return result
     }
 

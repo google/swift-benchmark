@@ -18,9 +18,14 @@ protocol BenchmarkReporter {
     mutating func report(running name: String, suite: String)
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
     mutating func report(results: [BenchmarkResult])
+    
+    var columns: [Column] { get set }
 }
 
 struct PlainTextReporter: BenchmarkReporter {
+    
+    var columns: [Column]
+    
     func report(running name: String, suite: String) {
         let prefix: String
         if suite != "" {
@@ -60,7 +65,24 @@ struct PlainTextReporter: BenchmarkReporter {
             iterationsColumn.append(String(result.measurements.count))
         }
 
-        let columns = [nameColumn, timeColumn, stdColumn, iterationsColumn]
+        // I dislike this but I can't think of a cleaner way
+        // that doesn't rely on the string rawValue of the enum
+        // and the first row of the columns matching up with this
+        var columns = [nameColumn]
+        for outFilter in self.columns {
+            switch outFilter
+            {
+            case .std:
+                columns.append(stdColumn)
+
+            case .time:
+                columns.append(timeColumn)
+
+            case .iterations:
+                columns.append(iterationsColumn)
+            }
+        }
+
         for column in columns {
             widths.append(column.map { $0.count }.max()!)
         }
