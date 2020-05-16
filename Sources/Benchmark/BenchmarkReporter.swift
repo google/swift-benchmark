@@ -14,6 +14,17 @@
 
 import Foundation
 
+extension String {
+    func leftPadding(toLength: Int, withPad: String) -> String {
+        let stringLength = self.count
+        if stringLength < toLength {
+            return String(repeating:withPad, count: toLength - stringLength) + self
+        } else {
+            return String(self.suffix(toLength))
+        }
+    }
+}
+
 protocol BenchmarkReporter {
     mutating func report(running name: String, suite: String)
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
@@ -69,8 +80,13 @@ struct PlainTextReporter: BenchmarkReporter {
         for index in 0...results.count {
             for columnIndex in 0..<columns.count {
                 let cell = columns[columnIndex][index]
-                let padded = cell.padding(
+                var padded = ""
+                if (index != 0 && columnIndex == 1) {
+                    padded = cell.leftPadding(toLength: widths[columnIndex], withPad:" ")
+                } else {
+                    padded = cell.padding(
                     toLength: widths[columnIndex], withPad: " ", startingAt: 0)
+                }
                 print(padded, terminator: "  ")
             }
             print("")
