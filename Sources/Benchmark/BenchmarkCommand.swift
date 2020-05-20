@@ -15,7 +15,7 @@
 import ArgumentParser
 import Foundation
 
-public enum Column: String, ExpressibleByArgument {
+public enum Column: String, ExpressibleByArgument, Decodable {
     case time
     case std
     case iterations
@@ -42,7 +42,7 @@ internal struct BenchmarkCommand: ParsableCommand {
         help: "Maximum number of iterations to run when automatically detecting number iterations.")
     var maxIterations: Int?
 
-    @Option(parsing: .upToNextOption, help: "Desired columns to be included in the output")
+    @Option(name: .customLong("show"), parsing: .upToNextOption, help: "Desired columns to be included in the output")
     private var columns: [Column]
 
     var settings: [BenchmarkSetting] {
