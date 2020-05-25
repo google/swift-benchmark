@@ -24,8 +24,9 @@ extension String {
             //When call fatalError(), stop all program (that include debug).
             //So return String in debug.
             return "Triggar fatalError"
-            #endif
+            #else
             fatalError("'toLength' must be greater than or equal to 'stringLength'.\n")
+            #endif
         }
     }
 }
