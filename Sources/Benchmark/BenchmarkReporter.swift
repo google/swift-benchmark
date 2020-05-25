@@ -14,24 +14,6 @@
 
 import Foundation
 
-extension String {
-    func leftPadding(toLength newLength: Int, withPad character: Character) -> String {
-        precondition(count <= newLength, "newLength must be greater than or equal to string length")
-        return String(repeating: character, count: newLength - count) + self
-    }
-}
-
-func paddingEachCell(cell: String, index: Int, columnIndex: Int, length: Int) -> String {
-    var paddedCell = ""
-    if index != 0 && columnIndex == 1 {
-        paddedCell = cell.leftPadding(toLength: length, withPad:" ")
-    } else {
-        paddedCell = cell.padding(
-            toLength: length, withPad: " ", startingAt: 0)
-    }
-    return paddedCell
-}
-
 protocol BenchmarkReporter {
     mutating func report(running name: String, suite: String)
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
@@ -39,6 +21,15 @@ protocol BenchmarkReporter {
 }
 
 struct PlainTextReporter: BenchmarkReporter {
+    enum Column: String, CaseIterable {
+        case name
+        case time
+        case standardDeviation = "std"
+        case iterations
+    }
+
+    typealias Row = [Column: String]
+
     func report(running name: String, suite: String) {
         let prefix: String
         if suite != "" {
@@ -56,11 +47,9 @@ struct PlainTextReporter: BenchmarkReporter {
     }
 
     func report(results: [BenchmarkResult]) {
-        var nameColumn = ["name"]
-        var timeColumn = ["time"]
-        var stdColumn = ["std"]
-        var iterationsColumn = ["iterations"]
-        var widths: [Int] = []
+        let header = Dictionary(uniqueKeysWithValues: Column.allCases.map { ($0, $0.rawValue) })
+
+        var rows: [Row] = [header]
 
         for result in results {
             let name: String
@@ -69,33 +58,51 @@ struct PlainTextReporter: BenchmarkReporter {
             } else {
                 name = result.benchmarkName
             }
-            nameColumn.append(name)
+
             let median = result.measurements.median
-            let stddev = result.measurements.std
-            let stddevRatio = (stddev / median) * 100
-            timeColumn.append("\(median) ns")
-            stdColumn.append("± \(String(format: "%6.2f %%", stddevRatio))")
-            iterationsColumn.append(String(result.measurements.count))
+            let standardDeviation = result.measurements.std
+
+            rows.append([
+                .name: name,
+                .time: "\(median) ns",
+                .standardDeviation: "± \(String(format: "%6.2f %%", (standardDeviation / median) * 100))",
+                .iterations: "\(result.measurements.count)"
+            ])
         }
 
-        let columns = [nameColumn, timeColumn, stdColumn, iterationsColumn]
-        for column in columns {
-            widths.append(column.map { $0.count }.max()!)
-        }
+        let widths: [Column: Int] = Dictionary(uniqueKeysWithValues:
+            Column.allCases.map { column in
+                (column, rows.compactMap {
+                    row in row[column]?.count }.max() ?? 0)
+            }
+        )
 
         print("")
-        for index in 0...results.count {
-            for columnIndex in 0..<columns.count {
-                let paddedCell = paddingEachCell(cell: columns[columnIndex][index],
-                    index: index, columnIndex: columnIndex, length: widths[columnIndex])
-                print(paddedCell, terminator: "  ")
+        for (index, row) in rows.enumerated() {
+            let components: [String] = Column.allCases.compactMap { column in
+                let string = row[column]!
+                let width = widths[column]!
+                switch column {
+                case .name, .standardDeviation, .iterations:
+                    return string.padding(toLength: width, withPad: " ", startingAt: 0)
+                case .time:
+                    return string.leftPadding(toLength: width, withPad:" ")
+                }
             }
-            print("")
+
+            let line = components.joined(separator: " ")
+            print(line)
+
             if index == 0 {
-                let len = widths.reduce(0, +) + (widths.count - 1) * 2
-                let line = "".padding(toLength: len, withPad: "-", startingAt: 0)
-                print(line)
+                print(String(repeating: "-", count: line.count))
             }
         }
+    }
+}
+
+fileprivate extension String {
+    func leftPadding(toLength newLength: Int, withPad character: Character) -> String {
+        precondition(count <= newLength, "newLength must be greater than or equal to string length")
+        return String(repeating: character, count: newLength - count) + self
     }
 }
