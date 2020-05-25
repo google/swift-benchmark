@@ -91,9 +91,9 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStr
                 let string = row[column]!
                 let width = widths[column]!
                 switch column {
-                case .name, .standardDeviation, .iterations:
+                case .name, .standardDeviation:
                     return string.padding(toLength: width, withPad: " ", startingAt: 0)
-                case .time:
+                case .time, .iterations:
                     return string.leftPadding(toLength: width, withPad:" ")
                 }
             }

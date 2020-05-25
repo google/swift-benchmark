@@ -32,8 +32,8 @@ final class BenchmarkReporterTests: XCTestCase {
         let expected = #"""
         name                   time std        iterations
         -------------------------------------------------
-        My Suite: fast    1500.0 ns ±  47.14 % 2
-        My Suite: slow 1500000.0 ns ±  47.14 % 2
+        My Suite: fast    1500.0 ns ±  47.14 %          2
+        My Suite: slow 1500000.0 ns ±  47.14 %          2
         """#.split(separator: "\n").map { String($0) }
 
 
