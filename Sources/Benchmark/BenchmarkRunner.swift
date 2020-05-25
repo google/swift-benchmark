@@ -137,9 +137,11 @@ public struct BenchmarkRunner {
         measurements.reserveCapacity(n)
 
         for _ in 1...n {
+            benchmark.setUp()
             clock.recordStart()
             benchmark.run()
             clock.recordEnd()
+            benchmark.tearDown()
             measurements.append(Double(clock.elapsed))
         }
 

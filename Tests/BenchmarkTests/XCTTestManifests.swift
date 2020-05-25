@@ -20,6 +20,7 @@ import XCTest
             testCase(BenchmarkCommandTests.allTests),
             testCase(BenchmarkRunnerTests.allTests),
             testCase(BenchmarkSettingTests.allTests),
+            testCase(CustomBenchmarkTests.allTests),
             testCase(StatsTests.allTests),
             testCase(BenchmarkReporterTests.allTests),
         ]
