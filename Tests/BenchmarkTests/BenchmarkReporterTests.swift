@@ -17,37 +17,33 @@ import XCTest
 @testable import Benchmark
 
 final class BenchmarkReporterTests: XCTestCase {
+    func testPlainTextReporter() throws {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(benchmarkName: "fast", suiteName: "My Suite", measurements: [1_000, 2_000]),
+            BenchmarkResult(benchmarkName: "slow", suiteName: "My Suite", measurements: [1_000_000, 2_000_000])
 
-    func testPaddingLeft() throws {
-        let testText = "testText"
-        XCTAssertEqual(testText.leftPadding(toLength: testText.count, withPad:" "), "testText")
-        XCTAssertEqual(testText.leftPadding(toLength: testText.count + 3, withPad:" "), "   testText")
-        XCTAssertEqual(testText.leftPadding(toLength: testText.count - 1, withPad:" "), "Triggar fatalError")
-    }
+        ]
 
-    func testPaddingEachCell() throws {
-        let dummyName = ["00", "10", "20"]
-        let dummyTime = ["01", "11", "21"]
-        let dummyStd = ["02", "12", "22"]
-        let dummyIterations = ["03", "13", "23"]
-        let columuns = [dummyName, dummyTime, dummyStd, dummyIterations]
+        let output = MockTextOutputStream()
+        var reporter = PlainTextReporter(to: output)
 
-        for index in 0..<dummyName.count {
-            for columnIndex in 0..<columuns.count {
-                let cell = columuns[columnIndex][index]
-                let paddedCell = paddingEachCell(cell: cell,
-                    index: index, columnIndex: columnIndex, length: cell.count + 1)
-                if index != 0 && columnIndex == 1 {
-                    XCTAssertEqual(paddedCell, " \(index)\(columnIndex)")
-                } else {
-                    XCTAssertEqual(paddedCell, "\(index)\(columnIndex) ")
-                }
-            }
+        reporter.report(results: results)
+
+        let expected = #"""
+        name           time         std        iterations
+        -------------------------------------------------
+        My Suite: fast    1500.0 ns ±  47.14 %          2
+        My Suite: slow 1500000.0 ns ±  47.14 %          2
+        """#.split(separator: "\n").map { String($0) }
+
+        let actual = output.lines.map {$0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                                 .filter { !$0.isEmpty}
+        for (expectedLine, actualLine) in zip(expected, actual) {
+            XCTAssertEqual(expectedLine, actualLine)
         }
     }
 
     static var allTests = [
-        ("testPaddingLeft", testPaddingLeft),
-        ("testPaddingEachCell", testPaddingEachCell)
+        ("PlainTextReporter", testPlainTextReporter),
     ]
 }

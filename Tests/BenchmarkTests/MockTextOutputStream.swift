@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public func main(_ suites: [BenchmarkSuite]) {
-    let command = BenchmarkCommand.parseOrExit()
-    let settings = command.settings
-    let reporter = PlainTextReporter(to: StdoutOutputStream())
+final class MockTextOutputStream: TextOutputStream {
+    public private(set) var lines: [String] = []
 
-    var runner = BenchmarkRunner(
-        suites: suites,
-        settings: settings,
-        reporter: reporter)
-    try! runner.run()
-}
-
-public func main() {
-    main([defaultBenchmarkSuite])
+    func write(_ string: String) {
+        guard !string.isEmpty else { return }
+        lines.append(string)
+    }
 }
