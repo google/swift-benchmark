@@ -111,7 +111,7 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStr
 
 struct StdoutOutputStream: TextOutputStream {
     mutating func write(_ string: String) {
-        print(string)
+        fputs(string, stdout)
     }
 }
 
