@@ -91,8 +91,9 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStr
                 let string = row[column]!
                 let width = widths[column]!
                 switch column {
-                case .name, .standardDeviation:
-                    return string.padding(toLength: width, withPad: " ", startingAt: 0)
+                case _ where index == 0,
+                     .name, .standardDeviation:
+                    return string.rightPadding(toLength: width, withPad:" ")
                 case .time, .iterations:
                     return string.leftPadding(toLength: width, withPad:" ")
                 }
@@ -118,5 +119,10 @@ fileprivate extension String {
     func leftPadding(toLength newLength: Int, withPad character: Character) -> String {
         precondition(count <= newLength, "newLength must be greater than or equal to string length")
         return String(repeating: character, count: newLength - count) + self
+    }
+
+    func rightPadding(toLength newLength: Int, withPad character: Character) -> String {
+        precondition(count <= newLength, "newLength must be greater than or equal to string length")
+        return self + String(repeating: character, count: newLength - count)
     }
 }

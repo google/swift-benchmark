@@ -30,19 +30,17 @@ final class BenchmarkReporterTests: XCTestCase {
         reporter.report(results: results)
 
         let expected = #"""
-        name                   time std        iterations
+        name           time         std        iterations
         -------------------------------------------------
         My Suite: fast    1500.0 ns ±  47.14 %          2
         My Suite: slow 1500000.0 ns ±  47.14 %          2
         """#.split(separator: "\n").map { String($0) }
-
 
         let actual = output.lines.map {$0.trimmingCharacters(in: .whitespacesAndNewlines) }
                                  .filter { !$0.isEmpty}
         for (expectedLine, actualLine) in zip(expected, actual) {
             XCTAssertEqual(expectedLine, actualLine)
         }
-
     }
 
     static var allTests = [
