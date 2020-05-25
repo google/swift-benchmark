@@ -29,12 +29,12 @@ final class BenchmarkReporterTests: XCTestCase {
 
         reporter.report(results: results)
 
-        let expected = """
-        name          \ttime        \tstd       \titerations
-        --------------\t------------\t----------\t----------
-        My Suite: fast\t   1500.0 ns\t±  47.14 %\t         2
-        My Suite: slow\t1500000.0 ns\t±  47.14 %\t         2
-        """.split(separator: "\n").map { String($0) }
+        let expected = #"""
+        name           time         std        iterations
+        -------------------------------------------------
+        My Suite: fast    1500.0 ns ±  47.14 %          2
+        My Suite: slow 1500000.0 ns ±  47.14 %          2
+        """#.split(separator: "\n").map { String($0) }
 
         let actual = output.lines.map {$0.trimmingCharacters(in: .whitespacesAndNewlines) }
                                  .filter { !$0.isEmpty}
