@@ -22,7 +22,6 @@ final class BenchmarkReporterTests: XCTestCase {
         let testText = "testText"
         XCTAssertEqual(testText.leftPadding(toLength: testText.count, withPad:" "), "testText")
         XCTAssertEqual(testText.leftPadding(toLength: testText.count + 3, withPad:" "), "   testText")
-        XCTAssertEqual(testText.leftPadding(toLength: testText.count - 1, withPad:" "), "Triggar fatalError")
     }
 
     func testPaddingEachCell() throws {

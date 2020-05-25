@@ -15,18 +15,9 @@
 import Foundation
 
 extension String {
-    func leftPadding(toLength: Int, withPad: String) -> String {
-        let stringLength = self.count
-        if stringLength <= toLength {
-            return String(repeating: withPad, count: toLength - stringLength) + self
-        } else {
-            #if DEBUG
-            //When call fatalError(), stop all program (that include debug).
-            //So return String in debug.
-            return "Triggar fatalError"
-            #endif
-            fatalError("'toLength' must be greater than or equal to 'stringLength'.\n")
-        }
+    func leftPadding(toLength newLength: Int, withPad character: Character) -> String {
+        precondition(count <= newLength, "newLength must be greater than or equal to string length")
+        return String(repeating: character, count: newLength - count) + self
     }
 }
 
