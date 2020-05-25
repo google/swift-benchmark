@@ -15,7 +15,14 @@
 public protocol AnyBenchmark {
     var name: String { get }
     var settings: [BenchmarkSetting] { get }
+    func setUp()
     func run()
+    func tearDown()
+}
+
+extension AnyBenchmark {
+    func setUp() {}
+    func tearDown() {}
 }
 
 internal class ClosureBenchmark: AnyBenchmark {
