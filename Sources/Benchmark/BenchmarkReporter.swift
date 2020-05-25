@@ -99,11 +99,13 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStr
                 }
             }
 
-            let line = components.joined(separator: " ")
+            let line = components.joined(separator: "\t")
             print(line, to: &output)
 
             if index == 0 {
-                print(String(repeating: "-", count: line.count), to: &output)
+                let separator = components.map { String(repeating: "-", count: $0.count) }
+                                          .joined(separator: "\t")
+                print(separator, to: &output)
             }
         }
     }
