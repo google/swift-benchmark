@@ -20,7 +20,7 @@ protocol BenchmarkReporter {
     mutating func report(results: [BenchmarkResult])
 }
 
-struct PlainTextReporter: BenchmarkReporter {
+struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStream {
     enum Column: String, CaseIterable {
         case name
         case time
@@ -30,23 +30,31 @@ struct PlainTextReporter: BenchmarkReporter {
 
     typealias Row = [Column: String]
 
-    func report(running name: String, suite: String) {
+    var output: Target
+
+    init(to output: Target) {
+        self.output = output
+    }
+
+    mutating func report(running name: String, suite: String) {
         let prefix: String
         if suite != "" {
             prefix = "\(suite): "
         } else {
             prefix = ""
         }
-        print("running \(prefix)\(name)...", terminator: "")
-        fflush(stdout)  // Flush stdout to actually see the message...
+        print("running \(prefix)\(name)...", terminator: "", to: &output)
+        if output is StdoutOutputStream {
+            fflush(stdout)  // Flush stdout to actually see the message...
+        }
     }
 
-    func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
+    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
         let timeDuration = String(format: "%.2f ms", Float(nanosTaken) / 1000000.0)
-        print(" done! (\(timeDuration))")
+        print(" done! (\(timeDuration))", to: &output)
     }
 
-    func report(results: [BenchmarkResult]) {
+    mutating func report(results: [BenchmarkResult]) {
         let header = Dictionary(uniqueKeysWithValues: Column.allCases.map { ($0, $0.rawValue) })
 
         var rows: [Row] = [header]
@@ -77,7 +85,7 @@ struct PlainTextReporter: BenchmarkReporter {
             }
         )
 
-        print("")
+        print("", to: &output)
         for (index, row) in rows.enumerated() {
             let components: [String] = Column.allCases.compactMap { column in
                 let string = row[column]!
@@ -91,12 +99,18 @@ struct PlainTextReporter: BenchmarkReporter {
             }
 
             let line = components.joined(separator: " ")
-            print(line)
+            print(line, to: &output)
 
             if index == 0 {
-                print(String(repeating: "-", count: line.count))
+                print(String(repeating: "-", count: line.count), to: &output)
             }
         }
+    }
+}
+
+struct StdoutOutputStream: TextOutputStream {
+    mutating func write(_ string: String) {
+        print(string)
     }
 }
 
