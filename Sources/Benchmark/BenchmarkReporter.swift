@@ -14,6 +14,33 @@
 
 import Foundation
 
+extension String {
+    func leftPadding(toLength: Int, withPad: String) -> String {
+        let stringLength = self.count
+        if stringLength <= toLength {
+            return String(repeating: withPad, count: toLength - stringLength) + self
+        } else {
+            #if DEBUG
+            //When call fatalError(), stop all program (that include debug).
+            //So return String in debug.
+            return "Triggar fatalError"
+            #endif
+            fatalError("'toLength' must be greater than or equal to 'stringLength'.\n")
+        }
+    }
+}
+
+func paddingEachCell(cell: String, index: Int, columnIndex: Int, length: Int) -> String {
+    var paddedCell = ""
+    if index != 0 && columnIndex == 1 {
+        paddedCell = cell.leftPadding(toLength: length, withPad:" ")
+    } else {
+        paddedCell = cell.padding(
+            toLength: length, withPad: " ", startingAt: 0)
+    }
+    return paddedCell
+}
+
 protocol BenchmarkReporter {
     mutating func report(running name: String, suite: String)
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
@@ -68,10 +95,9 @@ struct PlainTextReporter: BenchmarkReporter {
         print("")
         for index in 0...results.count {
             for columnIndex in 0..<columns.count {
-                let cell = columns[columnIndex][index]
-                let padded = cell.padding(
-                    toLength: widths[columnIndex], withPad: " ", startingAt: 0)
-                print(padded, terminator: "  ")
+                let paddedCell = paddingEachCell(cell: columns[columnIndex][index],
+                    index: index, columnIndex: columnIndex, length: widths[columnIndex])
+                print(paddedCell, terminator: "  ")
             }
             print("")
             if index == 0 {

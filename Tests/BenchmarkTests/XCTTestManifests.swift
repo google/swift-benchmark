@@ -21,6 +21,7 @@ import XCTest
             testCase(BenchmarkRunnerTests.allTests),
             testCase(BenchmarkSettingTests.allTests),
             testCase(StatsTests.allTests),
+            testCase(BenchmarkReporterTests.allTests),
         ]
     }
 #endif
