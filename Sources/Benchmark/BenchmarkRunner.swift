@@ -66,7 +66,8 @@ public struct BenchmarkRunner {
         }
 
         totalTime.recordEnd()
-        reporter.report(finishedRunning: benchmark.name, suite: suite.name, nanosTaken: totalTime.elapsed)
+        reporter.report(
+            finishedRunning: benchmark.name, suite: suite.name, nanosTaken: totalTime.elapsed)
 
         let result = BenchmarkResult(
             benchmarkName: benchmark.name,

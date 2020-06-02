@@ -62,6 +62,23 @@ public class BenchmarkSuite {
         let benchmark = ClosureBenchmark(name, settings: settings, closure: f)
         register(benchmark: benchmark)
     }
+
+    public var allTests: [(String, (Any) -> () -> Void)] {
+        var result: [(String, (Any) -> () -> Void)] = []
+
+        for benchmark in benchmarks {
+            let name = benchmark.name
+            let closure: (Any) -> () -> Void = { _ in
+                return {
+                    benchmark.run()
+                    return
+                }
+            }
+            result.append((name, closure))
+        }
+
+        return result
+    }
 }
 
 var defaultBenchmarkSuite = BenchmarkSuite(name: "")

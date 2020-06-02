@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Benchmark
+import BenchmarkSuiteExample
 import XCTest
 
-#if !canImport(ObjectiveC)
-    public func allTests() -> [XCTestCaseEntry] {
-        return [
-            testCase(BenchmarkCommandTests.allTests),
-            testCase(BenchmarkReporterTests.allTests),
-            testCase(BenchmarkRunnerTests.allTests),
-            testCase(BenchmarkSettingTests.allTests),
-            testCase(BenchmarkSuiteTests.allTests),
-            testCase(CustomBenchmarkTests.allTests),
-            testCase(StatsTests.allTests),
-        ]
-    }
-#endif
+final class BenchmarkSuiteTests: XCTestCase {
+    static var allTests = Benchmark.makeTests(
+        BenchmarkSuiteTests.self, suites: BenchmarkSuiteExample.suites)
+}

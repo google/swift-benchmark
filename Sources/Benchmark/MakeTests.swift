@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
+public func makeTests<T>(_ type: T.Type, suites: [BenchmarkSuite]) -> [(String, (T) -> () -> Void)]
+{
+    var result: [(String, (T) -> () -> Void)] = []
 
-#if !canImport(ObjectiveC)
-    public func allTests() -> [XCTestCaseEntry] {
-        return [
-            testCase(BenchmarkCommandTests.allTests),
-            testCase(BenchmarkReporterTests.allTests),
-            testCase(BenchmarkRunnerTests.allTests),
-            testCase(BenchmarkSettingTests.allTests),
-            testCase(BenchmarkSuiteTests.allTests),
-            testCase(CustomBenchmarkTests.allTests),
-            testCase(StatsTests.allTests),
-        ]
+    for suite in suites {
+        for benchmark in suite.benchmarks {
+            let name = "\(suite.name): \(benchmark.name)"
+            let closure: (T) -> () -> Void = { _ in
+                return {
+                    benchmark.run()
+                    return
+                }
+            }
+            result.append((name, closure))
+        }
     }
-#endif
+
+    return result
+}

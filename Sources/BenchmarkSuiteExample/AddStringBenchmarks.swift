@@ -14,7 +14,7 @@
 
 import Benchmark
 
-let addStringBenchmarks = BenchmarkSuite(name: "add string", settings: .iterations(10000)) {
+public let addStringBenchmarks = BenchmarkSuite(name: "add string", settings: .iterations(10000)) {
     suite in
     suite.benchmark("no capacity") {
         var x1: String = ""
