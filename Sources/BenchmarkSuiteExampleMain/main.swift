@@ -13,5 +13,6 @@
 // limitations under the License.
 
 import Benchmark
+import BenchmarkSuiteExample
 
-Benchmark.main([addStringBenchmarks])
+Benchmark.main(BenchmarkSuiteExample.suites)

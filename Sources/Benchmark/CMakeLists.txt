@@ -9,6 +9,7 @@ add_library(Benchmark
   BenchmarkRunner.swift
   BenchmarkSetting.swift
   BenchmarkSuite.swift
+  MakeTests.swift
   Stats.swift)
 # NOTE: workaround for CMake <3.17 which does not propagate the property
 set_target_properties(Benchmark PROPERTIES

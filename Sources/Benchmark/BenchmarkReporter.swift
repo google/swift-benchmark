@@ -20,7 +20,7 @@ protocol BenchmarkReporter {
     mutating func report(results: [BenchmarkResult])
 }
 
-struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStream {
+struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStream {
     enum Column: String, CaseIterable {
         case name
         case time
@@ -73,16 +73,22 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStr
             rows.append([
                 .name: name,
                 .time: "\(median) ns",
-                .standardDeviation: "± \(String(format: "%6.2f %%", (standardDeviation / median) * 100))",
-                .iterations: "\(result.measurements.count)"
+                .standardDeviation:
+                    "± \(String(format: "%6.2f %%", (standardDeviation / median) * 100))",
+                .iterations: "\(result.measurements.count)",
             ])
         }
 
-        let widths: [Column: Int] = Dictionary(uniqueKeysWithValues:
-            Column.allCases.map { column in
-                (column, rows.compactMap {
-                    row in row[column]?.count }.max() ?? 0)
-            }
+        let widths: [Column: Int] = Dictionary(
+            uniqueKeysWithValues:
+                Column.allCases.map { column in
+                    (
+                        column,
+                        rows.compactMap {
+                            row in row[column]?.count
+                        }.max() ?? 0
+                    )
+                }
         )
 
         print("", to: &output)
@@ -92,10 +98,10 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target : TextOutputStr
                 let width = widths[column]!
                 switch column {
                 case _ where index == 0,
-                     .name, .standardDeviation:
-                    return string.rightPadding(toLength: width, withPad:" ")
+                    .name, .standardDeviation:
+                    return string.rightPadding(toLength: width, withPad: " ")
                 case .time, .iterations:
-                    return string.leftPadding(toLength: width, withPad:" ")
+                    return string.leftPadding(toLength: width, withPad: " ")
                 }
             }
 
@@ -115,13 +121,13 @@ struct StdoutOutputStream: TextOutputStream {
     }
 }
 
-fileprivate extension String {
-    func leftPadding(toLength newLength: Int, withPad character: Character) -> String {
+extension String {
+    fileprivate func leftPadding(toLength newLength: Int, withPad character: Character) -> String {
         precondition(count <= newLength, "newLength must be greater than or equal to string length")
         return String(repeating: character, count: newLength - count) + self
     }
 
-    func rightPadding(toLength newLength: Int, withPad character: Character) -> String {
+    fileprivate func rightPadding(toLength newLength: Int, withPad character: Character) -> String {
         precondition(count <= newLength, "newLength must be greater than or equal to string length")
         return self + String(repeating: character, count: newLength - count)
     }

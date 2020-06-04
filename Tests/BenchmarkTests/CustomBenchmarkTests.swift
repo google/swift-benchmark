@@ -33,7 +33,7 @@ final class CustomBenchmarkTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testSetUpAndTearDown", testSetUpAndTearDown),
+        ("testSetUpAndTearDown", testSetUpAndTearDown)
     ]
 }
 
@@ -58,4 +58,3 @@ fileprivate class MockBenchmark: AnyBenchmark {
         didTearDown = true
     }
 }
-

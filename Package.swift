@@ -38,6 +38,6 @@ let package = Package(
             dependencies: ["Benchmark"]),
         .testTarget(
             name: "BenchmarkTests",
-            dependencies: ["Benchmark"]),
+            dependencies: ["Benchmark", "BenchmarkSuiteExample"]),
     ]
 )
