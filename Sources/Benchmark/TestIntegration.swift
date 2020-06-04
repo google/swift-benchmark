@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// Run each benchmark once, to make them work as tests. 
 public func runTests(suites: [BenchmarkSuite]) {
     for suite in suites {
         for benchmark in suite.benchmarks {
@@ -20,6 +21,7 @@ public func runTests(suites: [BenchmarkSuite]) {
     }
 }
 
+/// Create a sequence of tests that can be used for XCTest.allTests.
 public func makeTests<T>(_ type: T.Type, suites: [BenchmarkSuite]) -> [(String, (T) -> () -> Void)]
 {
     var result: [(String, (T) -> () -> Void)] = []
