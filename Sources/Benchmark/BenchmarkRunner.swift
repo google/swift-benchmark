@@ -134,17 +134,22 @@ public struct BenchmarkRunner {
     }
 
     func doNIterations(_ n: Int, benchmark: AnyBenchmark, suite: BenchmarkSuite) -> [Double] {
-        var clock = BenchmarkClock()
+        var state = BenchmarkState(iterations: n)
         var measurements: [Double] = []
         measurements.reserveCapacity(n)
+        var clock: BenchmarkClock = BenchmarkClock()
 
         for _ in 1...n {
             benchmark.setUp()
             clock.recordStart()
-            benchmark.run()
+            benchmark.run(&state)
             clock.recordEnd()
             benchmark.tearDown()
-            measurements.append(Double(clock.elapsed))
+            if state.measurements.count > 0 {
+                return state.measurements
+            } else {
+                measurements.append(Double(clock.elapsed))
+            }
         }
 
         return measurements

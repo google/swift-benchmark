@@ -12,32 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Dispatch
-
-struct BenchmarkClock {
-    var start: UInt64 = 0
-    var end: UInt64 = 0
+public struct BenchmarkState {
+    var iterations: Int
+    var measurements: [Double]
 
     @inline(__always)
-    init() {}
-
-    @inline(__always)
-    static func now() -> UInt64 {
-        return DispatchTime.now().uptimeNanoseconds
+    init(iterations: Int) {
+        self.iterations = iterations
+        self.measurements = []
     }
 
     @inline(__always)
-    mutating func recordStart() {
-        start = BenchmarkClock.now()
-    }
+    public mutating func measure(f: () -> ()) {
+        var result: [Double] = []
+        result.reserveCapacity(iterations)
+        var clock: BenchmarkClock = BenchmarkClock()
 
-    @inline(__always)
-    mutating func recordEnd() {
-        end = BenchmarkClock.now()
-    }
+        for _ in 1...iterations {
+            clock.recordStart()
+            f()
+            clock.recordEnd()
+            result.append(Double(clock.elapsed))
+        }
 
-    @inline(__always)
-    var elapsed: UInt64 {
-        return end - start
+        self.measurements = result
     }
 }

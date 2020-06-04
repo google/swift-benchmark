@@ -16,7 +16,8 @@
 public func runTests(suites: [BenchmarkSuite]) {
     for suite in suites {
         for benchmark in suite.benchmarks {
-            benchmark.run()
+            var state = BenchmarkState(iterations: 1)
+            benchmark.run(&state)
         }
     }
 }
@@ -31,7 +32,8 @@ public func makeTests<T>(_ type: T.Type, suites: [BenchmarkSuite]) -> [(String, 
             let name = "\(suite.name): \(benchmark.name)"
             let closure: (T) -> () -> Void = { _ in
                 return {
-                    benchmark.run()
+                    var state = BenchmarkState(iterations: 1)
+                    benchmark.run(&state)
                     return
                 }
             }

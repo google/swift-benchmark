@@ -16,7 +16,7 @@ public protocol AnyBenchmark {
     var name: String { get }
     var settings: [BenchmarkSetting] { get }
     func setUp()
-    func run()
+    func run(_ state: inout BenchmarkState)
     func tearDown()
 }
 
@@ -36,8 +36,24 @@ internal class ClosureBenchmark: AnyBenchmark {
         self.closure = closure
     }
 
-    func run() {
+    func run(_ state: inout BenchmarkState) {
         return self.closure()
+    }
+}
+
+internal class InoutClosureBenchmark: AnyBenchmark {
+    let name: String
+    let settings: [BenchmarkSetting]
+    let closure: (inout BenchmarkState) -> Void
+
+    init(_ name: String, settings: [BenchmarkSetting], closure: @escaping (inout BenchmarkState) -> Void) {
+        self.name = name
+        self.settings = settings
+        self.closure = closure
+    }
+
+    func run(_ state: inout BenchmarkState) {
+        return self.closure(&state)
     }
 }
 
@@ -45,8 +61,19 @@ public func benchmark(_ name: String, function: @escaping () -> Void) {
     defaultBenchmarkSuite.benchmark(name, function: function)
 }
 
+public func benchmark(_ name: String, function: @escaping (inout BenchmarkState) -> Void) {
+    defaultBenchmarkSuite.benchmark(name, function: function)
+}
+
 public func benchmark(
     _ name: String, settings: BenchmarkSetting..., function: @escaping () -> Void
+) {
+    defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
+}
+
+
+public func benchmark(
+    _ name: String, settings: BenchmarkSetting..., function: @escaping (inout BenchmarkState) -> Void
 ) {
     defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
 }

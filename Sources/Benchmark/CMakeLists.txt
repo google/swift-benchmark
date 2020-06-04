@@ -9,6 +9,7 @@ add_library(Benchmark
   BenchmarkResult.swift
   BenchmarkRunner.swift
   BenchmarkSetting.swift
+  BenchmarkState.swift
   BenchmarkSuite.swift
   MakeTests.swift
   Stats.swift)

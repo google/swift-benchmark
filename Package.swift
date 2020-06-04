@@ -16,6 +16,8 @@
 
 import PackageDescription
 
+let optimize = [SwiftSetting.unsafeFlags(["-cross-module-optimization", "-O"])]
+
 let package = Package(
     name: "Benchmark",
     products: [
@@ -29,15 +31,19 @@ let package = Package(
     targets: [
         .target(
             name: "Benchmark",
-            dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser")]),
+            dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser")],
+            swiftSettings: optimize),
         .target(
             name: "BenchmarkMinimalExample",
-            dependencies: ["Benchmark"]),
+            dependencies: ["Benchmark"],
+            swiftSettings: optimize),
         .target(
             name: "BenchmarkSuiteExample",
-            dependencies: ["Benchmark"]),
+            dependencies: ["Benchmark"],
+            swiftSettings: optimize),
         .testTarget(
             name: "BenchmarkTests",
-            dependencies: ["Benchmark", "BenchmarkSuiteExample"]),
+            dependencies: ["Benchmark", "BenchmarkSuiteExample"],
+            swiftSettings: optimize),
     ]
 )
