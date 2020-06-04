@@ -28,9 +28,10 @@ final class BenchmarkSettingTests: XCTestCase {
 
         try runner.run()
         XCTAssertEqual(runner.results.count, expected.count)
-        let counts = Array(runner.results.map { result in
-            result.measurements.count
-        })
+        let counts = Array(
+            runner.results.map { result in
+                result.measurements.count
+            })
         XCTAssertEqual(counts, expected)
     }
 

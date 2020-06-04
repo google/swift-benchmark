@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 public func runTests(suites: [BenchmarkSuite]) {
     for suite in suites {
         for benchmark in suite.benchmarks {
