@@ -39,6 +39,27 @@ final class BenchmarkRunnerTests: XCTestCase {
             runBenchmarks(settings: settings))
     }
 
+    func testStateMeasure() throws {
+        let suite = BenchmarkSuite(name: "Suite")
+        suite.benchmark("noop") {}
+        suite.benchmark("state measure noop") { state in
+            state.measure {}
+        }
+
+        var runner = BenchmarkRunner(
+            suites: [suite],
+            settings: [.iterations(100000)],
+            reporter: BlackHoleReporter())
+        try runner.run()
+
+        let noopResults = runner.results[0].measurements
+        let measureNoopResults = runner.results[1].measurements
+
+        XCTAssertEqual(noopResults.count, 100000)
+        XCTAssertEqual(measureNoopResults.count, 100000)
+        XCTAssertTrue(noopResults.sum > measureNoopResults.sum)
+    }
+
     static var allTests = [
         ("testFilterBenchmarksSuffix", testFilterBenchmarksSuffix),
         ("testFilterBenchmarksSuiteName", testFilterBenchmarksSuiteName),

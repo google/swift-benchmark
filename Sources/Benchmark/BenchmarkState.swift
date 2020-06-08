@@ -23,7 +23,7 @@ public struct BenchmarkState {
     }
 
     @inline(__always)
-    public mutating func measure(f: () -> ()) {
+    public mutating func measure(f: () -> Void) {
         var result: [Double] = []
         result.reserveCapacity(iterations)
         var clock: BenchmarkClock = BenchmarkClock()

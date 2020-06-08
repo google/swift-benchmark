@@ -46,7 +46,10 @@ internal class InoutClosureBenchmark: AnyBenchmark {
     let settings: [BenchmarkSetting]
     let closure: (inout BenchmarkState) -> Void
 
-    init(_ name: String, settings: [BenchmarkSetting], closure: @escaping (inout BenchmarkState) -> Void) {
+    init(
+        _ name: String, settings: [BenchmarkSetting],
+        closure: @escaping (inout BenchmarkState) -> Void
+    ) {
         self.name = name
         self.settings = settings
         self.closure = closure
@@ -71,9 +74,9 @@ public func benchmark(
     defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
 }
 
-
 public func benchmark(
-    _ name: String, settings: BenchmarkSetting..., function: @escaping (inout BenchmarkState) -> Void
+    _ name: String, settings: BenchmarkSetting...,
+    function: @escaping (inout BenchmarkState) -> Void
 ) {
     defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
 }
