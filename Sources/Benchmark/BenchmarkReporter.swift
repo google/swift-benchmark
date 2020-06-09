@@ -27,6 +27,7 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
         case std
         case iterations
         case counter(String)
+        case warmup
     }
 
     func title(_ column: Column) -> String {
@@ -36,6 +37,7 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
         case .std: return "std"
         case .iterations: return "iterations"
         case .counter(let name): return name
+        case .warmup: return "warmup"
         }
     }
 
@@ -66,14 +68,19 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
     }
 
     mutating func report(results: [BenchmarkResult]) {
+        var showWarmup = false
         var counters: Set<String> = Set()
         for result in results {
+            showWarmup = showWarmup || result.warmupMeasurements.count > 0
             for name in result.counters.keys {
                 counters.insert(name)
             }
         }
 
         var columns: [Column] = [.name, .time, .std, .iterations]
+        if showWarmup {
+            columns.append(.warmup)
+        }
         for counter in counters {
             columns.append(.counter(counter))
         }
@@ -96,6 +103,10 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
                 .std: "± \(String(format: "%6.2f %%", (std / median) * 100))",
                 .iterations: "\(result.measurements.count)",
             ]
+            if showWarmup {
+                let warmup = result.warmupMeasurements
+                row[.warmup] = warmup.count > 0 ? "\(warmup.sum) ns" : ""
+            }
             for counter in counters {
                 if let value = result.counters[counter] {
                     row[.counter(counter)] = "\(value)"
@@ -128,7 +139,7 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
                 case _ where index == 0,
                     .name, .std:
                     return string.rightPadding(toLength: width, withPad: " ")
-                case .time, .iterations, .counter(_):
+                case .time, .iterations, .counter(_), .warmup:
                     return string.leftPadding(toLength: width, withPad: " ")
                 }
             }
