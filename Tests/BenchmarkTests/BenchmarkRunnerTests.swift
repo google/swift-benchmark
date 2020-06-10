@@ -39,25 +39,43 @@ final class BenchmarkRunnerTests: XCTestCase {
             runBenchmarks(settings: settings))
     }
 
-    func testStateMeasure() throws {
+    func testCustomMeasurements() throws {
         let suite = BenchmarkSuite(name: "Suite")
-        suite.benchmark("noop") {}
-        suite.benchmark("state measure noop") { state in
-            state.measure {}
+
+        suite.benchmark("noop") {
+        }
+
+        suite.benchmark("start/end noop") { state in
+            state.start()
+            try state.end()
+        }
+
+        suite.benchmark("measure noop") { state in
+            try state.measure {
+            }
+        }
+
+        suite.benchmark("measure/while noop") { state in
+            while true {
+                try state.measure {
+                }
+            }
         }
 
         var runner = BenchmarkRunner(
             suites: [suite],
-            settings: [.iterations(100000)],
+            settings: [Iterations(100000)],
             reporter: BlackHoleReporter())
         try runner.run()
 
         let noopResults = runner.results[0].measurements
-        let measureNoopResults = runner.results[1].measurements
+        let customResults = runner.results.map { $0.measurements }.dropFirst()
 
         XCTAssertEqual(noopResults.count, 100000)
-        XCTAssertEqual(measureNoopResults.count, 100000)
-        XCTAssertTrue(noopResults.sum > measureNoopResults.sum)
+        for customResult in customResults {
+            XCTAssertEqual(customResult.count, 100000)
+            XCTAssertTrue(noopResults.sum > customResult.sum)
+        }
     }
 
     static var allTests = [

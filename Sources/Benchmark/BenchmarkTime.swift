@@ -14,30 +14,7 @@
 
 import Dispatch
 
-struct BenchmarkClock {
-    var start: UInt64 = 0
-    var end: UInt64 = 0
-
-    @inline(__always)
-    init() {}
-
-    @inline(__always)
-    static func now() -> UInt64 {
-        return DispatchTime.now().uptimeNanoseconds
-    }
-
-    @inline(__always)
-    mutating func recordStart() {
-        start = BenchmarkClock.now()
-    }
-
-    @inline(__always)
-    mutating func recordEnd() {
-        end = BenchmarkClock.now()
-    }
-
-    @inline(__always)
-    var elapsed: UInt64 {
-        return end - start
-    }
+@inline(__always)
+func now() -> UInt64 {
+    return DispatchTime.now().uptimeNanoseconds
 }

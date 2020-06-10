@@ -12,29 +12,84 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+struct Termination: Error {}
+
 public struct BenchmarkState {
-    var iterations: Int
+    public let settings: BenchmarkSettings
+    let iterations: Int
+    var startTime: UInt64
+    var endTime: UInt64
     var measurements: [Double]
 
     @inline(__always)
-    init(iterations: Int) {
+    init(iterations: Int, settings: BenchmarkSettings) {
         self.iterations = iterations
+        self.settings = settings
+        self.startTime = 0
+        self.endTime = 0
         self.measurements = []
+        self.measurements.reserveCapacity(iterations)
     }
 
     @inline(__always)
-    public mutating func measure(f: () -> Void) {
-        var result: [Double] = []
-        result.reserveCapacity(iterations)
-        var clock: BenchmarkClock = BenchmarkClock()
+    mutating func reset() {
+        self.startTime = 0
+        self.endTime = 0
+    }
 
-        for _ in 1...iterations {
-            clock.recordStart()
-            f()
-            clock.recordEnd()
-            result.append(Double(clock.elapsed))
+    @inline(__always)
+    public mutating func start() {
+        self.reset()
+        self.startTime = now()
+    }
+
+    @inline(__always)
+    public mutating func end() throws {
+        let value = now()
+        if self.endTime == 0 {
+            self.endTime = value
+            try record()
         }
+    }
 
-        self.measurements = result
+    @inline(__always)
+    mutating func record() throws {
+        if measurements.count < iterations {
+            measurements.append(self.duration)
+        } else {
+            throw Termination()
+        }
+    }
+
+    @inline(__always)
+    var duration: Double {
+        return Double(self.endTime - self.startTime)
+    }
+
+    @inline(__always)
+    mutating func loop(_ benchmark: AnyBenchmark) throws {
+        while true {
+            benchmark.setUp()
+            start()
+            try benchmark.run(&self)
+            try end()
+            benchmark.tearDown()
+        }
+    }
+
+    @inline(__always)
+    public mutating func loop(f: () -> Void) throws {
+        while true {
+            start()
+            f()
+            try end()
+        }
+    }
+
+    @inline(__always)
+    public mutating func measure(f: () -> Void) throws {
+        start()
+        f()
+        try end()
     }
 }

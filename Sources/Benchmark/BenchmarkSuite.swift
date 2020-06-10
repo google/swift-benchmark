@@ -44,18 +44,20 @@ public class BenchmarkSuite {
         benchmarks.append(benchmark)
     }
 
-    public func benchmark(_ name: String, function f: @escaping () -> Void) {
+    public func benchmark(_ name: String, function f: @escaping () throws -> Void) {
         let benchmark = ClosureBenchmark(name, settings: [], closure: f)
         register(benchmark: benchmark)
     }
 
-    public func benchmark(_ name: String, function f: @escaping (inout BenchmarkState) -> Void) {
+    public func benchmark(
+        _ name: String, function f: @escaping (inout BenchmarkState) throws -> Void
+    ) {
         let benchmark = InoutClosureBenchmark(name, settings: [], closure: f)
         register(benchmark: benchmark)
     }
 
     public func benchmark(
-        _ name: String, settings: BenchmarkSetting..., function f: @escaping () -> Void
+        _ name: String, settings: BenchmarkSetting..., function f: @escaping () throws -> Void
     ) {
         let benchmark = ClosureBenchmark(name, settings: settings, closure: f)
         register(benchmark: benchmark)
@@ -63,14 +65,14 @@ public class BenchmarkSuite {
 
     public func benchmark(
         _ name: String, settings: BenchmarkSetting...,
-        function f: @escaping (inout BenchmarkState) -> Void
+        function f: @escaping (inout BenchmarkState) throws -> Void
     ) {
         let benchmark = InoutClosureBenchmark(name, settings: settings, closure: f)
         register(benchmark: benchmark)
     }
 
     public func benchmark(
-        _ name: String, settings: [BenchmarkSetting], function f: @escaping () -> Void
+        _ name: String, settings: [BenchmarkSetting], function f: @escaping () throws -> Void
     ) {
         let benchmark = ClosureBenchmark(name, settings: settings, closure: f)
         register(benchmark: benchmark)
@@ -78,7 +80,7 @@ public class BenchmarkSuite {
 
     public func benchmark(
         _ name: String, settings: [BenchmarkSetting],
-        function f: @escaping (inout BenchmarkState) -> Void
+        function f: @escaping (inout BenchmarkState) throws -> Void
     ) {
         let benchmark = InoutClosureBenchmark(name, settings: settings, closure: f)
         register(benchmark: benchmark)

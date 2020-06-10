@@ -16,7 +16,7 @@ public protocol AnyBenchmark {
     var name: String { get }
     var settings: [BenchmarkSetting] { get }
     func setUp()
-    func run(_ state: inout BenchmarkState)
+    func run(_ state: inout BenchmarkState) throws
     func tearDown()
 }
 
@@ -28,55 +28,55 @@ extension AnyBenchmark {
 internal class ClosureBenchmark: AnyBenchmark {
     let name: String
     let settings: [BenchmarkSetting]
-    let closure: () -> Void
+    let closure: () throws -> Void
 
-    init(_ name: String, settings: [BenchmarkSetting], closure: @escaping () -> Void) {
+    init(_ name: String, settings: [BenchmarkSetting], closure: @escaping () throws -> Void) {
         self.name = name
         self.settings = settings
         self.closure = closure
     }
 
-    func run(_ state: inout BenchmarkState) {
-        return self.closure()
+    func run(_ state: inout BenchmarkState) throws {
+        return try self.closure()
     }
 }
 
 internal class InoutClosureBenchmark: AnyBenchmark {
     let name: String
     let settings: [BenchmarkSetting]
-    let closure: (inout BenchmarkState) -> Void
+    let closure: (inout BenchmarkState) throws -> Void
 
     init(
         _ name: String, settings: [BenchmarkSetting],
-        closure: @escaping (inout BenchmarkState) -> Void
+        closure: @escaping (inout BenchmarkState) throws -> Void
     ) {
         self.name = name
         self.settings = settings
         self.closure = closure
     }
 
-    func run(_ state: inout BenchmarkState) {
-        return self.closure(&state)
+    func run(_ state: inout BenchmarkState) throws {
+        return try self.closure(&state)
     }
 }
 
-public func benchmark(_ name: String, function: @escaping () -> Void) {
+public func benchmark(_ name: String, function: @escaping () throws -> Void) {
     defaultBenchmarkSuite.benchmark(name, function: function)
 }
 
-public func benchmark(_ name: String, function: @escaping (inout BenchmarkState) -> Void) {
+public func benchmark(_ name: String, function: @escaping (inout BenchmarkState) throws -> Void) {
     defaultBenchmarkSuite.benchmark(name, function: function)
 }
 
 public func benchmark(
-    _ name: String, settings: BenchmarkSetting..., function: @escaping () -> Void
+    _ name: String, settings: BenchmarkSetting..., function: @escaping () throws -> Void
 ) {
     defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
 }
 
 public func benchmark(
     _ name: String, settings: BenchmarkSetting...,
-    function: @escaping (inout BenchmarkState) -> Void
+    function: @escaping (inout BenchmarkState) throws -> Void
 ) {
     defaultBenchmarkSuite.benchmark(name, settings: settings, function: function)
 }
