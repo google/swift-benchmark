@@ -18,17 +18,17 @@ import XCTest
 
 final class BenchmarkRunnerTests: XCTestCase {
     func testFilterBenchmarksSuffix() throws {
-        let settings: [BenchmarkSetting] = [.iterations(1), .filter("b1")]
+        let settings: [BenchmarkSetting] = [Iterations(1), Filter("b1")]
         XCTAssertEqual(Set(["suite1/b1", "suite2/b1"]), runBenchmarks(settings: settings))
     }
 
     func testFilterBenchmarksSuiteName() throws {
-        let settings: [BenchmarkSetting] = [.iterations(1), .filter("suite1")]
+        let settings: [BenchmarkSetting] = [Iterations(1), Filter("suite1")]
         XCTAssertEqual(Set(["suite1/b1", "suite1/b2"]), runBenchmarks(settings: settings))
     }
 
     func testFilterBenchmarksFullName() throws {
-        let settings: [BenchmarkSetting] = [.iterations(1), .filter("suite1/b1")]
+        let settings: [BenchmarkSetting] = [Iterations(1), Filter("suite1/b1")]
         XCTAssertEqual(Set(["suite1/b1"]), runBenchmarks(settings: settings))
     }
 

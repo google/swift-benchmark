@@ -12,68 +12,106 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public enum BenchmarkSetting {
-    case iterations(Int)
-    case maxIterations(Int)
-    case warmupIterations(Int)
-    case filter(String)
-    case minTime(seconds: Double)
+public protocol BenchmarkSetting {}
+
+public struct Iterations: BenchmarkSetting {
+    public var value: Int
+    public init(_ value: Int) {
+        self.value = value
+    }
 }
 
-struct BenchmarkSettings {
-    let iterations: Int?
-    let warmupIterations: Int?
-    let maxIterations: Int
-    let filter: BenchmarkFilter
-    let minTime: Double
+public struct MaxIterations: BenchmarkSetting {
+    public var value: Int
+    public init(_ value: Int) {
+        self.value = value
+    }
+}
 
-    init(_ settings: [[BenchmarkSetting]]) throws {
-        try self.init(Array(settings.joined()))
+public struct WarmupIterations: BenchmarkSetting {
+    public var value: Int
+    public init(_ value: Int) {
+        self.value = value
+    }
+}
+
+public struct Filter: BenchmarkSetting {
+    public var value: String
+    public init(_ value: String) {
+        self.value = value
+    }
+}
+
+public struct MinTime: BenchmarkSetting {
+    public var value: Double
+    public init(seconds value: Double) {
+        self.value = value
+    }
+}
+
+public struct BenchmarkSettings {
+    let settings: [String: Any]
+
+    public init(_ settings: [[BenchmarkSetting]]) {
+        self.init(Array(settings.joined()))
     }
 
-    init(_ settings: [BenchmarkSetting]) throws {
-        var iterations: Int? = nil
-        var warmupIterations: Int? = nil
-        var maxIterations: Int = -1
-        var filter: String? = nil
-        var minTime: Double = -1
+    public init(_ settings: [BenchmarkSetting]) {
+        var result: [String: BenchmarkSetting] = [:]
 
         for setting in settings {
-            switch setting {
-            case .iterations(let value):
-                iterations = value
-            case .warmupIterations(let value):
-                warmupIterations = value
-            case .filter(let value):
-                filter = value
-            case .maxIterations(let value):
-                maxIterations = value
-            case .minTime(let value):
-                minTime = value
-            }
+            let key = String(describing: type(of: setting))
+            result[key] = setting
         }
 
-        try self.init(
-            iterations: iterations,
-            warmupIterations: warmupIterations,
-            maxIterations: maxIterations,
-            filter: filter,
-            minTime: minTime)
+        self.init(result)
     }
 
-    init(
-        iterations: Int?, warmupIterations: Int?, maxIterations: Int, filter: String?,
-        minTime: Double
-    ) throws {
-        self.iterations = iterations
-        self.warmupIterations = warmupIterations
-        self.maxIterations = maxIterations
-        self.filter = try BenchmarkFilter(filter)
-        self.minTime = minTime
+    public init() {
+        self.init([:])
+    }
+
+    init(_ settings: [String: BenchmarkSetting]) {
+        self.settings = settings
+    }
+
+    public subscript<T>(type: T.Type) -> T? {
+        get {
+            let key = String(describing: type)
+            if let value = settings[key] {
+                if let valueT = value as? T {
+                    return valueT
+                } else {
+                    return nil
+                }
+            } else {
+                return nil
+            }
+        }
+    }
+
+    public var iterations: Int? {
+        return self[Iterations.self]?.value
+    }
+
+    public var maxIterations: Int? {
+        return self[MaxIterations.self]?.value
+    }
+
+    public var warmupIterations: Int? {
+        return self[WarmupIterations.self]?.value
+    }
+
+    public var filter: String? {
+        return self[Filter.self]?.value
+    }
+
+    public var minTime: Double? {
+        return self[MinTime.self]?.value
     }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
-    .maxIterations(1_000_000),
-    .minTime(seconds: 1.0),
+    MaxIterations(1_000_000),
+    MinTime(seconds: 1.0),
 ]

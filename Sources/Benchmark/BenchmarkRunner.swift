@@ -38,14 +38,15 @@ public struct BenchmarkRunner {
     }
 
     mutating func run(benchmark: AnyBenchmark, suite: BenchmarkSuite) throws {
-        let settings = try BenchmarkSettings([
+        let settings = BenchmarkSettings([
             defaultSettings,
             self.settings,
             suite.settings,
             benchmark.settings,
         ])
 
-        if !settings.filter.matches(suiteName: suite.name, benchmarkName: benchmark.name) {
+        let filter = try BenchmarkFilter(settings.filter)
+        if !filter.matches(suiteName: suite.name, benchmarkName: benchmark.name) {
             return
         }
 
@@ -80,7 +81,7 @@ public struct BenchmarkRunner {
     func predictNumberOfIterationsNeeded(_ measurements: [Double], settings: BenchmarkSettings)
         -> Int
     {
-        let minTime = settings.minTime
+        let minTime = settings.minTime!
         let iters = measurements.count
 
         // See how much iterations should be increased by.
@@ -103,16 +104,16 @@ public struct BenchmarkRunner {
         let maxNextIters: Int = Int(max(multiplier * Double(iters), Double(iters) + 1.0).rounded())
 
         // But we do have *some* sanity limits though..
-        let nextIters = min(maxNextIters, settings.maxIterations)
+        let nextIters = min(maxNextIters, settings.maxIterations!)
 
         return nextIters
     }
 
     /// Heuristic when to stop looking for new number of iterations, ported from google/benchmark.
     func hasCollectedEnoughData(_ measurements: [Double], settings: BenchmarkSettings) -> Bool {
-        let tooManyIterations = measurements.count >= settings.maxIterations
+        let tooManyIterations = measurements.count >= settings.maxIterations!
         let timeInSeconds = measurements.reduce(0, +) / 1000000000.0
-        let timeIsLargeEnough = timeInSeconds >= settings.minTime
+        let timeIsLargeEnough = timeInSeconds >= settings.minTime!
         return tooManyIterations || timeIsLargeEnough
     }
 

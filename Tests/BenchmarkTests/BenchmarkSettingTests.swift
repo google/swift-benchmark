@@ -21,7 +21,7 @@ final class BenchmarkSettingTests: XCTestCase {
     func assertNumberOfIterations(
         suite: BenchmarkSuite,
         counts expected: [Int],
-        cli settings: [BenchmarkSetting] = [.iterations(100000)]
+        cli settings: [BenchmarkSetting] = [Iterations(100000)]
     ) throws {
         var runner = BenchmarkRunner(
             suites: [suite], settings: settings, reporter: BlackHoleReporter())
@@ -44,7 +44,7 @@ final class BenchmarkSettingTests: XCTestCase {
     }
 
     func testSuiteSetting() throws {
-        let suite = BenchmarkSuite(name: "Test", settings: .iterations(42)) { suite in
+        let suite = BenchmarkSuite(name: "Test", settings: Iterations(42)) { suite in
             suite.benchmark("a") {}
             suite.benchmark("b") {}
         }
@@ -54,21 +54,21 @@ final class BenchmarkSettingTests: XCTestCase {
     func testBenchmarkSetting() throws {
         let suite = BenchmarkSuite(name: "Test") { suite in
             suite.benchmark("a") {}
-            suite.benchmark("b", settings: .iterations(42)) {}
+            suite.benchmark("b", settings: Iterations(42)) {}
         }
         try assertNumberOfIterations(suite: suite, counts: [100000, 42])
     }
 
     func testBenchmarkSettingOverridesSuiteSetting() throws {
-        let suite = BenchmarkSuite(name: "Test", settings: .iterations(42)) { suite in
+        let suite = BenchmarkSuite(name: "Test", settings: Iterations(42)) { suite in
             suite.benchmark("a") {}
-            suite.benchmark("b", settings: .iterations(21)) {}
+            suite.benchmark("b", settings: Iterations(21)) {}
         }
         try assertNumberOfIterations(suite: suite, counts: [42, 21])
     }
 
     func testCliSetting() throws {
-        let cli: [BenchmarkSetting] = [.iterations(1)]
+        let cli: [BenchmarkSetting] = [Iterations(1)]
         let suite = BenchmarkSuite(name: "Test") { suite in
             suite.benchmark("a") {}
             suite.benchmark("b") {}
@@ -77,8 +77,8 @@ final class BenchmarkSettingTests: XCTestCase {
     }
 
     func testSuiteOverridesCliSetting() throws {
-        let cli: [BenchmarkSetting] = [.iterations(1)]
-        let suite = BenchmarkSuite(name: "Test", settings: .iterations(2)) { suite in
+        let cli: [BenchmarkSetting] = [Iterations(1)]
+        let suite = BenchmarkSuite(name: "Test", settings: Iterations(2)) { suite in
             suite.benchmark("a") {}
             suite.benchmark("b") {}
         }
@@ -86,19 +86,19 @@ final class BenchmarkSettingTests: XCTestCase {
     }
 
     func testBenchmarkOverridesCliSetting() throws {
-        let cli: [BenchmarkSetting] = [.iterations(1)]
+        let cli: [BenchmarkSetting] = [Iterations(1)]
         let suite = BenchmarkSuite(name: "Test") { suite in
             suite.benchmark("a") {}
-            suite.benchmark("b", settings: .iterations(2)) {}
+            suite.benchmark("b", settings: Iterations(2)) {}
         }
         try assertNumberOfIterations(suite: suite, counts: [1, 2], cli: cli)
     }
 
     func testBenchmarkAndSuiteOverridesCliSetting() throws {
-        let cli: [BenchmarkSetting] = [.iterations(1)]
-        let suite = BenchmarkSuite(name: "Test", settings: .iterations(2)) { suite in
+        let cli: [BenchmarkSetting] = [Iterations(1)]
+        let suite = BenchmarkSuite(name: "Test", settings: Iterations(2)) { suite in
             suite.benchmark("a") {}
-            suite.benchmark("b", settings: .iterations(3)) {}
+            suite.benchmark("b", settings: Iterations(3)) {}
         }
         try assertNumberOfIterations(suite: suite, counts: [2, 3], cli: cli)
     }
