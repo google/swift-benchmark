@@ -39,11 +39,57 @@ final class BenchmarkRunnerTests: XCTestCase {
             runBenchmarks(settings: settings))
     }
 
+    func testCustomMeasurements() throws {
+        let suite = BenchmarkSuite(name: "Suite")
+
+        suite.benchmark("noop") {
+        }
+
+        suite.benchmark("start/end noop") { state in
+            state.start()
+            try state.end()
+        }
+
+        suite.benchmark("measure noop") { state in
+            try state.measure {
+            }
+        }
+
+        suite.benchmark("measure/while noop") { state in
+            while true {
+                try state.measure {
+                }
+            }
+        }
+
+        suite.benchmark("measure uneven iterations noop") { state in
+            for _ in 1...1337 {
+                try state.measure {
+                }
+            }
+        }
+
+        var runner = BenchmarkRunner(
+            suites: [suite],
+            settings: [Iterations(100000)],
+            reporter: BlackHoleReporter())
+        try runner.run()
+
+        let noopResults = runner.results[0].measurements
+        let customResults = runner.results.map { $0.measurements }.dropFirst()
+
+        XCTAssertEqual(noopResults.count, 100000)
+        for customResult in customResults {
+            XCTAssertEqual(customResult.count, 100000)
+        }
+    }
+
     static var allTests = [
         ("testFilterBenchmarksSuffix", testFilterBenchmarksSuffix),
         ("testFilterBenchmarksSuiteName", testFilterBenchmarksSuiteName),
         ("testFilterBenchmarksFullName", testFilterBenchmarksFullName),
         ("testAutomaticallyDetectIterations", testAutomaticallyDetectIterations),
+        ("testCustomMeasurements", testCustomMeasurements),
     ]
 }
 

@@ -50,7 +50,7 @@ fileprivate class MockBenchmark: AnyBenchmark {
         didSetUp = true
     }
 
-    func run() {
+    func run(_ state: inout BenchmarkState) {
         didRun = true
     }
 
