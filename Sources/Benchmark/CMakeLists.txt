@@ -1,7 +1,6 @@
 add_library(Benchmark
   Benchmark.swift
   BenchmarkArguments.swift
-  BenchmarkClock.swift
   BenchmarkCommand.swift
   BenchmarkFilter.swift
   BenchmarkMain.swift
@@ -11,8 +10,10 @@ add_library(Benchmark
   BenchmarkSetting.swift
   BenchmarkState.swift
   BenchmarkSuite.swift
-  MakeTests.swift
-  Stats.swift)
+  BenchmarkTermination.swift
+  BenchmarkTime.swift
+  Stats.swift
+  TestIntegration.swift)
 # NOTE: workaround for CMake <3.17 which does not propagate the property
 set_target_properties(Benchmark PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
