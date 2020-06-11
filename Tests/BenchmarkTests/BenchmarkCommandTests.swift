@@ -42,14 +42,16 @@ final class BenchmarkCommandTests: XCTestCase {
 
     func testParseFilter() throws {
         AssertParse(["--filter", "bar", "--allow-debug-build"]) { settings in
-            XCTAssertFalse(settings.filter.matches(suiteName: "foo", benchmarkName: "baz"))
-            XCTAssert(settings.filter.matches(suiteName: "foo", benchmarkName: "bar"))
+            let filter = try! BenchmarkFilter(settings.filter)
+            XCTAssertFalse(filter.matches(suiteName: "foo", benchmarkName: "baz"))
+            XCTAssert(filter.matches(suiteName: "foo", benchmarkName: "bar"))
         }
 
         AssertParse(["--filter", "foo/bar", "--allow-debug-build"]) { settings in
-            XCTAssertFalse(settings.filter.matches(suiteName: "foo", benchmarkName: "baz"))
-            XCTAssertFalse(settings.filter.matches(suiteName: "foobar", benchmarkName: "baz"))
-            XCTAssert(settings.filter.matches(suiteName: "foo", benchmarkName: "bar"))
+            let filter = try! BenchmarkFilter(settings.filter)
+            XCTAssertFalse(filter.matches(suiteName: "foo", benchmarkName: "baz"))
+            XCTAssertFalse(filter.matches(suiteName: "foobar", benchmarkName: "baz"))
+            XCTAssert(filter.matches(suiteName: "foo", benchmarkName: "bar"))
         }
     }
 
@@ -128,7 +130,7 @@ extension BenchmarkCommandTests {
         let settings: BenchmarkSettings
         do {
             parsed = try BenchmarkCommand.parse(arguments)
-            settings = try BenchmarkSettings(parsed.settings)
+            settings = BenchmarkSettings(parsed.arguments.settings)
         } catch {
             let message = BenchmarkCommand.message(for: error)
             XCTFail("\"\(message)\" - \(error)", file: file, line: line)

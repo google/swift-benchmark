@@ -12,68 +12,139 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public enum BenchmarkSetting {
-    case iterations(Int)
-    case maxIterations(Int)
-    case warmupIterations(Int)
-    case filter(String)
-    case minTime(seconds: Double)
+/// A marker protocol for types that are intended to be
+/// be used as benchmark settings.
+public protocol BenchmarkSetting {}
+
+/// Static number of iterations to run the benchmark.
+/// If this setting is missing number of iterations will
+/// be computed empirically by running the benchmark.
+public struct Iterations: BenchmarkSetting {
+    public var value: Int
+    public init(_ value: Int) {
+        self.value = value
+    }
 }
 
-struct BenchmarkSettings {
-    let iterations: Int?
-    let warmupIterations: Int?
-    let maxIterations: Int
-    let filter: BenchmarkFilter
-    let minTime: Double
+/// Maximum number of iterations to run, while emperically
+/// detecting number of iterations. 
+public struct MaxIterations: BenchmarkSetting {
+    public var value: Int
+    public init(_ value: Int) {
+        self.value = value
+    }
+}
 
-    init(_ settings: [[BenchmarkSetting]]) throws {
-        try self.init(Array(settings.joined()))
+/// A guaranteed number of iterations to run an discard 
+/// as warmup time. 
+public struct WarmupIterations: BenchmarkSetting {
+    public var value: Int
+    public init(_ value: Int) {
+        self.value = value
+    }
+}
+
+/// A regex string used to filter benchmarks that should be run.
+public struct Filter: BenchmarkSetting {
+    public var value: String
+    public init(_ value: String) {
+        self.value = value
+    }
+}
+
+/// A minimal (total) time that iterations has to run
+/// to be considered significant.
+public struct MinTime: BenchmarkSetting {
+    public var value: Double
+    public init(seconds value: Double) {
+        self.value = value
+    }
+}
+
+/// An aggregate of all benchmark settings, that deduplicates
+/// the settings based on their type. A setting which is defined
+/// multiple times, only retains its last set value.
+///
+/// Settings can be indexed by their corresponding type. Helper
+/// accessor methods are provided for the default set of settings.
+public struct BenchmarkSettings {
+    let settings: [String: Any]
+
+    public init(_ settings: [[BenchmarkSetting]]) {
+        self.init(Array(settings.joined()))
     }
 
-    init(_ settings: [BenchmarkSetting]) throws {
-        var iterations: Int? = nil
-        var warmupIterations: Int? = nil
-        var maxIterations: Int = -1
-        var filter: String? = nil
-        var minTime: Double = -1
+    public init(_ settings: [BenchmarkSetting]) {
+        var result: [String: BenchmarkSetting] = [:]
 
         for setting in settings {
-            switch setting {
-            case .iterations(let value):
-                iterations = value
-            case .warmupIterations(let value):
-                warmupIterations = value
-            case .filter(let value):
-                filter = value
-            case .maxIterations(let value):
-                maxIterations = value
-            case .minTime(let value):
-                minTime = value
-            }
+            let key = String(describing: type(of: setting))
+            result[key] = setting
         }
 
-        try self.init(
-            iterations: iterations,
-            warmupIterations: warmupIterations,
-            maxIterations: maxIterations,
-            filter: filter,
-            minTime: minTime)
+        self.init(result)
     }
 
-    init(
-        iterations: Int?, warmupIterations: Int?, maxIterations: Int, filter: String?,
-        minTime: Double
-    ) throws {
-        self.iterations = iterations
-        self.warmupIterations = warmupIterations
-        self.maxIterations = maxIterations
-        self.filter = try BenchmarkFilter(filter)
-        self.minTime = minTime
+    public init() {
+        self.init([:])
+    }
+
+    init(_ settings: [String: BenchmarkSetting]) {
+        self.settings = settings
+    }
+
+    /// Access a setting of given type or return nil
+    /// if it's not present.
+    public subscript<T>(type: T.Type) -> T? {
+        get {
+            let key = String(describing: type)
+            if let value = settings[key] {
+                if let valueT = value as? T {
+                    return valueT
+                } else {
+                    return nil
+                }
+            } else {
+                return nil
+            }
+        }
+    }
+
+    /// Convenience accessor for Iterations setting.
+    public var iterations: Int? {
+        return self[Iterations.self]?.value
+    }
+
+    /// Convenience accessor for MaxIterations setting.
+    public var maxIterations: Int {
+        if let value = self[MaxIterations.self]?.value {
+            return value
+        } else {
+            fatalError("maxIterations must have a default.")
+        }
+    }
+
+    /// Convenience accessor for WarmupIterations setting.
+    public var warmupIterations: Int? {
+        return self[WarmupIterations.self]?.value
+    }
+
+    /// Convenience accessor for the Filter setting.
+    public var filter: String? {
+        return self[Filter.self]?.value
+    }
+
+    /// Convenience accessor for the MinTime setting.
+    public var minTime: Double {
+        if let value = self[MinTime.self]?.value {
+            return value
+        } else {
+            fatalError("minTime must have a default.")
+        }
     }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
-    .maxIterations(1_000_000),
-    .minTime(seconds: 1.0),
+    MaxIterations(1_000_000),
+    MinTime(seconds: 1.0),
 ]

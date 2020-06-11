@@ -14,7 +14,10 @@
 
 public func main(_ suites: [BenchmarkSuite]) {
     let command = BenchmarkCommand.parseOrExit()
-    let settings = command.settings
+    main(suites, settings: command.arguments.settings)
+}
+
+public func main(_ suites: [BenchmarkSuite], settings: [BenchmarkSetting]) {
     let reporter = PlainTextReporter(to: StdoutOutputStream())
 
     var runner = BenchmarkRunner(

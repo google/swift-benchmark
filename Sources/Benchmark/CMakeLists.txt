@@ -1,5 +1,6 @@
 add_library(Benchmark
   Benchmark.swift
+  BenchmarkArguments.swift
   BenchmarkClock.swift
   BenchmarkCommand.swift
   BenchmarkFilter.swift
