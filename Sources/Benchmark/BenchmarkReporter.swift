@@ -96,10 +96,11 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
 
             let median = result.measurements.median
             let std = result.measurements.std
+            let timeUnit = result.settings.timeUnit
 
             var row: Row = [
                 .name: name,
-                .time: "\(median) ns",
+                .time: median.formatTime(timeUnit),
                 .std: "± \(String(format: "%6.2f %%", (std / median) * 100))",
                 .iterations: "\(result.measurements.count)",
             ]
@@ -169,5 +170,16 @@ extension String {
     fileprivate func rightPadding(toLength newLength: Int, withPad character: Character) -> String {
         precondition(count <= newLength, "newLength must be greater than or equal to string length")
         return self + String(repeating: character, count: newLength - count)
+    }
+}
+
+extension Double {
+    fileprivate func formatTime(_ unit: TimeUnit.Value) -> String {
+        switch unit {
+        case .ns: return "\(self) ns"
+        case .us: return "\(self/1000.0) us"
+        case .ms: return "\(self/100_000.0) ms"
+        case .s: return "\(self/1000_000_000.0) s"
+        }
     }
 }

@@ -76,6 +76,7 @@ public struct BenchmarkRunner {
         let result = BenchmarkResult(
             benchmarkName: benchmark.name,
             suiteName: suite.name,
+            settings: settings,
             measurements: state.measurements,
             warmupMeasurements: warmupState != nil ? warmupState!.measurements : [],
             counters: state.counters)
