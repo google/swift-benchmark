@@ -14,7 +14,8 @@
 
 import ArgumentParser
 
-/// A bundle of command-line arguments.
+/// A bundle of command-line arguments, that includes
+/// all of the default benchmark settings. 
 public struct BenchmarkArguments: ParsableArguments {
     @Flag(help: "Overrides check to verify optimized build.")
     var allowDebugBuild: Bool
@@ -37,6 +38,7 @@ public struct BenchmarkArguments: ParsableArguments {
 
     public init() {}
 
+    /// Conversion from command-line arguments to benchmark settings.
     public var settings: [BenchmarkSetting] {
         var result: [BenchmarkSetting] = []
 
@@ -59,6 +61,7 @@ public struct BenchmarkArguments: ParsableArguments {
         return result
     }
 
+    /// Validate that all arguments are well-formed, or throw otherwise. 
     public mutating func validate() throws {
         var isDebug = false
         assert(

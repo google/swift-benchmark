@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A marker protocol for types that are intended to be
+/// be used as benchmark settings.
 public protocol BenchmarkSetting {}
 
+/// Static number of iterations to run the benchmark.
+/// If this setting is missing number of iterations will
+/// be computed empirically by running the benchmark.
 public struct Iterations: BenchmarkSetting {
     public var value: Int
     public init(_ value: Int) {
@@ -21,6 +26,8 @@ public struct Iterations: BenchmarkSetting {
     }
 }
 
+/// Maximum number of iterations to run, while emperically
+/// detecting number of iterations. 
 public struct MaxIterations: BenchmarkSetting {
     public var value: Int
     public init(_ value: Int) {
@@ -28,6 +35,8 @@ public struct MaxIterations: BenchmarkSetting {
     }
 }
 
+/// A guaranteed number of iterations to run an discard 
+/// as warmup time. 
 public struct WarmupIterations: BenchmarkSetting {
     public var value: Int
     public init(_ value: Int) {
@@ -35,6 +44,7 @@ public struct WarmupIterations: BenchmarkSetting {
     }
 }
 
+/// A regex string used to filter benchmarks that should be run.
 public struct Filter: BenchmarkSetting {
     public var value: String
     public init(_ value: String) {
@@ -42,6 +52,8 @@ public struct Filter: BenchmarkSetting {
     }
 }
 
+/// A minimal (total) time that iterations has to run
+/// to be considered significant.
 public struct MinTime: BenchmarkSetting {
     public var value: Double
     public init(seconds value: Double) {
@@ -49,6 +61,12 @@ public struct MinTime: BenchmarkSetting {
     }
 }
 
+/// An aggregate of all benchmark settings, that deduplicates
+/// the settings based on their type. A setting which is defined
+/// multiple times, only retains its last set value.
+///
+/// Settings can be indexed by their corresponding type. Helper
+/// accessor methods are provided for the default set of settings.
 public struct BenchmarkSettings {
     let settings: [String: Any]
 
@@ -75,6 +93,8 @@ public struct BenchmarkSettings {
         self.settings = settings
     }
 
+    /// Access a setting of given type or return nil
+    /// if it's not present.
     public subscript<T>(type: T.Type) -> T? {
         get {
             let key = String(describing: type)
@@ -90,10 +110,12 @@ public struct BenchmarkSettings {
         }
     }
 
+    /// Convenience accessor for Iterations setting.
     public var iterations: Int? {
         return self[Iterations.self]?.value
     }
 
+    /// Convenience accessor for MaxIterations setting.
     public var maxIterations: Int {
         if let value = self[MaxIterations.self]?.value {
             return value
@@ -102,14 +124,17 @@ public struct BenchmarkSettings {
         }
     }
 
+    /// Convenience accessor for WarmupIterations setting.
     public var warmupIterations: Int? {
         return self[WarmupIterations.self]?.value
     }
 
+    /// Convenience accessor for the Filter setting.
     public var filter: String? {
         return self[Filter.self]?.value
     }
 
+    /// Convenience accessor for the MinTime setting.
     public var minTime: Double {
         if let value = self[MinTime.self]?.value {
             return value
