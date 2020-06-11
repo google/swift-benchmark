@@ -57,11 +57,11 @@ public struct BenchmarkRunner {
             let _ = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
         }
 
-        var measurements: [Double] = []
+        var state: BenchmarkState
         if let n = settings.iterations {
-            measurements = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
+            state = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
         } else {
-            measurements = doAdaptiveIterations(
+            state = doAdaptiveIterations(
                 benchmark: benchmark, suite: suite, settings: settings)
         }
 
@@ -74,7 +74,8 @@ public struct BenchmarkRunner {
         let result = BenchmarkResult(
             benchmarkName: benchmark.name,
             suiteName: suite.name,
-            measurements: measurements)
+            measurements: state.measurements,
+            counters: state.counters)
         results.append(result)
     }
 
@@ -120,23 +121,25 @@ public struct BenchmarkRunner {
 
     func doAdaptiveIterations(
         benchmark: AnyBenchmark, suite: BenchmarkSuite, settings: BenchmarkSettings
-    ) -> [Double] {
-        var measurements: [Double] = []
+    ) -> BenchmarkState {
         var n: Int = 1
+        var state: BenchmarkState = BenchmarkState()
 
         while true {
-            measurements = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
-            if n != 1 && hasCollectedEnoughData(measurements, settings: settings) { break }
-            n = predictNumberOfIterationsNeeded(measurements, settings: settings)
-            assert(n > measurements.count, "Number of iterations should increase with every retry.")
+            state = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
+            if n != 1 && hasCollectedEnoughData(state.measurements, settings: settings) { break }
+            n = predictNumberOfIterationsNeeded(state.measurements, settings: settings)
+            assert(
+                n > state.measurements.count,
+                "Number of iterations should increase with every retry.")
         }
 
-        return measurements
+        return state
     }
 
     func doNIterations(
         _ n: Int, benchmark: AnyBenchmark, suite: BenchmarkSuite, settings: BenchmarkSettings
-    ) -> [Double] {
+    ) -> BenchmarkState {
         var state = BenchmarkState(iterations: n, settings: settings)
         do {
             try state.loop(benchmark)
@@ -144,6 +147,6 @@ public struct BenchmarkRunner {
         } catch {
             fatalError("Unexpected error: \(error).")
         }
-        return state.measurements
+        return state
     }
 }

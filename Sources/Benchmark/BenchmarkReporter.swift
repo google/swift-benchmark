@@ -21,11 +21,22 @@ protocol BenchmarkReporter {
 }
 
 struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStream {
-    enum Column: String, CaseIterable {
+    enum Column: Hashable {
         case name
         case time
-        case standardDeviation = "std"
+        case std
         case iterations
+        case counter(String)
+    }
+
+    func title(_ column: Column) -> String {
+        switch column {
+        case .name: return "name"
+        case .time: return "time"
+        case .std: return "std"
+        case .iterations: return "iterations"
+        case .counter(let name): return name
+        }
     }
 
     typealias Row = [Column: String]
@@ -55,9 +66,18 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
     }
 
     mutating func report(results: [BenchmarkResult]) {
-        let header = Dictionary(uniqueKeysWithValues: Column.allCases.map { ($0, $0.rawValue) })
+        var counters: Set<String> = Set()
+        for result in results {
+            for name in result.counters.keys {
+                counters.insert(name)
+            }
+        }
 
-        var rows: [Row] = [header]
+        var columns: [Column] = [.name, .time, .std, .iterations]
+        for counter in counters {
+            columns.append(.counter(counter))
+        }
+        var rows: [Row] = [Dictionary(uniqueKeysWithValues: columns.map { ($0, title($0)) })]
 
         for result in results {
             let name: String
@@ -68,20 +88,28 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
             }
 
             let median = result.measurements.median
-            let standardDeviation = result.measurements.std
+            let std = result.measurements.std
 
-            rows.append([
+            var row: Row = [
                 .name: name,
                 .time: "\(median) ns",
-                .standardDeviation:
-                    "± \(String(format: "%6.2f %%", (standardDeviation / median) * 100))",
+                .std: "± \(String(format: "%6.2f %%", (std / median) * 100))",
                 .iterations: "\(result.measurements.count)",
-            ])
+            ]
+            for counter in counters {
+                if let value = result.counters[counter] {
+                    row[.counter(counter)] = "\(value)"
+                } else {
+                    row[.counter(counter)] = ""
+                }
+            }
+
+            rows.append(row)
         }
 
         let widths: [Column: Int] = Dictionary(
             uniqueKeysWithValues:
-                Column.allCases.map { column in
+                columns.map { column in
                     (
                         column,
                         rows.compactMap {
@@ -93,14 +121,14 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
 
         print("", to: &output)
         for (index, row) in rows.enumerated() {
-            let components: [String] = Column.allCases.compactMap { column in
+            let components: [String] = columns.compactMap { column in
                 let string = row[column]!
                 let width = widths[column]!
                 switch column {
                 case _ where index == 0,
-                    .name, .standardDeviation:
+                    .name, .std:
                     return string.rightPadding(toLength: width, withPad: " ")
-                case .time, .iterations:
+                case .time, .iterations, .counter(_):
                     return string.leftPadding(toLength: width, withPad: " ")
                 }
             }

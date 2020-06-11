@@ -17,35 +17,60 @@ import XCTest
 @testable import Benchmark
 
 final class BenchmarkReporterTests: XCTestCase {
-    func testPlainTextReporter() throws {
-        let results: [BenchmarkResult] = [
-            BenchmarkResult(
-                benchmarkName: "fast", suiteName: "My Suite", measurements: [1_000, 2_000]),
-            BenchmarkResult(
-                benchmarkName: "slow", suiteName: "My Suite", measurements: [1_000_000, 2_000_000]),
-
-        ]
-
+    func assertIsPrintedAs(_ results: [BenchmarkResult], _ expected: String) {
         let output = MockTextOutputStream()
         var reporter = PlainTextReporter(to: output)
 
         reporter.report(results: results)
 
+        let expectedLines = expected.split(separator: "\n").map { String($0) }
+        let actual = output.lines.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        for (expectedLine, actualLine) in zip(expectedLines, actual) {
+            XCTAssertEqual(expectedLine, actualLine)
+        }
+    }
+
+    func testPlainTextReporter() throws {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "My Suite", measurements: [1_000, 2_000],
+                counters: [:]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "My Suite", measurements: [1_000_000, 2_000_000],
+                counters: [:]),
+        ]
         let expected = #"""
             name           time         std        iterations
             -------------------------------------------------
             My Suite: fast    1500.0 ns ±  47.14 %          2
             My Suite: slow 1500000.0 ns ±  47.14 %          2
-            """#.split(separator: "\n").map { String($0) }
+            """#
+        assertIsPrintedAs(results, expected)
 
-        let actual = output.lines.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        for (expectedLine, actualLine) in zip(expected, actual) {
-            XCTAssertEqual(expectedLine, actualLine)
-        }
+    }
+
+    func testCountersAreReported() throws {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "My Suite", measurements: [1_000, 2_000],
+                counters: ["n": 7]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "My Suite", measurements: [1_000_000, 2_000_000],
+                counters: [:]),
+        ]
+        let expected = #"""
+            name           time         std        iterations n
+            ---------------------------------------------------
+            My Suite: fast    1500.0 ns ±  47.14 %          2 7
+            My Suite: slow 1500000.0 ns ±  47.14 %          2
+            """#
+        assertIsPrintedAs(results, expected)
+        assertIsPrintedAs(results, expected)
     }
 
     static var allTests = [
-        ("PlainTextReporter", testPlainTextReporter)
+        ("testPlainTextReporter", testPlainTextReporter),
+        ("testCountersAreReported", testCountersAreReported),
     ]
 }

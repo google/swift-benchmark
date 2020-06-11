@@ -69,19 +69,31 @@ final class BenchmarkRunnerTests: XCTestCase {
             }
         }
 
-        var runner = BenchmarkRunner(
-            suites: [suite],
-            settings: [Iterations(100000)],
-            reporter: BlackHoleReporter())
-        try runner.run()
+        let results = try run(suites: [suite], settings: [Iterations(100)])
+        XCTAssertEqual(results.count, 5)
 
-        let noopResults = runner.results[0].measurements
-        let customResults = runner.results.map { $0.measurements }.dropFirst()
+        let counts = results.map { $0.measurements.count }
+        XCTAssertEqual(counts, [100, 100, 100, 100, 100])
+    }
 
-        XCTAssertEqual(noopResults.count, 100000)
-        for customResult in customResults {
-            XCTAssertEqual(customResult.count, 100000)
+    func testCustomCounters() throws {
+        let suite = BenchmarkSuite(name: "Suite")
+
+        suite.benchmark("counter increment") { state in
+            state.increment(counter: "n")
         }
+        suite.benchmark("counter increment by 10") { state in
+            state.increment(counter: "n", by: 10)
+        }
+        suite.benchmark("counter set") { state in
+            state.counters["n"] = 42
+        }
+
+        let results = try run(suites: [suite], settings: [Iterations(100)])
+        XCTAssertEqual(results.count, 3)
+
+        let values = Array(results.map { $0.counters["n"] })
+        XCTAssertEqual(values, [100, 1000, 42])
     }
 
     static var allTests = [
@@ -90,10 +102,20 @@ final class BenchmarkRunnerTests: XCTestCase {
         ("testFilterBenchmarksFullName", testFilterBenchmarksFullName),
         ("testAutomaticallyDetectIterations", testAutomaticallyDetectIterations),
         ("testCustomMeasurements", testCustomMeasurements),
+        ("testCustomCounters", testCustomCounters),
     ]
 }
 
 extension BenchmarkRunnerTests {
+    func run(suites: [BenchmarkSuite], settings: [BenchmarkSetting]) throws -> [BenchmarkResult] {
+        var runner = BenchmarkRunner(
+            suites: suites,
+            settings: settings,
+            reporter: BlackHoleReporter())
+        try runner.run()
+        return runner.results
+    }
+
     /// Builds and runs a few suites of benchmarks with provided settings; returns the set of
     /// benchmark names that were run.
     func runBenchmarks(settings: [BenchmarkSetting]) -> Set<String> {
@@ -107,13 +129,8 @@ extension BenchmarkRunnerTests {
         suite1.benchmark("b2") { benchmarksRun.insert("suite1/b2") }
         suite2.benchmark("b2") { benchmarksRun.insert("suite2/b2") }
 
-        var runner = BenchmarkRunner(
-            suites: [suite1, suite2],
-            settings: settings,
-            reporter: BlackHoleReporter())
-
         do {
-            try runner.run()
+            let _ = try run(suites: [suite1, suite2], settings: settings)
             return benchmarksRun
         } catch {
             return Set<String>()

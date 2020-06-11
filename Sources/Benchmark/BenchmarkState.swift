@@ -25,8 +25,16 @@ public struct BenchmarkState {
     var endTime: UInt64
     var measurements: [Double]
 
+    /// A mapping from counters to their corresponding values.
+    public var counters: [String: Int]
+
     /// Aggregated settings for the current benchmark run. 
     public let settings: BenchmarkSettings
+
+    @inline(__always)
+    init() {
+        self.init(iterations: 0, settings: BenchmarkSettings())
+    }
 
     @inline(__always)
     init(iterations: Int, settings: BenchmarkSettings) {
@@ -35,6 +43,7 @@ public struct BenchmarkState {
         self.endTime = 0
         self.measurements = []
         self.measurements.reserveCapacity(iterations)
+        self.counters = [:]
         self.settings = settings
     }
 
@@ -72,7 +81,7 @@ public struct BenchmarkState {
 
     @inline(__always)
     mutating func loop(_ benchmark: AnyBenchmark) throws {
-        while true {
+        while measurements.count < iterations {
             benchmark.setUp()
             start()
             try benchmark.run(&self)
@@ -89,5 +98,17 @@ public struct BenchmarkState {
         start()
         f()
         try end()
+    }
+
+    /// Increment a counter by a given value (with a default of 1).
+    /// If counter has never been set before, it starts with zero as the
+    /// initial value.
+    @inline(__always)
+    public mutating func increment(counter name: String, by value: Int = 1) {
+        if let oldValue = counters[name] {
+            counters[name] = oldValue + value
+        } else {
+            counters[name] = value
+        }
     }
 }
