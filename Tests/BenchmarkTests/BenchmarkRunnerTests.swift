@@ -74,7 +74,6 @@ final class BenchmarkRunnerTests: XCTestCase {
         XCTAssertEqual(noopResults.count, 100000)
         for customResult in customResults {
             XCTAssertEqual(customResult.count, 100000)
-            XCTAssertTrue(noopResults.sum > customResult.sum)
         }
     }
 
