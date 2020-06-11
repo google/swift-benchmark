@@ -26,7 +26,7 @@ public struct BenchmarkState {
     var measurements: [Double]
 
     /// A mapping from counters to their corresponding values.
-    public var counters: [String: Int]
+    public var counters: [String: Double]
 
     /// Aggregated settings for the current benchmark run. 
     public let settings: BenchmarkSettings
@@ -104,7 +104,7 @@ public struct BenchmarkState {
     /// If counter has never been set before, it starts with zero as the
     /// initial value.
     @inline(__always)
-    public mutating func increment(counter name: String, by value: Int = 1) {
+    public mutating func increment(counter name: String, by value: Double = 1) {
         if let oldValue = counters[name] {
             counters[name] = oldValue + value
         } else {

@@ -61,8 +61,8 @@ final class BenchmarkReporterTests: XCTestCase {
         ]
         let expected = #"""
             name           time         std        iterations n
-            ---------------------------------------------------
-            My Suite: fast    1500.0 ns ±  47.14 %          2 7
+            -----------------------------------------------------
+            My Suite: fast    1500.0 ns ±  47.14 %          2 7.0
             My Suite: slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
