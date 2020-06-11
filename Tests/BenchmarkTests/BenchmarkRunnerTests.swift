@@ -62,6 +62,13 @@ final class BenchmarkRunnerTests: XCTestCase {
             }
         }
 
+        suite.benchmark("measure uneven iterations noop") { state in
+            for _ in 1...1337 {
+                try state.measure {
+                }
+            }
+        }
+
         var runner = BenchmarkRunner(
             suites: [suite],
             settings: [Iterations(100000)],
