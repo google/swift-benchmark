@@ -94,8 +94,12 @@ public struct BenchmarkSettings {
         return self[Iterations.self]?.value
     }
 
-    public var maxIterations: Int? {
-        return self[MaxIterations.self]?.value
+    public var maxIterations: Int {
+        if let value = self[MaxIterations.self]?.value {
+            return value
+        } else {
+            fatalError("maxIterations must have a default.")
+        }
     }
 
     public var warmupIterations: Int? {
@@ -106,8 +110,12 @@ public struct BenchmarkSettings {
         return self[Filter.self]?.value
     }
 
-    public var minTime: Double? {
-        return self[MinTime.self]?.value
+    public var minTime: Double {
+        if let value = self[MinTime.self]?.value {
+            return value
+        } else {
+            fatalError("minTime must have a default.")
+        }
     }
 }
 
