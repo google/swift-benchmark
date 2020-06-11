@@ -89,6 +89,7 @@ final class BenchmarkRunnerTests: XCTestCase {
         ("testFilterBenchmarksSuiteName", testFilterBenchmarksSuiteName),
         ("testFilterBenchmarksFullName", testFilterBenchmarksFullName),
         ("testAutomaticallyDetectIterations", testAutomaticallyDetectIterations),
+        ("testCustomMeasurements", testCustomMeasurements),
     ]
 }
 

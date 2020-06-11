@@ -83,7 +83,7 @@ public struct BenchmarkState {
 
     /// Run the closure within within benchmark measurement section.
     /// It may throw errors to propagate early termination to 
-    //i/ the outer benchmark loop.
+    /// the outer benchmark loop.
     @inline(__always)
     public mutating func measure(f: () -> Void) throws {
         start()
