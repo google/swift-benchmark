@@ -14,35 +14,41 @@
 
 struct Termination: Error {}
 
+/// Benchmark state is used to collect the 
+/// benchmark measurements and view the settings it 
+/// was configured with.
+/// 
+/// Apart from the standard benchmark loop, you can also use
+/// it with customized benchmark measurement sections via either
+/// `start`/`end` or `measure` functions.
 public struct BenchmarkState {
-    public let settings: BenchmarkSettings
     let iterations: Int
     var startTime: UInt64
     var endTime: UInt64
     var measurements: [Double]
 
+    /// Aggregated settings for the current benchmark run. 
+    public let settings: BenchmarkSettings
+
     @inline(__always)
     init(iterations: Int, settings: BenchmarkSettings) {
         self.iterations = iterations
-        self.settings = settings
         self.startTime = 0
         self.endTime = 0
         self.measurements = []
         self.measurements.reserveCapacity(iterations)
+        self.settings = settings
     }
 
-    @inline(__always)
-    mutating func reset() {
-        self.startTime = 0
-        self.endTime = 0
-    }
-
+    /// Explicitly marks the start of the measurement section.
     @inline(__always)
     public mutating func start() {
-        self.reset()
+        self.endTime = 0
         self.startTime = now()
     }
 
+    /// Explicitly marks the end of the measurement section
+    /// and records the time since start of the benchmark.
     @inline(__always)
     public mutating func end() throws {
         let value = now()
@@ -77,15 +83,9 @@ public struct BenchmarkState {
         }
     }
 
-    @inline(__always)
-    public mutating func loop(f: () -> Void) throws {
-        while true {
-            start()
-            f()
-            try end()
-        }
-    }
-
+    /// Run the closure within within benchmark measurement section.
+    /// It may throw errors to propagate early termination to 
+    //i/ the outer benchmark loop.
     @inline(__always)
     public mutating func measure(f: () -> Void) throws {
         start()
