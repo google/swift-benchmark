@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct Termination: Error {}
-
 /// Benchmark state is used to collect the 
 /// benchmark measurements and view the settings it 
 /// was configured with.
@@ -63,7 +61,7 @@ public struct BenchmarkState {
         if measurements.count < iterations {
             measurements.append(self.duration)
         } else {
-            throw Termination()
+            throw BenchmarkTermination()
         }
     }
 

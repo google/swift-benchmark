@@ -140,7 +140,7 @@ public struct BenchmarkRunner {
         var state = BenchmarkState(iterations: n, settings: settings)
         do {
             try state.loop(benchmark)
-        } catch is Termination {
+        } catch is BenchmarkTermination {
         } catch {
             fatalError("Unexpected error: \(error).")
         }

@@ -19,7 +19,7 @@ public func runTests(suites: [BenchmarkSuite]) {
             var state = BenchmarkState(iterations: 1, settings: BenchmarkSettings())
             do {
                 try benchmark.run(&state)
-            } catch is Termination {
+            } catch is BenchmarkTermination {
             } catch {
                 fatalError("Unexpected error: \(error).")
             }
@@ -40,7 +40,7 @@ public func makeTests<T>(_ type: T.Type, suites: [BenchmarkSuite]) -> [(String, 
                     var state = BenchmarkState(iterations: 1, settings: BenchmarkSettings())
                     do {
                         try benchmark.run(&state)
-                    } catch is Termination {
+                    } catch is BenchmarkTermination {
                     } catch {
                         fatalError("Unexpected error: \(error).")
                     }
