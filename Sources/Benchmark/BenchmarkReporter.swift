@@ -17,31 +17,12 @@ import Foundation
 protocol BenchmarkReporter {
     mutating func report(running name: String, suite: String)
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
-    mutating func report(results: [BenchmarkResult])
+    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings)
 }
 
 struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStream {
-    enum Column: Hashable {
-        case name
-        case time
-        case std
-        case iterations
-        case counter(String)
-        case warmup
-    }
-
-    func title(_ column: Column) -> String {
-        switch column {
-        case .name: return "name"
-        case .time: return "time"
-        case .std: return "std"
-        case .iterations: return "iterations"
-        case .counter(let name): return name
-        case .warmup: return "warmup"
-        }
-    }
-
-    typealias Row = [Column: String]
+    typealias Column = BenchmarkColumn
+    typealias Row = BenchmarkColumn.Row
 
     var output: Target
 
@@ -67,57 +48,14 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
         print(" done! (\(timeDuration))", to: &output)
     }
 
-    mutating func report(results: [BenchmarkResult]) {
-        var showWarmup = false
-        var counters: Set<String> = Set()
-        for result in results {
-            showWarmup = showWarmup || result.warmupMeasurements.count > 0
-            for name in result.counters.keys {
-                counters.insert(name)
-            }
+    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
+        let columns: [Column]
+        if let value = settings.columns {
+            columns = value
+        } else {
+            columns = BenchmarkColumn.defaults(results: results)
         }
-
-        var columns: [Column] = [.name, .time, .std, .iterations]
-        if showWarmup {
-            columns.append(.warmup)
-        }
-        for counter in counters {
-            columns.append(.counter(counter))
-        }
-        var rows: [Row] = [Dictionary(uniqueKeysWithValues: columns.map { ($0, title($0)) })]
-
-        for result in results {
-            let name: String
-            if result.suiteName != "" {
-                name = "\(result.suiteName).\(result.benchmarkName)"
-            } else {
-                name = result.benchmarkName
-            }
-
-            let median = result.measurements.median
-            let std = result.measurements.std
-            let timeUnit = result.settings.timeUnit
-
-            var row: Row = [
-                .name: name,
-                .time: median.formatTime(timeUnit),
-                .std: "± \(String(format: "%6.2f %%", (std / median) * 100))",
-                .iterations: "\(result.measurements.count)",
-            ]
-            if showWarmup {
-                let warmup = result.warmupMeasurements
-                row[.warmup] = warmup.count > 0 ? "\(warmup.sum) ns" : ""
-            }
-            for counter in counters {
-                if let value = result.counters[counter] {
-                    row[.counter(counter)] = "\(value)"
-                } else {
-                    row[.counter(counter)] = ""
-                }
-            }
-
-            rows.append(row)
-        }
+        let rows = BenchmarkColumn.evaluate(columns: columns, results: results)
 
         let widths: [Column: Int] = Dictionary(
             uniqueKeysWithValues:
@@ -136,11 +74,11 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
             let components: [String] = columns.compactMap { column in
                 let string = row[column]!
                 let width = widths[column]!
-                switch column {
-                case _ where index == 0,
-                    .name, .std:
+                let alignment = index == 0 ? .left : column.alignment
+                switch alignment {
+                case .left:
                     return string.rightPadding(toLength: width, withPad: " ")
-                case .time, .iterations, .counter(_), .warmup:
+                case .right:
                     return string.leftPadding(toLength: width, withPad: " ")
                 }
             }
@@ -170,16 +108,5 @@ extension String {
     fileprivate func rightPadding(toLength newLength: Int, withPad character: Character) -> String {
         precondition(count <= newLength, "newLength must be greater than or equal to string length")
         return self + String(repeating: character, count: newLength - count)
-    }
-}
-
-extension Double {
-    fileprivate func formatTime(_ unit: TimeUnit.Value) -> String {
-        switch unit {
-        case .ns: return "\(self) ns"
-        case .us: return "\(self/1000.0) us"
-        case .ms: return "\(self/1000_000.0) ms"
-        case .s: return "\(self/1000_000_000.0) s"
-        }
     }
 }

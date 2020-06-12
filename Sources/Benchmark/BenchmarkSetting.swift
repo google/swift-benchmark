@@ -77,6 +77,25 @@ public struct TimeUnit: BenchmarkSetting {
     }
 }
 
+/// Time unit for reporting results.
+public struct InverseTimeUnit: BenchmarkSetting {
+    public var value: TimeUnit.Value
+    public init(_ value: TimeUnit.Value) {
+        self.value = value
+    }
+}
+
+/// Columns to show in the benchmark output.
+public struct Columns: BenchmarkSetting {
+    public var value: [BenchmarkColumn]
+    public init(_ value: String) throws {
+        self.value = try BenchmarkColumn.parse(columns: value)
+    }
+    public init(_ value: [BenchmarkColumn]) {
+        self.value = value
+    }
+}
+
 /// An aggregate of all benchmark settings, that deduplicates
 /// the settings based on their type. A setting which is defined
 /// multiple times, only retains its last set value.
@@ -171,10 +190,25 @@ public struct BenchmarkSettings {
             fatalError("timeUnit must have a default.")
         }
     }
+
+    /// Convenience accessor for the TimeUnit setting. 
+    public var inverseTimeUnit: TimeUnit.Value {
+        if let value = self[InverseTimeUnit.self]?.value {
+            return value
+        } else {
+            fatalError("inverseTimeUnit must have a default.")
+        }
+    }
+
+    /// Convenience accessor for the TimeUnit setting. 
+    public var columns: [BenchmarkColumn]? {
+        return self[Columns.self]?.value
+    }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
     MaxIterations(1_000_000),
     MinTime(seconds: 1.0),
     TimeUnit(.ns),
+    InverseTimeUnit(.s),
 ]

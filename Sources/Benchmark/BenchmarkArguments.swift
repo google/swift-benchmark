@@ -39,6 +39,12 @@ public struct BenchmarkArguments: ParsableArguments {
     @Option(help: "Time unit used to report the results.")
     var timeUnit: TimeUnit.Value?
 
+    @Option(help: "Time unit used to report the results.")
+    var inverseTimeUnit: TimeUnit.Value?
+
+    @Option(help: "List of columns to show.")
+    var columns: String?
+
     public init() {}
 
     /// Conversion from command-line arguments to benchmark settings.
@@ -62,6 +68,12 @@ public struct BenchmarkArguments: ParsableArguments {
         }
         if let value = timeUnit {
             result.append(TimeUnit(value))
+        }
+        if let value = inverseTimeUnit {
+            result.append(InverseTimeUnit(value))
+        }
+        if let value = columns {
+            result.append(try! Columns(value))
         }
 
         return result
@@ -92,6 +104,9 @@ public struct BenchmarkArguments: ParsableArguments {
         if minTime != nil && minTime! <= 0 {
             throw ValidationError(
                 positiveNumberError(flag: "--min-time", of: "floating point number"))
+        }
+        if let value = columns {
+            let _ = try Columns(value)
         }
     }
 
