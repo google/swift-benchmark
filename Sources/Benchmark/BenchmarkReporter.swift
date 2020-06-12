@@ -14,19 +14,19 @@
 
 import Foundation
 
-protocol BenchmarkReporter {
+protocol ProgressReporter {
     mutating func report(running name: String, suite: String)
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
+}
+
+protocol BenchmarkReporter {
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings)
 }
 
-struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStream {
-    typealias Column = BenchmarkColumn
-    typealias Row = BenchmarkColumn.Row
+struct VerboseProgressReporter<Output>: ProgressReporter where Output: FlushableTextOutputStream {
+    var output: Output
 
-    var output: Target
-
-    init(to output: Target) {
+    init(output: Output) {
         self.output = output
     }
 
@@ -38,28 +38,33 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
             prefix = ""
         }
         print("running \(prefix)\(name)...", terminator: "", to: &output)
-        if output is StdoutOutputStream {
-            fflush(stdout)  // Flush stdout to actually see the message...
-        }
+        output.flush()
     }
 
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
         let timeDuration = String(format: "%.2f ms", Float(nanosTaken) / 1000000.0)
         print(" done! (\(timeDuration))", to: &output)
+        output.flush()
+    }
+}
+
+struct QuietReporter: ProgressReporter, BenchmarkReporter {
+    mutating func report(running name: String, suite: String) {}
+    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {}
+    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {}
+}
+
+struct ConsoleReporter<Output>: BenchmarkReporter where Output: FlushableTextOutputStream {
+    var output: Output
+
+    init(output: Output) {
+        self.output = output
     }
 
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        var columns: [Column] = []
-        if let names = settings.columns {
-            for name in names {
-                columns.append(BenchmarkColumn.registry[name]!)
-            }
-        } else {
-            columns = BenchmarkColumn.defaults(results: results)
-        }
-        let rows = BenchmarkColumn.evaluate(columns: columns, results: results, pretty: true)
+        let (rows, columns) = BenchmarkColumn.evaluate(results: results, settings: settings, pretty: true)
 
-        let widths: [Column: Int] = Dictionary(
+        let widths: [BenchmarkColumn: Int] = Dictionary(
             uniqueKeysWithValues:
                 columns.map { column in
                     (
@@ -95,9 +100,97 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
     }
 }
 
-struct StdoutOutputStream: TextOutputStream {
+struct CSVReporter<Output>: BenchmarkReporter where Output: FlushableTextOutputStream {
+    var output: Output
+
+    init(output: Output) {
+        self.output = output
+    }
+
+    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
+        let (rows, columns) = BenchmarkColumn.evaluate(results: results, settings: settings, pretty: false)
+
+        for row in rows {
+            let components: [String] = columns.compactMap { row[$0]! }
+            let escaped = components.map { component -> String in 
+                if component.contains(",") || component.contains("\"") || component.contains("\n") {
+                    let escaped = component.replacingOccurrences(of: "\"", with: "\"\"")
+                    return "\"\(escaped)\""
+                } else {
+                    return component
+                }
+            }
+            let line = escaped.joined(separator: ",")
+            print(line, to: &output)
+        }
+    }
+}
+
+struct JSONReporter<Output>: BenchmarkReporter where Output: FlushableTextOutputStream {
+    var output: Output
+
+    init(output: Output) {
+        self.output = output
+    }
+
+    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
+        let (rows, columns) = BenchmarkColumn.evaluate(results: results, settings: settings, pretty: false)
+
+        print("{", to: &output)
+        print("  \"benchmarks\": [", to: &output)
+
+        for (rowIndex, row) in rows.dropFirst().enumerated() {
+            print("    {", to: &output)
+            for (columnIndex, column) in columns.enumerated() {
+                let rhs: String
+                if column.name == "name" {
+                    // We use json encoder here despite its poor
+                    // performance to ensure that output properly
+                    // escapes special characters that could be
+                    // present within the benchmark name.
+                    let name = row[column]!
+                    let data = try! JSONSerialization.data(withJSONObject: name, options: .fragmentsAllowed)
+                    let encoded = String(data: data, encoding: .utf8)!
+                    rhs = encoded
+                } else {
+                    rhs = String(row[column]!)
+                }
+                let suffix = columnIndex != columns.count - 1 ? "," : ""
+                print("      \"\(column.name)\": \(rhs)\(suffix)", to: &output)
+            }
+            if rowIndex != rows.count - 2 {
+                print("    },", to: &output)
+            } else {
+                print("    }", to: &output)
+            }
+        }
+
+        print("  ]", to: &output)
+        print("}", to: &output)
+    }
+}
+
+protocol FlushableTextOutputStream: TextOutputStream {
+    mutating func flush()
+}
+
+struct StdoutOutputStream: FlushableTextOutputStream {
     mutating func write(_ string: String) {
         fputs(string, stdout)
+    }
+
+    mutating func flush() {
+        fflush(stdout)
+    }
+}
+
+struct StderrOutputStream: FlushableTextOutputStream {
+    mutating func write(_ string: String) {
+        fputs(string, stderr)
+    }
+
+    mutating func flush() {
+        fflush(stderr)
     }
 }
 
@@ -112,3 +205,5 @@ extension String {
         return self + String(repeating: character, count: newLength - count)
     }
 }
+
+

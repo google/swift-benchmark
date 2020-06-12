@@ -15,23 +15,40 @@
 public struct BenchmarkRunner {
     let suites: [BenchmarkSuite]
     let settings: [BenchmarkSetting]
+    let globalSettings: BenchmarkSettings
+    var progress: ProgressReporter
     var reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
 
-    init(suites: [BenchmarkSuite], settings: [BenchmarkSetting], reporter: BenchmarkReporter) {
+    init(suites: [BenchmarkSuite], settings: [BenchmarkSetting]) {
         self.suites = suites
         self.settings = settings
-        self.reporter = reporter
+        self.globalSettings = BenchmarkSettings([
+            defaultSettings,
+            self.settings,
+        ])
+        switch self.globalSettings.format {
+        case .none:
+            self.progress = QuietReporter()
+        default:
+            self.progress = VerboseProgressReporter(output: StderrOutputStream())
+        }
+        switch self.globalSettings.format {
+        case .none:
+            self.reporter = QuietReporter()
+        case .console:
+            self.reporter = ConsoleReporter(output: StdoutOutputStream())
+        case .csv:
+            self.reporter = CSVReporter(output: StdoutOutputStream())
+        case .json:
+            self.reporter = JSONReporter(output: StdoutOutputStream())
+        }
     }
 
     mutating func run() throws {
         for suite in suites {
             try run(suite: suite)
         }
-        let globalSettings = BenchmarkSettings([
-            defaultSettings,
-            self.settings,
-        ])
         reporter.report(results: results, settings: globalSettings)
     }
 
@@ -54,7 +71,7 @@ public struct BenchmarkRunner {
             return
         }
 
-        reporter.report(running: benchmark.name, suite: suite.name)
+        progress.report(running: benchmark.name, suite: suite.name)
         let totalStart = now()
 
         var warmupState: BenchmarkState? = nil
@@ -74,7 +91,7 @@ public struct BenchmarkRunner {
         let totalEnd = now()
         let totalElapsed = totalEnd - totalStart
 
-        reporter.report(
+        progress.report(
             finishedRunning: benchmark.name, suite: suite.name, nanosTaken: totalElapsed)
 
         let result = BenchmarkResult(

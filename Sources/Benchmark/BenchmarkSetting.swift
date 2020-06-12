@@ -93,6 +93,20 @@ public struct Columns: BenchmarkSetting {
     }
 }
 
+/// The output format used to show the results.
+public struct Format: BenchmarkSetting {
+    public var value: Value
+    public init(_ value: Value) {
+        self.value = value
+    }
+    public enum Value: String, ExpressibleByArgument {
+        case console
+        case csv
+        case json
+        case none
+    }
+}
+
 /// An aggregate of all benchmark settings, that deduplicates
 /// the settings based on their type. A setting which is defined
 /// multiple times, only retains its last set value.
@@ -201,6 +215,15 @@ public struct BenchmarkSettings {
     public var columns: [String]? {
         return self[Columns.self]?.value
     }
+
+    /// Convenience accessor for the TimeUnit setting. 
+    public var format: Format.Value {
+        if let value = self[Format.self]?.value {
+            return value
+        } else {
+            fatalError("format must have a default.")
+        }
+    }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
@@ -208,4 +231,5 @@ let defaultSettings: [BenchmarkSetting] = [
     MinTime(seconds: 1.0),
     TimeUnit(.ns),
     InverseTimeUnit(.s),
+    Format(.console),
 ]

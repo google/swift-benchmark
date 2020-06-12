@@ -17,21 +17,48 @@ import XCTest
 @testable import Benchmark
 
 final class BenchmarkReporterTests: XCTestCase {
-    func assertIsPrintedAs(_ results: [BenchmarkResult], _ expected: String) {
+    func assertConsoleReported(
+        _ results: [BenchmarkResult], _ expected: String,
+        settings: BenchmarkSettings = BenchmarkSettings()
+    ) {
         let output = MockTextOutputStream()
-        var reporter = PlainTextReporter(to: output)
+        var reporter = ConsoleReporter(output: output)
+        reporter.report(results: results, settings: settings)
+        assertReported(output.result(), expected)
+    }
 
-        reporter.report(results: results, settings: BenchmarkSettings())
+    func assertJSONReported(
+        _ results: [BenchmarkResult], _ expected: String,
+        settings: BenchmarkSettings = BenchmarkSettings()
+    ) {
+        let output = MockTextOutputStream()
+        var reporter = JSONReporter(output: output)
+        reporter.report(results: results, settings: settings)
+        assertReported(output.result(), expected)
+    }
 
+    func assertCSVReported(
+        _ results: [BenchmarkResult], _ expected: String,
+        settings: BenchmarkSettings = BenchmarkSettings()
+    ) {
+        let output = MockTextOutputStream()
+        var reporter = CSVReporter(output: output)
+        reporter.report(results: results, settings: settings)
+        assertReported(output.result(), expected)
+    }
+
+    func assertReported(_ got: String, _ expected: String) {
+        let lines = Array(got.split(separator: "\n").map { String($0) })
         let expectedLines = expected.split(separator: "\n").map { String($0) }
-        let actual = output.lines.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let actual = lines.map { $0.trimmingCharacters(in: .newlines) }
             .filter { !$0.isEmpty }
+        XCTAssertEqual(expectedLines.count, actual.count)
         for (expectedLine, actualLine) in zip(expectedLines, actual) {
             XCTAssertEqual(expectedLine, actualLine)
         }
     }
 
-    func testPlainTextReporter() throws {
+    func testConsoleBasic() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
                 benchmarkName: "fast", suiteName: "MySuite",
@@ -52,10 +79,10 @@ final class BenchmarkReporterTests: XCTestCase {
             MySuite.fast    1500.0 ns ±  47.14 %          2
             MySuite.slow 1500000.0 ns ±  47.14 %          2
             """#
-        assertIsPrintedAs(results, expected)
+        assertConsoleReported(results, expected)
     }
 
-    func testCountersAreReported() throws {
+    func testConsoleCountersAreReported() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
                 benchmarkName: "fast", suiteName: "MySuite",
@@ -76,10 +103,10 @@ final class BenchmarkReporterTests: XCTestCase {
             MySuite.fast    1500.0 ns ±  47.14 %          2   7
             MySuite.slow 1500000.0 ns ±  47.14 %          2   0
             """#
-        assertIsPrintedAs(results, expected)
+        assertConsoleReported(results, expected)
     }
 
-    func testWarmupReported() throws {
+    func testConsoleWarmupReported() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
                 benchmarkName: "fast", suiteName: "MySuite",
@@ -95,15 +122,15 @@ final class BenchmarkReporterTests: XCTestCase {
                 counters: [:]),
         ]
         let expected = #"""
-            name         time         std        iterations warmup
+            name         time         std        iterations warmup 
             -------------------------------------------------------
             MySuite.fast    1500.0 ns ±  47.14 %          2 60.0 ns
             MySuite.slow 1500000.0 ns ±  47.14 %          2  0.0 ns
             """#
-        assertIsPrintedAs(results, expected)
+        assertConsoleReported(results, expected)
     }
 
-    func testTimeUnitReported() throws {
+    func testConsoleTimeUnitReported() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
                 benchmarkName: "ns", suiteName: "MySuite",
@@ -138,13 +165,152 @@ final class BenchmarkReporterTests: XCTestCase {
             MySuite.ms  123.456789 ms ±   0.00 %          1
             MySuite.s   0.123456789 s ±   0.00 %          1
             """#
-        assertIsPrintedAs(results, expected)
+        assertConsoleReported(results, expected)
+    }
+
+    func testJSONEmpty() {
+        let results: [BenchmarkResult] = []
+        let expected = #"""
+            {
+              "benchmarks": [
+              ]
+            }
+            """#
+        assertJSONReported(results, expected)
+    }
+
+    func testJSONBasic() {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "MySuite",
+                settings: BenchmarkSettings(),
+                measurements: [1_000, 2_000],
+                warmupMeasurements: [],
+                counters: [:]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "MySuite",
+                settings: BenchmarkSettings(),
+                measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
+                counters: [:]),
+        ]
+        let expected = #"""
+            {
+              "benchmarks": [
+                {
+                  "name": "MySuite.fast",
+                  "time": 1500.0,
+                  "std": 47.14045207910317,
+                  "iterations": 2.0
+                },
+                {
+                  "name": "MySuite.slow",
+                  "time": 1500000.0,
+                  "std": 47.14045207910317,
+                  "iterations": 2.0
+                }
+              ]
+            }
+            """#
+        assertJSONReported(results, expected)
+    }
+
+    func testJSONEscape() {
+        var results: [BenchmarkResult] = []
+        for name in ["\"", "\t", "\r", "\n"] {
+            results.append(
+                BenchmarkResult(
+                    benchmarkName: name, suiteName: "",
+                    settings: BenchmarkSettings(),
+                    measurements: [],
+                    warmupMeasurements: [],
+                    counters: [:]))
+        }
+        let expected = #"""
+            {
+              "benchmarks": [
+                {
+                  "name": "\""
+                },
+                {
+                  "name": "\t"
+                },
+                {
+                  "name": "\r"
+                },
+                {
+                  "name": "\n"
+                }
+              ]
+            }
+            """#
+        let settings = BenchmarkSettings([Columns(["name"])])
+        assertJSONReported(results, expected, settings: settings)
+    }
+
+    func testCSVEmpty() {
+        let results: [BenchmarkResult] = []
+        let expected = #"""
+            name,time,std,iterations
+            """#
+        assertCSVReported(results, expected)
+    }
+
+    func testCSVBasic() {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "MySuite",
+                settings: BenchmarkSettings(),
+                measurements: [1_000, 2_000],
+                warmupMeasurements: [],
+                counters: [:]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "MySuite",
+                settings: BenchmarkSettings(),
+                measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
+                counters: [:]),
+        ]
+        let expected = #"""
+            name,time,std,iterations
+            MySuite.fast,1500.0,47.14045207910317,2.0
+            MySuite.slow,1500000.0,47.14045207910317,2.0
+            """#
+        assertCSVReported(results, expected)
+    }
+
+    func testCSVEscape() {
+        var results: [BenchmarkResult] = []
+        for name in [",", "\"", "\n"] {
+            results.append(
+                BenchmarkResult(
+                    benchmarkName: name, suiteName: "",
+                    settings: BenchmarkSettings(),
+                    measurements: [1_000, 2_000],
+                    warmupMeasurements: [],
+                    counters: [:]))
+        }
+        let expected = #"""
+            name,time
+            ",",1500.0
+            """",1500.0
+            "
+            ",1500.0
+            """#
+        let settings = BenchmarkSettings([Columns(["name", "time"])])
+        assertCSVReported(results, expected, settings: settings)
     }
 
     static var allTests = [
-        ("testPlainTextReporter", testPlainTextReporter),
-        ("testCountersAreReported", testCountersAreReported),
-        ("testWarmupReported", testWarmupReported),
-        ("testTimeUnitReported", testTimeUnitReported),
+        ("testConsoleBasic", testConsoleBasic),
+        ("testConsoleCountersAreReported", testConsoleCountersAreReported),
+        ("testConsoleWarmupReported", testConsoleWarmupReported),
+        ("testConsoleTimeUnitReported", testConsoleTimeUnitReported),
+        ("testJSONEmpty", testJSONEmpty),
+        ("testJSONBasic", testJSONBasic),
+        ("testJSONEscape", testJSONEscape),
+        ("testCSVEmpty", testCSVEmpty),
+        ("testCSVBasic", testCSVBasic),
+        ("testCSVEscape", testCSVEscape),
     ]
 }

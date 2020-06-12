@@ -45,6 +45,9 @@ public struct BenchmarkArguments: ParsableArguments {
     @Option(help: "Comma-separated list of column names to show.")
     var columns: String?
 
+    @Option(help: "Output format.")
+    var format: Format.Value?
+
     public init() {}
 
     /// Conversion from command-line arguments to benchmark settings.
@@ -75,6 +78,9 @@ public struct BenchmarkArguments: ParsableArguments {
         if let value = columns {
             let names = value.split(separator: ",").map { String($0) }
             result.append(Columns(Array(names)))
+        }
+        if let value = format {
+            result.append(Format(value))
         }
 
         return result
