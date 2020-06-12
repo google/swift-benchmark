@@ -16,14 +16,17 @@ public struct BenchmarkResult {
     public let benchmarkName: String
     public let suiteName: String
     public let measurements: [Double]
+    public let warmupMeasurements: [Double]
     public let counters: [String: Double]
 
     public init(
-        benchmarkName: String, suiteName: String, measurements: [Double], counters: [String: Double]
+        benchmarkName: String, suiteName: String, measurements: [Double],
+        warmupMeasurements: [Double], counters: [String: Double]
     ) {
         self.benchmarkName = benchmarkName
         self.suiteName = suiteName
         self.measurements = measurements
+        self.warmupMeasurements = warmupMeasurements
         self.counters = counters
     }
 }

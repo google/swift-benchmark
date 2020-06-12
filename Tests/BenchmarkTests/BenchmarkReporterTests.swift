@@ -34,10 +34,14 @@ final class BenchmarkReporterTests: XCTestCase {
     func testPlainTextReporter() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
-                benchmarkName: "fast", suiteName: "My Suite", measurements: [1_000, 2_000],
+                benchmarkName: "fast", suiteName: "My Suite",
+                measurements: [1_000, 2_000],
+                warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
-                benchmarkName: "slow", suiteName: "My Suite", measurements: [1_000_000, 2_000_000],
+                benchmarkName: "slow", suiteName: "My Suite",
+                measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
                 counters: [:]),
         ]
         let expected = #"""
@@ -47,16 +51,17 @@ final class BenchmarkReporterTests: XCTestCase {
             My Suite: slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
-
     }
 
     func testCountersAreReported() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
                 benchmarkName: "fast", suiteName: "My Suite", measurements: [1_000, 2_000],
+                warmupMeasurements: [],
                 counters: ["n": 7]),
             BenchmarkResult(
                 benchmarkName: "slow", suiteName: "My Suite", measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
                 counters: [:]),
         ]
         let expected = #"""
@@ -66,11 +71,31 @@ final class BenchmarkReporterTests: XCTestCase {
             My Suite: slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
+    }
+
+    func testWarmupReported() throws {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "My Suite", measurements: [1_000, 2_000],
+                warmupMeasurements: [10, 20, 30],
+                counters: [:]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "My Suite", measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
+                counters: [:]),
+        ]
+        let expected = #"""
+            name           time         std        iterations warmup
+            ---------------------------------------------------------
+            My Suite: fast    1500.0 ns ±  47.14 %          2 60.0 ns
+            My Suite: slow 1500000.0 ns ±  47.14 %          2
+            """#
         assertIsPrintedAs(results, expected)
     }
 
     static var allTests = [
         ("testPlainTextReporter", testPlainTextReporter),
         ("testCountersAreReported", testCountersAreReported),
+        ("testWarmupReported", testWarmupReported),
     ]
 }

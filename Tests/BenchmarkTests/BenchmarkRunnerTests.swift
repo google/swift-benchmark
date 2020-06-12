@@ -39,6 +39,21 @@ final class BenchmarkRunnerTests: XCTestCase {
             runBenchmarks(settings: settings))
     }
 
+    func testWarmupMeasurements() throws {
+        let suite = BenchmarkSuite(name: "Suite")
+
+        suite.benchmark("no warmup") {
+        }
+        suite.benchmark("needs warmup", settings: WarmupIterations(10)) {
+        }
+
+        let results = try run(suites: [suite], settings: [Iterations(100)])
+        XCTAssertEqual(results.count, 2)
+
+        let counts = results.map { $0.warmupMeasurements.count }
+        XCTAssertEqual(counts, [0, 10])
+    }
+
     func testCustomMeasurements() throws {
         let suite = BenchmarkSuite(name: "Suite")
 
@@ -101,6 +116,7 @@ final class BenchmarkRunnerTests: XCTestCase {
         ("testFilterBenchmarksSuiteName", testFilterBenchmarksSuiteName),
         ("testFilterBenchmarksFullName", testFilterBenchmarksFullName),
         ("testAutomaticallyDetectIterations", testAutomaticallyDetectIterations),
+        ("testWarmupMeasurements", testWarmupMeasurements),
         ("testCustomMeasurements", testCustomMeasurements),
         ("testCustomCounters", testCustomCounters),
     ]

@@ -53,8 +53,9 @@ public struct BenchmarkRunner {
         reporter.report(running: benchmark.name, suite: suite.name)
         let totalStart = now()
 
+        var warmupState: BenchmarkState? = nil
         if let n = settings.warmupIterations {
-            let _ = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
+            warmupState = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
         }
 
         var state: BenchmarkState
@@ -75,6 +76,7 @@ public struct BenchmarkRunner {
             benchmarkName: benchmark.name,
             suiteName: suite.name,
             measurements: state.measurements,
+            warmupMeasurements: warmupState != nil ? warmupState!.measurements : [],
             counters: state.counters)
         results.append(result)
     }
