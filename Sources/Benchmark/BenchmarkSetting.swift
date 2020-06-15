@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ArgumentParser
+
 /// A marker protocol for types that are intended to be
 /// be used as benchmark settings.
 public protocol BenchmarkSetting {}
@@ -61,6 +63,20 @@ public struct MinTime: BenchmarkSetting {
     }
 }
 
+/// Time unit for reporting results.
+public struct TimeUnit: BenchmarkSetting {
+    public var value: Value
+    public init(_ value: Value) {
+        self.value = value
+    }
+    public enum Value: String, ExpressibleByArgument {
+        case ns
+        case us
+        case ms
+        case s
+    }
+}
+
 /// An aggregate of all benchmark settings, that deduplicates
 /// the settings based on their type. A setting which is defined
 /// multiple times, only retains its last set value.
@@ -86,7 +102,7 @@ public struct BenchmarkSettings {
     }
 
     public init() {
-        self.init([:])
+        self.init(defaultSettings)
     }
 
     init(_ settings: [String: BenchmarkSetting]) {
@@ -146,9 +162,19 @@ public struct BenchmarkSettings {
             fatalError("minTime must have a default.")
         }
     }
+
+    /// Convenience accessor for the TimeUnit setting. 
+    public var timeUnit: TimeUnit.Value {
+        if let value = self[TimeUnit.self]?.value {
+            return value
+        } else {
+            fatalError("timeUnit must have a default.")
+        }
+    }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
     MaxIterations(1_000_000),
     MinTime(seconds: 1.0),
+    TimeUnit(.ns),
 ]

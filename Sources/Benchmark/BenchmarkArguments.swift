@@ -36,6 +36,9 @@ public struct BenchmarkArguments: ParsableArguments {
         help: "Maximum number of iterations to run when automatically detecting number iterations.")
     var maxIterations: Int?
 
+    @Option(help: "Time unit used to report the results.")
+    var timeUnit: TimeUnit.Value?
+
     public init() {}
 
     /// Conversion from command-line arguments to benchmark settings.
@@ -56,6 +59,9 @@ public struct BenchmarkArguments: ParsableArguments {
         }
         if let value = maxIterations {
             result.append(MaxIterations(value))
+        }
+        if let value = timeUnit {
+            result.append(TimeUnit(value))
         }
 
         return result
