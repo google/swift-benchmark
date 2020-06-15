@@ -79,6 +79,12 @@ final class BenchmarkCommandTests: XCTestCase {
         }
     }
 
+    func testParseNoWarmupIterations() throws {
+        AssertParse(["--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.warmupIterations, 0)
+        }
+    }
+
     func testParseMaxIterations() throws {
         AssertParse(["--max-iterations", "42", "--allow-debug-build"]) { settings in
             XCTAssertEqual(settings.maxIterations, 42)
@@ -111,6 +117,7 @@ final class BenchmarkCommandTests: XCTestCase {
         ("testParseZeroIterationsError", testParseZeroIterationsError),
         ("testParseWarmupIterations", testParseWarmupIterations),
         ("testParseZeroWarmupIterations", testParseZeroWarmupIterations),
+        ("testParseNoWarmupIterations", testParseNoWarmupIterations),
         ("testParseMaxIterations", testParseWarmupIterations),
         ("testParseZeroMaxIterationsError", testParseZeroMaxIterationsError),
         ("testParseMinTime", testParseMinTime),
