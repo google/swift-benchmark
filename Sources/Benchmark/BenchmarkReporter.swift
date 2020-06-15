@@ -89,7 +89,7 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
         for result in results {
             let name: String
             if result.suiteName != "" {
-                name = "\(result.suiteName): \(result.benchmarkName)"
+                name = "\(result.suiteName).\(result.benchmarkName)"
             } else {
                 name = result.benchmarkName
             }

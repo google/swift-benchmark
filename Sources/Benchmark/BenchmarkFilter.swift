@@ -31,7 +31,7 @@ internal struct BenchmarkFilter {
         if underlying == nil {
             return true
         } else {
-            let str = "\(suiteName)/\(benchmarkName)"
+            let str = "\(suiteName).\(benchmarkName)"
             let range = NSRange(location: 0, length: str.utf16.count)
             return underlying!.firstMatch(in: str, range: range) != nil
         }
