@@ -21,7 +21,7 @@ final class BenchmarkSettingTests: XCTestCase {
     func assertNumberOfIterations(
         suite: BenchmarkSuite,
         counts expected: [Int],
-        cli settings: [BenchmarkSetting] = [Iterations(100000)]
+        cli settings: [BenchmarkSetting]
     ) throws {
         var runner = BenchmarkRunner(
             suites: [suite], settings: settings, reporter: BlackHoleReporter())
@@ -40,7 +40,10 @@ final class BenchmarkSettingTests: XCTestCase {
             suite.benchmark("a") {}
             suite.benchmark("b") {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [100000, 100000])
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [1_000_000, 1_000_000],
+            cli: [])
     }
 
     func testSuiteSetting() throws {
@@ -48,7 +51,10 @@ final class BenchmarkSettingTests: XCTestCase {
             suite.benchmark("a") {}
             suite.benchmark("b") {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [42, 42])
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [42, 42],
+            cli: [])
     }
 
     func testBenchmarkSetting() throws {
@@ -56,7 +62,10 @@ final class BenchmarkSettingTests: XCTestCase {
             suite.benchmark("a") {}
             suite.benchmark("b", settings: Iterations(42)) {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [100000, 42])
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [1_000_000, 42],
+            cli: [])
     }
 
     func testBenchmarkSettingOverridesSuiteSetting() throws {
@@ -64,43 +73,54 @@ final class BenchmarkSettingTests: XCTestCase {
             suite.benchmark("a") {}
             suite.benchmark("b", settings: Iterations(21)) {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [42, 21])
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [42, 21],
+            cli: [])
     }
 
     func testCliSetting() throws {
-        let cli: [BenchmarkSetting] = [Iterations(1)]
         let suite = BenchmarkSuite(name: "Test") { suite in
             suite.benchmark("a") {}
             suite.benchmark("b") {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [1, 1], cli: cli)
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [1, 1],
+            cli: [Iterations(1)])
     }
 
-    func testSuiteOverridesCliSetting() throws {
-        let cli: [BenchmarkSetting] = [Iterations(1)]
+    func testCliOverridesSuiteSetting() throws {
         let suite = BenchmarkSuite(name: "Test", settings: Iterations(2)) { suite in
             suite.benchmark("a") {}
             suite.benchmark("b") {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [2, 2], cli: cli)
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [1, 1],
+            cli: [Iterations(1)])
     }
 
-    func testBenchmarkOverridesCliSetting() throws {
-        let cli: [BenchmarkSetting] = [Iterations(1)]
+    func testCliOverridesBenchmarkSetting() throws {
         let suite = BenchmarkSuite(name: "Test") { suite in
             suite.benchmark("a") {}
             suite.benchmark("b", settings: Iterations(2)) {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [1, 2], cli: cli)
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [1, 1],
+            cli: [Iterations(1)])
     }
 
-    func testBenchmarkAndSuiteOverridesCliSetting() throws {
-        let cli: [BenchmarkSetting] = [Iterations(1)]
+    func testCliOverridesBenchmarkAndSuiteSetting() throws {
         let suite = BenchmarkSuite(name: "Test", settings: Iterations(2)) { suite in
             suite.benchmark("a") {}
             suite.benchmark("b", settings: Iterations(3)) {}
         }
-        try assertNumberOfIterations(suite: suite, counts: [2, 3], cli: cli)
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [1, 1],
+            cli: [Iterations(1)])
     }
 
     static var allTests = [
@@ -109,8 +129,8 @@ final class BenchmarkSettingTests: XCTestCase {
         ("testBenchmarkSetting", testBenchmarkSetting),
         ("testBenchmarkSettingOverridesSuiteSetting", testBenchmarkSettingOverridesSuiteSetting),
         ("testCliSetting", testCliSetting),
-        ("testSuiteOverridesCliSetting", testSuiteOverridesCliSetting),
-        ("testBenchmarkOverridesCliSetting", testBenchmarkOverridesCliSetting),
-        ("testBenchmarkAndSuiteOverridesCliSetting", testBenchmarkAndSuiteOverridesCliSetting),
+        ("testCliOverridesSuiteSetting", testCliOverridesSuiteSetting),
+        ("testCliOverridesBenchmarkSetting", testCliOverridesBenchmarkSetting),
+        ("testCliOverridesBenchmarkAndSuiteSetting", testCliOverridesBenchmarkAndSuiteSetting),
     ]
 }
