@@ -78,8 +78,9 @@ public struct BenchmarkArguments: ParsableArguments {
         if isDebug && !allowDebugBuild {
             throw ValidationError(debugBuildErrorMessage)
         }
-        if iterations != nil && iterations! <= 0 {
-            throw ValidationError(positiveNumberError(flag: "--iterations", of: "integer"))
+        if iterations != nil && iterations! < 0 {
+            throw ValidationError(
+                nonNegativeNumberError(flag: "--iterations", of: "integer"))
         }
         if warmupIterations != nil && warmupIterations! < 0 {
             throw ValidationError(

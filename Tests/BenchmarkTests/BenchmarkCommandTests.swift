@@ -61,10 +61,10 @@ final class BenchmarkCommandTests: XCTestCase {
         }
     }
 
-    func testParseZeroIterationsError() throws {
-        AssertFailsToParse(
-            ["--iterations", "0", "--allow-debug-build"],
-            with: "Value provided via --iterations must be a positive integer.")
+    func testParseZeroIterations() throws {
+        AssertParse(["--iterations", "0", "--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.iterations, 0)
+        }
     }
 
     func testParseWarmupIterations() throws {
@@ -114,7 +114,7 @@ final class BenchmarkCommandTests: XCTestCase {
         ("testDebugBuildError", testDebugBuildError),
         ("testParseFilter", testParseFilter),
         ("testParseIterations", testParseIterations),
-        ("testParseZeroIterationsError", testParseZeroIterationsError),
+        ("testParseZeroIterations", testParseZeroIterations),
         ("testParseWarmupIterations", testParseWarmupIterations),
         ("testParseZeroWarmupIterations", testParseZeroWarmupIterations),
         ("testParseNoWarmupIterations", testParseNoWarmupIterations),
