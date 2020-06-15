@@ -62,7 +62,7 @@ final class BenchmarkReporterTests: XCTestCase {
                 settings: BenchmarkSettings(),
                 measurements: [1_000, 2_000],
                 warmupMeasurements: [],
-                counters: ["n": 7]),
+                counters: ["foo": 7]),
             BenchmarkResult(
                 benchmarkName: "slow", suiteName: "MySuite",
                 settings: BenchmarkSettings(),
@@ -73,8 +73,8 @@ final class BenchmarkReporterTests: XCTestCase {
         let expected = #"""
             name         time         std        iterations foo
             ---------------------------------------------------
-            MySuite.fast    1500.0 ns ±  47.14 %          2   7
-            MySuite.slow 1500000.0 ns ±  47.14 %          2   0
+            MySuite.fast    1500.0 ns ±  47.14 %          2 7.0
+            MySuite.slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
     }
@@ -98,7 +98,7 @@ final class BenchmarkReporterTests: XCTestCase {
             name         time         std        iterations warmup
             -------------------------------------------------------
             MySuite.fast    1500.0 ns ±  47.14 %          2 60.0 ns
-            MySuite.slow 1500000.0 ns ±  47.14 %          2  0.0 ns
+            MySuite.slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
     }
