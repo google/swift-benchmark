@@ -54,8 +54,9 @@ public struct BenchmarkRunner {
         let totalStart = now()
 
         var warmupState: BenchmarkState? = nil
-        if let n = settings.warmupIterations {
-            warmupState = doNIterations(n, benchmark: benchmark, suite: suite, settings: settings)
+        if settings.warmupIterations > 0 {
+            warmupState = doNIterations(
+                settings.warmupIterations, benchmark: benchmark, suite: suite, settings: settings)
         }
 
         var state: BenchmarkState

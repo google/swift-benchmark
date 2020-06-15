@@ -73,10 +73,16 @@ final class BenchmarkCommandTests: XCTestCase {
         }
     }
 
-    func testParseZeroWarmupIterationsError() throws {
-        AssertFailsToParse(
-            ["--warmup-iterations", "0", "--allow-debug-build"],
-            with: "Value provided via --warmup-iterations must be a positive integer.")
+    func testParseZeroWarmupIterations() throws {
+        AssertParse(["--warmup-iterations", "0", "--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.warmupIterations, 0)
+        }
+    }
+
+    func testParseNoWarmupIterations() throws {
+        AssertParse(["--allow-debug-build"]) { settings in
+            XCTAssertEqual(settings.warmupIterations, 0)
+        }
     }
 
     func testParseMaxIterations() throws {
@@ -87,7 +93,7 @@ final class BenchmarkCommandTests: XCTestCase {
 
     func testParseZeroMaxIterationsError() throws {
         AssertFailsToParse(
-            ["--warmup-iterations", "0", "--allow-debug-build"],
+            ["--max-iterations", "0", "--allow-debug-build"],
             with: "Value provided via --max-iterations must be a positive integer.")
     }
 
@@ -110,9 +116,10 @@ final class BenchmarkCommandTests: XCTestCase {
         ("testParseIterations", testParseIterations),
         ("testParseZeroIterationsError", testParseZeroIterationsError),
         ("testParseWarmupIterations", testParseWarmupIterations),
-        ("testParseZeroWarmupIterationsError", testParseZeroWarmupIterationsError),
+        ("testParseZeroWarmupIterations", testParseZeroWarmupIterations),
+        ("testParseNoWarmupIterations", testParseNoWarmupIterations),
         ("testParseMaxIterations", testParseWarmupIterations),
-        ("testParseZeroMaxIterationsError", testParseZeroWarmupIterationsError),
+        ("testParseZeroMaxIterationsError", testParseZeroMaxIterationsError),
         ("testParseMinTime", testParseMinTime),
         ("testParseZeroMinTimeError", testParseZeroMinTimeError),
     ]
