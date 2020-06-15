@@ -47,7 +47,7 @@ final class BenchmarkCommandTests: XCTestCase {
             XCTAssert(filter.matches(suiteName: "foo", benchmarkName: "bar"))
         }
 
-        AssertParse(["--filter", "foo/bar", "--allow-debug-build"]) { settings in
+        AssertParse(["--filter", "foo.bar", "--allow-debug-build"]) { settings in
             let filter = try! BenchmarkFilter(settings.filter)
             XCTAssertFalse(filter.matches(suiteName: "foo", benchmarkName: "baz"))
             XCTAssertFalse(filter.matches(suiteName: "foobar", benchmarkName: "baz"))

@@ -34,23 +34,23 @@ final class BenchmarkReporterTests: XCTestCase {
     func testPlainTextReporter() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
-                benchmarkName: "fast", suiteName: "My Suite",
+                benchmarkName: "fast", suiteName: "MySuite",
                 settings: BenchmarkSettings(),
                 measurements: [1_000, 2_000],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
-                benchmarkName: "slow", suiteName: "My Suite",
+                benchmarkName: "slow", suiteName: "MySuite",
                 settings: BenchmarkSettings(),
                 measurements: [1_000_000, 2_000_000],
                 warmupMeasurements: [],
                 counters: [:]),
         ]
         let expected = #"""
-            name           time         std        iterations
-            -------------------------------------------------
-            My Suite: fast    1500.0 ns ±  47.14 %          2
-            My Suite: slow 1500000.0 ns ±  47.14 %          2
+            name         time         std        iterations
+            -----------------------------------------------
+            MySuite.fast    1500.0 ns ±  47.14 %          2
+            MySuite.slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
     }
@@ -58,23 +58,23 @@ final class BenchmarkReporterTests: XCTestCase {
     func testCountersAreReported() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
-                benchmarkName: "fast", suiteName: "My Suite",
+                benchmarkName: "fast", suiteName: "MySuite",
                 settings: BenchmarkSettings(),
                 measurements: [1_000, 2_000],
                 warmupMeasurements: [],
-                counters: ["n": 7]),
+                counters: ["foo": 7]),
             BenchmarkResult(
-                benchmarkName: "slow", suiteName: "My Suite",
+                benchmarkName: "slow", suiteName: "MySuite",
                 settings: BenchmarkSettings(),
                 measurements: [1_000_000, 2_000_000],
                 warmupMeasurements: [],
                 counters: [:]),
         ]
         let expected = #"""
-            name           time         std        iterations n
-            -----------------------------------------------------
-            My Suite: fast    1500.0 ns ±  47.14 %          2 7.0
-            My Suite: slow 1500000.0 ns ±  47.14 %          2
+            name         time         std        iterations foo
+            ---------------------------------------------------
+            MySuite.fast    1500.0 ns ±  47.14 %          2 7.0
+            MySuite.slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
     }
@@ -82,23 +82,23 @@ final class BenchmarkReporterTests: XCTestCase {
     func testWarmupReported() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
-                benchmarkName: "fast", suiteName: "My Suite",
+                benchmarkName: "fast", suiteName: "MySuite",
                 settings: BenchmarkSettings(),
                 measurements: [1_000, 2_000],
                 warmupMeasurements: [10, 20, 30],
                 counters: [:]),
             BenchmarkResult(
-                benchmarkName: "slow", suiteName: "My Suite",
+                benchmarkName: "slow", suiteName: "MySuite",
                 settings: BenchmarkSettings(),
                 measurements: [1_000_000, 2_000_000],
                 warmupMeasurements: [],
                 counters: [:]),
         ]
         let expected = #"""
-            name           time         std        iterations warmup
-            ---------------------------------------------------------
-            My Suite: fast    1500.0 ns ±  47.14 %          2 60.0 ns
-            My Suite: slow 1500000.0 ns ±  47.14 %          2
+            name         time         std        iterations warmup
+            -------------------------------------------------------
+            MySuite.fast    1500.0 ns ±  47.14 %          2 60.0 ns
+            MySuite.slow 1500000.0 ns ±  47.14 %          2
             """#
         assertIsPrintedAs(results, expected)
     }
@@ -106,37 +106,37 @@ final class BenchmarkReporterTests: XCTestCase {
     func testTimeUnitReported() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
-                benchmarkName: "ns", suiteName: "My Suite",
+                benchmarkName: "ns", suiteName: "MySuite",
                 settings: BenchmarkSettings([TimeUnit(.ns)]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
-                benchmarkName: "us", suiteName: "My Suite",
+                benchmarkName: "us", suiteName: "MySuite",
                 settings: BenchmarkSettings([TimeUnit(.us)]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
-                benchmarkName: "ms", suiteName: "My Suite",
+                benchmarkName: "ms", suiteName: "MySuite",
                 settings: BenchmarkSettings([TimeUnit(.ms)]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
-                benchmarkName: "s", suiteName: "My Suite",
+                benchmarkName: "s", suiteName: "MySuite",
                 settings: BenchmarkSettings([TimeUnit(.s)]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
         ]
         let expected = #"""
-            name         time           std        iterations
-            -------------------------------------------------
-            My Suite: ns 123456789.0 ns ±   0.00 %          1
-            My Suite: us  123456.789 us ±   0.00 %          1
-            My Suite: ms  1234.56789 ms ±   0.00 %          1
-            My Suite: s   0.123456789 s ±   0.00 %          1
+            name       time           std        iterations
+            -----------------------------------------------
+            MySuite.ns 123456789.0 ns ±   0.00 %          1
+            MySuite.us  123456.789 us ±   0.00 %          1
+            MySuite.ms  1234.56789 ms ±   0.00 %          1
+            MySuite.s   0.123456789 s ±   0.00 %          1
             """#
         assertIsPrintedAs(results, expected)
     }

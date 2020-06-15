@@ -19,23 +19,23 @@ import XCTest
 final class BenchmarkRunnerTests: XCTestCase {
     func testFilterBenchmarksSuffix() throws {
         let settings: [BenchmarkSetting] = [Iterations(1), Filter("b1")]
-        XCTAssertEqual(Set(["suite1/b1", "suite2/b1"]), runBenchmarks(settings: settings))
+        XCTAssertEqual(Set(["suite1.b1", "suite2.b1"]), runBenchmarks(settings: settings))
     }
 
     func testFilterBenchmarksSuiteName() throws {
         let settings: [BenchmarkSetting] = [Iterations(1), Filter("suite1")]
-        XCTAssertEqual(Set(["suite1/b1", "suite1/b2"]), runBenchmarks(settings: settings))
+        XCTAssertEqual(Set(["suite1.b1", "suite1.b2"]), runBenchmarks(settings: settings))
     }
 
     func testFilterBenchmarksFullName() throws {
-        let settings: [BenchmarkSetting] = [Iterations(1), Filter("suite1/b1")]
-        XCTAssertEqual(Set(["suite1/b1"]), runBenchmarks(settings: settings))
+        let settings: [BenchmarkSetting] = [Iterations(1), Filter("suite1.b1")]
+        XCTAssertEqual(Set(["suite1.b1"]), runBenchmarks(settings: settings))
     }
 
     func testAutomaticallyDetectIterations() throws {
         let settings: [BenchmarkSetting] = []
         XCTAssertEqual(
-            Set(["suite2/b2", "suite2/b1", "suite1/b2", "suite1/b1"]),
+            Set(["suite2.b2", "suite2.b1", "suite1.b2", "suite1.b1"]),
             runBenchmarks(settings: settings))
     }
 
@@ -140,10 +140,10 @@ extension BenchmarkRunnerTests {
 
         var benchmarksRun = Set<String>()
 
-        suite1.benchmark("b1") { benchmarksRun.insert("suite1/b1") }
-        suite2.benchmark("b1") { benchmarksRun.insert("suite2/b1") }
-        suite1.benchmark("b2") { benchmarksRun.insert("suite1/b2") }
-        suite2.benchmark("b2") { benchmarksRun.insert("suite2/b2") }
+        suite1.benchmark("b1") { benchmarksRun.insert("suite1.b1") }
+        suite2.benchmark("b1") { benchmarksRun.insert("suite2.b1") }
+        suite1.benchmark("b2") { benchmarksRun.insert("suite1.b2") }
+        suite2.benchmark("b2") { benchmarksRun.insert("suite2.b2") }
 
         do {
             let _ = try run(suites: [suite1, suite2], settings: settings)
