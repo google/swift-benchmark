@@ -75,8 +75,9 @@ public struct BenchmarkArguments: ParsableArguments {
         if iterations != nil && iterations! <= 0 {
             throw ValidationError(positiveNumberError(flag: "--iterations", of: "integer"))
         }
-        if warmupIterations != nil && warmupIterations! <= 0 {
-            throw ValidationError(positiveNumberError(flag: "--warmup-iterations", of: "integer"))
+        if warmupIterations != nil && warmupIterations! < 0 {
+            throw ValidationError(
+                nonNegativeNumberError(flag: "--warmup-iterations", of: "integer"))
         }
         if maxIterations != nil && maxIterations! <= 0 {
             throw ValidationError(positiveNumberError(flag: "--max-iterations", of: "integer"))
@@ -98,5 +99,9 @@ public struct BenchmarkArguments: ParsableArguments {
 
     func positiveNumberError(flag: String, of type: String) -> String {
         return "Value provided via \(flag) must be a positive \(type)."
+    }
+
+    func nonNegativeNumberError(flag: String, of type: String) -> String {
+        return "Value provided via \(flag) must be a non-negative \(type)."
     }
 }

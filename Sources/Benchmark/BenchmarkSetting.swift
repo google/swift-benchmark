@@ -125,8 +125,12 @@ public struct BenchmarkSettings {
     }
 
     /// Convenience accessor for WarmupIterations setting.
-    public var warmupIterations: Int? {
-        return self[WarmupIterations.self]?.value
+    public var warmupIterations: Int {
+        if let value = self[WarmupIterations.self]?.value {
+            return value
+        } else {
+            return 0
+        }
     }
 
     /// Convenience accessor for the Filter setting.
