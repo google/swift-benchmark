@@ -178,7 +178,7 @@ extension Double {
         switch unit {
         case .ns: return "\(self) ns"
         case .us: return "\(self/1000.0) us"
-        case .ms: return "\(self/100_000.0) ms"
+        case .ms: return "\(self/1000_000.0) ms"
         case .s: return "\(self/1000_000_000.0) s"
         }
     }
