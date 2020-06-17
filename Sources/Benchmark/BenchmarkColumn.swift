@@ -47,8 +47,8 @@ public struct BenchmarkColumn: Hashable {
         self.formatter = formatter
     }
 
-    /// Registry stores associated between known column
-    /// names and their corresponding column values. This
+    /// Registry that represents a mapping from known column
+    /// names to their corresponding column values. This
     /// registry can be modified to add custom user-defined
     /// output columns.
     public static var registry: [String: BenchmarkColumn] = {
