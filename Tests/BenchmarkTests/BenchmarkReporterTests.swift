@@ -135,7 +135,7 @@ final class BenchmarkReporterTests: XCTestCase {
             -----------------------------------------------
             MySuite.ns 123456789.0 ns ±   0.00 %          1
             MySuite.us  123456.789 us ±   0.00 %          1
-            MySuite.ms  1234.56789 ms ±   0.00 %          1
+            MySuite.ms  123.456789 ms ±   0.00 %          1
             MySuite.s   0.123456789 s ±   0.00 %          1
             """#
         assertIsPrintedAs(results, expected)
