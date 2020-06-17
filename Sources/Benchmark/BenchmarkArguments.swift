@@ -36,10 +36,10 @@ public struct BenchmarkArguments: ParsableArguments {
         help: "Maximum number of iterations to run when automatically detecting number iterations.")
     var maxIterations: Int?
 
-    @Option(help: "Time unit used to report the results.")
+    @Option(help: "Time unit used to report the timing results.")
     var timeUnit: TimeUnit.Value?
 
-    @Option(help: "Time unit used to report the results.")
+    @Option(help: "Inverse time unit used to report throughput results.")
     var inverseTimeUnit: TimeUnit.Value?
 
     @Option(help: "List of columns to show.")
