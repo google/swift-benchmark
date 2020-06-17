@@ -55,7 +55,7 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
         } else {
             columns = BenchmarkColumn.defaults(results: results)
         }
-        let rows = BenchmarkColumn.evaluate(columns: columns, results: results)
+        let rows = BenchmarkColumn.evaluate(columns: columns, results: results, pretty: true)
 
         let widths: [Column: Int] = Dictionary(
             uniqueKeysWithValues:

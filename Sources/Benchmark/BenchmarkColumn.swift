@@ -15,38 +15,51 @@
 public struct BenchmarkColumn: Hashable {
     typealias Column = BenchmarkColumn
     typealias Row = [Column: String]
+    typealias Content = (BenchmarkResult, Bool) -> String
 
     let name: String
     let content: Content
     let alignment: Alignment
 
-    init(name: String, content: Content, alignment: Alignment) {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.name == rhs.name
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        name.hash(into: &hasher)
+    }
+
+    init(name: String, content: @escaping Content, alignment: Alignment) {
         self.name = name
         self.content = content
         self.alignment = alignment
     }
 
     static func defaults(results: [BenchmarkResult]) -> [Column] {
+        func custom(_ custom: CustomContent) -> Content {
+            return custom.content()
+        }
+
         var columns = [
             // name=:.name
             Column(
                 name: "name",
-                content: .name,
+                content: custom(.name),
                 alignment: .left),
             // time=time.median:
             Column(
                 name: "time",
-                content: .value(.median(.time)),
+                content: custom(.value(.median(.time))),
                 alignment: .right),
             // std=:time.std.divide.time.median
             Column(
                 name: "std",
-                content: .value(.percentage(.divide(.std(.time), .median(.time)))),
+                content: custom(.value(.percentage(.divide(.std(.time), .median(.time))))),
                 alignment: .left),
             // iterations=iterations:
             Column(
                 name: "iterations",
-                content: .value(.iterations),
+                content: custom(.value(.iterations)),
                 alignment: .right),
         ]
         var counters: Set<String> = Set()
@@ -62,7 +75,7 @@ public struct BenchmarkColumn: Hashable {
             columns.append(
                 Column(
                     name: counter,
-                    content: .value(.counter(counter)),
+                    content: custom(.value(.counter(counter))),
                     alignment: .right))
         }
         if showWarmup {
@@ -70,15 +83,60 @@ public struct BenchmarkColumn: Hashable {
             columns.append(
                 Column(
                     name: "warmup",
-                    content: .value(.sum(.warmupTime)),
+                    content: custom(.value(.sum(.warmupTime))),
                     alignment: .right))
         }
         return columns
     }
 
-    enum Content: Hashable {
+    enum CustomContent: Hashable {
         case name
         case value(Value)
+
+        func content() -> Content {
+            return { (result, pretty) in
+                switch self {
+                case .name:
+                    if result.suiteName != "" {
+                        return "\(result.suiteName).\(result.benchmarkName)"
+                    } else {
+                        return result.benchmarkName
+                    }
+                case .value(let value):
+                    let evaluated = evaluate(value: value, result: result)
+                    if !pretty {
+                        return String(evaluated)
+                    }
+                    let suffix: String = containsStd(value) ? "± " : ""
+                    switch unit(value) {
+                    case .percentage:
+                        return suffix + String(format: "%6.2f %%", evaluated)
+                    case .time:
+                        switch result.settings.timeUnit {
+                        case .ns: return suffix + "\(evaluated) ns"
+                        case .us: return suffix + "\(evaluated/1000.0) us"
+                        case .ms: return suffix + "\(evaluated/1000_000.0) ms"
+                        case .s: return suffix + "\(evaluated/1000_000_000.0) s"
+                        }
+                    case .inverseTime:
+                        switch result.settings.inverseTimeUnit {
+                        case .ns: return suffix + "\(evaluated) /ns"
+                        case .us: return suffix + "\(evaluated*1000.0) /us"
+                        case .ms: return suffix + "\(evaluated*1000_000.0) /ms"
+                        case .s: return suffix + "\(evaluated*1000_000_000.0) /s"
+                        }
+                    case .none:
+                        let string = String(evaluated)
+                        if string.hasSuffix(".0") {
+                            return suffix + String(string.dropLast(2))
+                        } else {
+                            return suffix + string
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     enum Alignment: Hashable {
@@ -112,7 +170,7 @@ public struct BenchmarkColumn: Hashable {
         case inverseTime
     }
 
-    static func evaluate(columns: [Column], results: [BenchmarkResult]) -> [Row] {
+    static func evaluate(columns: [Column], results: [BenchmarkResult], pretty: Bool) -> [Row] {
         var header: Row = [:]
         for column in columns {
             header[column] = column.name
@@ -122,54 +180,12 @@ public struct BenchmarkColumn: Hashable {
         for result in results {
             var row: Row = [:]
             for column in columns {
-                row[column] = evaluate(content: column.content, result: result, pretty: true)
+                row[column] = column.content(result, pretty)
             }
             rows.append(row)
         }
 
         return rows
-    }
-
-    static func evaluate(content: Content, result: BenchmarkResult, pretty: Bool) -> String {
-        switch content {
-        case .name:
-            if result.suiteName != "" {
-                return "\(result.suiteName).\(result.benchmarkName)"
-            } else {
-                return result.benchmarkName
-            }
-        case .value(let value):
-            let evaluated = evaluate(value: value, result: result)
-            if !pretty {
-                return String(evaluated)
-            }
-            let suffix: String = containsStd(value) ? "± " : ""
-            switch unit(value) {
-            case .percentage:
-                return suffix + String(format: "%6.2f %%", evaluated)
-            case .time:
-                switch result.settings.timeUnit {
-                case .ns: return suffix + "\(evaluated) ns"
-                case .us: return suffix + "\(evaluated/1000.0) us"
-                case .ms: return suffix + "\(evaluated/1000_000.0) ms"
-                case .s: return suffix + "\(evaluated/1000_000_000.0) s"
-                }
-            case .inverseTime:
-                switch result.settings.inverseTimeUnit {
-                case .ns: return suffix + "\(evaluated) /ns"
-                case .us: return suffix + "\(evaluated*1000.0) /us"
-                case .ms: return suffix + "\(evaluated*1000_000.0) /ms"
-                case .s: return suffix + "\(evaluated*1000_000_000.0) /s"
-                }
-            case .none:
-                let string = String(evaluated)
-                if string.hasSuffix(".0") {
-                    return suffix + String(string.dropLast(2))
-                } else {
-                    return suffix + string
-                }
-            }
-        }
     }
 
     static func containsStd(_ value: Value) -> Bool {
@@ -298,19 +314,20 @@ public struct BenchmarkColumn: Hashable {
             rest = String(rest.dropLast())
         }
 
-        let content = try parse(content: rest)
+        let customContent = try parse(customContent: rest)
         if columnName == "" {
-            columnName = name(content: content)
+            columnName = name(customContent: customContent)
         }
+        let content = customContent.content()
 
         return Column(name: columnName, content: content, alignment: alignment)
     }
 
-    static func parse(content: String) throws -> Content {
-        if content == "name" {
+    static func parse(customContent: String) throws -> CustomContent {
+        if customContent == "name" {
             return .name
         } else {
-            return .value(try parse(value: content))
+            return .value(try parse(value: customContent))
         }
     }
 
@@ -393,8 +410,8 @@ public struct BenchmarkColumn: Hashable {
         }
     }
 
-    static func name(content: Content) -> String {
-        switch content {
+    static func name(customContent: CustomContent) -> String {
+        switch customContent {
         case .name:
             return "name"
         case .value(let value):

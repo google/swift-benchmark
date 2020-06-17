@@ -52,43 +52,12 @@ final class BenchmarkColumnTests: XCTestCase {
         ),
     ]
 
-    static var contentExamples: [(String, BenchmarkColumn.Content)] {
-        var result: [(String, BenchmarkColumn.Content)] = [
+    static var contentExamples: [(String, BenchmarkColumn.CustomContent)] {
+        var result: [(String, BenchmarkColumn.CustomContent)] = [
             ("name", .name)
         ]
         for (string, value) in BenchmarkColumnTests.valueExamples {
             result.append((string, .value(value)))
-        }
-        return result
-    }
-
-    static var columnNames = [
-        "time",
-        "time (ns)",
-        "time median",
-        "time std",
-        "time std (%)",
-        "foo",
-        "foo bar",
-    ]
-
-    static var alignments: [BenchmarkColumn.Alignment] = [
-        .left,
-        .right,
-    ]
-
-    static var columnExamples: [(String, BenchmarkColumn)] {
-        var result: [(String, BenchmarkColumn)] = []
-        for name in BenchmarkColumnTests.columnNames {
-            for alignment in BenchmarkColumnTests.alignments {
-                for (content, contentExpected) in BenchmarkColumnTests.contentExamples {
-                    let rhs = alignment == .left ? ":\(content)" : "\(content):"
-                    let string = "\(name)=\(rhs)"
-                    let expected = BenchmarkColumn(
-                        name: name, content: contentExpected, alignment: alignment)
-                    result.append((string, expected))
-                }
-            }
         }
         return result
     }
@@ -102,34 +71,13 @@ final class BenchmarkColumnTests: XCTestCase {
 
     func testParseContent() throws {
         for (string, expected) in BenchmarkColumnTests.contentExamples {
-            let parsed = try BenchmarkColumn.parse(content: string)
+            let parsed = try BenchmarkColumn.parse(customContent: string)
             XCTAssertEqual(parsed, expected, "content: \(string)")
-        }
-    }
-
-    func testParseColumn() throws {
-        for (string, expected) in BenchmarkColumnTests.columnExamples {
-            let parsed = try BenchmarkColumn.parse(column: string)
-            XCTAssertEqual(parsed, expected, "column: \(string)")
-
-        }
-    }
-
-    func testParseColumns() throws {
-        for (string1, expected1) in BenchmarkColumnTests.columnExamples {
-            for (string2, expected2) in BenchmarkColumnTests.columnExamples {
-                let string = "\(string1),\(string2)"
-                let parsed = try BenchmarkColumn.parse(columns: string)
-                let expected = [expected1, expected2]
-                XCTAssertEqual(parsed, expected, "columns: \(string)")
-            }
         }
     }
 
     static var allTests = [
         ("testParseValue", testParseValue),
         ("testParseContent", testParseContent),
-        ("testParseColumn", testParseColumn),
-        ("testParseColumns", testParseColumns),
     ]
 }
