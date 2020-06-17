@@ -63,7 +63,7 @@ public struct MinTime: BenchmarkSetting {
     }
 }
 
-/// Time unit for reporting results.
+/// Time unit for reporting time results.
 public struct TimeUnit: BenchmarkSetting {
     public var value: Value
     public init(_ value: Value) {
@@ -74,6 +74,22 @@ public struct TimeUnit: BenchmarkSetting {
         case us
         case ms
         case s
+    }
+}
+
+/// Time unit for reporting throughput results.
+public struct InverseTimeUnit: BenchmarkSetting {
+    public var value: TimeUnit.Value
+    public init(_ value: TimeUnit.Value) {
+        self.value = value
+    }
+}
+
+/// Columns to show in the benchmark output.
+public struct Columns: BenchmarkSetting {
+    public var value: [String]
+    public init(_ value: [String]) {
+        self.value = value
     }
 }
 
@@ -171,10 +187,25 @@ public struct BenchmarkSettings {
             fatalError("timeUnit must have a default.")
         }
     }
+
+    /// Convenience accessor for the InverseTimeUnit setting. 
+    public var inverseTimeUnit: TimeUnit.Value {
+        if let value = self[InverseTimeUnit.self]?.value {
+            return value
+        } else {
+            fatalError("inverseTimeUnit must have a default.")
+        }
+    }
+
+    /// Convenience accessor for the Columns setting. 
+    public var columns: [String]? {
+        return self[Columns.self]?.value
+    }
 }
 
 let defaultSettings: [BenchmarkSetting] = [
     MaxIterations(1_000_000),
     MinTime(seconds: 1.0),
     TimeUnit(.ns),
+    InverseTimeUnit(.s),
 ]

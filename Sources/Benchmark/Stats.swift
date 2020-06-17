@@ -26,6 +26,10 @@ extension Array where Element == Double {
         return total
     }
 
+    var average: Double {
+        return sum / Double(count)
+    }
+
     var sumSquared: Double {
         var total: Double = 0
         for x in self {
@@ -69,5 +73,31 @@ extension Array where Element == Double {
         let meanValue = mean
         let avgSquares = sumSquared * (1.0 / c)
         return (c / (c - 1) * (avgSquares - meanValue * meanValue)).squareRoot()
+    }
+
+    func percentile(_ v: Double) -> Double {
+        if v < 0 {
+            fatalError("Percentile can not be negative.")
+        }
+        if v > 100 {
+            fatalError("Percentile can not be more than 100.")
+        }
+        if count == 0 {
+            return 0
+        }
+        let sorted = self.sorted()
+        let p = v / 100.0
+        let index = (Double(count) - 1) * p
+        var low = index
+        low.round(.down)
+        var high = index
+        high.round(.up)
+        if low == high {
+            return sorted[Int(low)]
+        } else {
+            let lowValue = sorted[Int(low)] * (high - index)
+            let highValue = sorted[Int(high)] * (index - low)
+            return lowValue + highValue
+        }
     }
 }

@@ -36,8 +36,14 @@ public struct BenchmarkArguments: ParsableArguments {
         help: "Maximum number of iterations to run when automatically detecting number iterations.")
     var maxIterations: Int?
 
-    @Option(help: "Time unit used to report the results.")
+    @Option(help: "Time unit used to report the timing results.")
     var timeUnit: TimeUnit.Value?
+
+    @Option(help: "Inverse time unit used to report throughput results.")
+    var inverseTimeUnit: TimeUnit.Value?
+
+    @Option(help: "Comma-separated list of column names to show.")
+    var columns: String?
 
     public init() {}
 
@@ -62,6 +68,13 @@ public struct BenchmarkArguments: ParsableArguments {
         }
         if let value = timeUnit {
             result.append(TimeUnit(value))
+        }
+        if let value = inverseTimeUnit {
+            result.append(InverseTimeUnit(value))
+        }
+        if let value = columns {
+            let names = value.split(separator: ",").map { String($0) }
+            result.append(Columns(Array(names)))
         }
 
         return result
@@ -92,6 +105,13 @@ public struct BenchmarkArguments: ParsableArguments {
         if minTime != nil && minTime! <= 0 {
             throw ValidationError(
                 positiveNumberError(flag: "--min-time", of: "floating point number"))
+        }
+        if let value = columns {
+            for name in value.split(separator: ",") {
+                if BenchmarkColumn.registry[String(name)] == nil {
+                    throw ValidationError("Unknown output column: `\(name)`.")
+                }
+            }
         }
     }
 

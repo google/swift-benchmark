@@ -21,7 +21,7 @@ final class BenchmarkReporterTests: XCTestCase {
         let output = MockTextOutputStream()
         var reporter = PlainTextReporter(to: output)
 
-        reporter.report(results: results)
+        reporter.report(results: results, settings: BenchmarkSettings())
 
         let expectedLines = expected.split(separator: "\n").map { String($0) }
         let actual = output.lines.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -73,8 +73,8 @@ final class BenchmarkReporterTests: XCTestCase {
         let expected = #"""
             name         time         std        iterations foo
             ---------------------------------------------------
-            MySuite.fast    1500.0 ns ±  47.14 %          2 7.0
-            MySuite.slow 1500000.0 ns ±  47.14 %          2
+            MySuite.fast    1500.0 ns ±  47.14 %          2   7
+            MySuite.slow 1500000.0 ns ±  47.14 %          2   0
             """#
         assertIsPrintedAs(results, expected)
     }
@@ -98,7 +98,7 @@ final class BenchmarkReporterTests: XCTestCase {
             name         time         std        iterations warmup
             -------------------------------------------------------
             MySuite.fast    1500.0 ns ±  47.14 %          2 60.0 ns
-            MySuite.slow 1500000.0 ns ±  47.14 %          2
+            MySuite.slow 1500000.0 ns ±  47.14 %          2  0.0 ns
             """#
         assertIsPrintedAs(results, expected)
     }

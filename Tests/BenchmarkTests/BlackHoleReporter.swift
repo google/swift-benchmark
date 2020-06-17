@@ -17,5 +17,5 @@
 struct BlackHoleReporter: BenchmarkReporter {
     func report(running name: String, suite: String) {}
     func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {}
-    func report(results: [BenchmarkResult]) {}
+    func report(results: [BenchmarkResult], settings: BenchmarkSettings) {}
 }

@@ -28,7 +28,11 @@ public struct BenchmarkRunner {
         for suite in suites {
             try run(suite: suite)
         }
-        reporter.report(results: results)
+        let globalSettings = BenchmarkSettings([
+            defaultSettings,
+            self.settings,
+        ])
+        reporter.report(results: results, settings: globalSettings)
     }
 
     mutating func run(suite: BenchmarkSuite) throws {
