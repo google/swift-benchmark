@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A type that defines how benchmark results should be 
+/// presented as an output columns.
 public struct BenchmarkColumn: Hashable {
-    typealias Column = BenchmarkColumn
-    typealias Row = [Column: String]
+    public typealias Row = [BenchmarkColumn: String]
+    public typealias Formatter = BenchmarkFormatter.Formatter
 
+    /// Name of the column shown in the output header.
     public let name: String
-    public let content: (BenchmarkResult) -> Content
+
+    /// Function to compute a value for each cell based on results.
+    public let value: (BenchmarkResult) -> Double
+
+    /// Visual alignment to either left or right side of the column.
     public let alignment: Alignment
 
-    public enum Content {
-        case string(String)
-        case time(Double)
-        case inverseTime(Double)
-        case percentage(Double)
-        case number(Double)
-    }
+    /// Formatter function for pretty human-readable console output.
+    public let formatter: Formatter
 
     public enum Alignment: Hashable {
         case left
@@ -35,86 +37,97 @@ public struct BenchmarkColumn: Hashable {
 
     public init(
         name: String,
-        content: @escaping (BenchmarkResult) -> Content,
-        alignment: Alignment
+        value: @escaping (BenchmarkResult) -> Double,
+        alignment: Alignment,
+        formatter: @escaping Formatter = BenchmarkFormatter.number
     ) {
         self.name = name
-        self.content = content
+        self.value = value
         self.alignment = alignment
+        self.formatter = formatter
     }
 
+    /// Registry stores associated between known column
+    /// names and their corresponding column values. This
+    /// registry can be modified to add custom user-defined
+    /// output columns.
     public static var registry: [String: BenchmarkColumn] = {
         var result: [String: BenchmarkColumn] = [:]
 
         // Default columns.
         result["name"] = BenchmarkColumn(
             name: "name",
-            content: { result in
-                if result.suiteName != "" {
-                    return .string("\(result.suiteName).\(result.benchmarkName)")
-                } else {
-                    return .string(result.benchmarkName)
-                }
-            },
+            value: { _ in return 0 },  // name is a special case
             alignment: .left)
         result["time"] = BenchmarkColumn(
             name: "time",
-            content: { .time($0.measurements.median) },
-            alignment: .right)
+            value: { $0.measurements.median },
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
         result["std"] = BenchmarkColumn(
             name: "std",
-            content: { .percentage($0.measurements.std / $0.measurements.median * 100) },
-            alignment: .left)
+            value: { $0.measurements.std / $0.measurements.median * 100 },
+            alignment: .left,
+            formatter: BenchmarkFormatter.stdPercentage)
         result["iterations"] = BenchmarkColumn(
             name: "iterations",
-            content: { .number(Double($0.measurements.count)) },
-            alignment: .right)
+            value: { Double($0.measurements.count) },
+            alignment: .right,
+            formatter: BenchmarkFormatter.number)
         result["warmup"] = BenchmarkColumn(
             name: "warmup",
-            content: { .time($0.warmupMeasurements.sum) },
-            alignment: .right)
+            value: { $0.warmupMeasurements.sum },
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
 
         // Opt-in alternative columns.
         result["median"] = BenchmarkColumn(
             name: "median",
-            content: { .time($0.measurements.median) },
-            alignment: .right)
+            value: { $0.measurements.median },
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
         result["min"] = BenchmarkColumn(
             name: "min",
-            content: { result in
+            value: { result in
                 if let value = result.measurements.min() {
-                    return .time(value)
+                    return (value)
                 } else {
-                    return .time(0)
+                    return (0)
                 }
             },
-            alignment: .right)
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
         result["max"] = BenchmarkColumn(
             name: "max",
-            content: { result in
+            value: { result in
                 if let value = result.measurements.max() {
-                    return .time(value)
+                    return (value)
                 } else {
-                    return .time(0)
+                    return (0)
                 }
             },
-            alignment: .right)
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
         result["total"] = BenchmarkColumn(
             name: "total",
-            content: { .time($0.measurements.sum) },
-            alignment: .right)
+            value: { ($0.measurements.sum) },
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
         result["avg"] = BenchmarkColumn(
             name: "avg",
-            content: { .time($0.measurements.average) },
-            alignment: .right)
+            value: { ($0.measurements.average) },
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
         result["average"] = BenchmarkColumn(
             name: "avg",
-            content: { .time($0.measurements.average) },
-            alignment: .right)
+            value: { ($0.measurements.average) },
+            alignment: .right,
+            formatter: BenchmarkFormatter.time)
         result["std_abs"] = BenchmarkColumn(
             name: "std_abs",
-            content: { .number($0.measurements.std) },
-            alignment: .left)
+            value: { ($0.measurements.std) },
+            alignment: .left,
+            formatter: BenchmarkFormatter.std)
         var percentiles: [Double] = []
         percentiles.append(contentsOf: (0...100).map { Double($0) })
         percentiles.append(contentsOf: [99.9, 99.99, 99.999, 99.9999])
@@ -125,8 +138,9 @@ public struct BenchmarkColumn: Hashable {
             }
             result[name] = BenchmarkColumn(
                 name: name,
-                content: { .time($0.measurements.percentile(v)) },
-                alignment: .left)
+                value: { ($0.measurements.percentile(v)) },
+                alignment: .left,
+                formatter: BenchmarkFormatter.time)
         }
 
         return result
@@ -140,7 +154,9 @@ public struct BenchmarkColumn: Hashable {
         name.hash(into: &hasher)
     }
 
-    static func defaults(results: [BenchmarkResult]) -> [Column] {
+    /// A set of columns shown by default if no user-specified
+    /// --columns flag is provided.
+    static func defaults(results: [BenchmarkResult]) -> [BenchmarkColumn] {
         var showWarmup: Bool = false
         var counters: Set<String> = Set()
         for result in results {
@@ -163,11 +179,11 @@ public struct BenchmarkColumn: Hashable {
             columns.append(
                 BenchmarkColumn(
                     name: counter,
-                    content: { result in
+                    value: { result in
                         if let value = result.counters[counter] {
-                            return .number(value)
+                            return value
                         } else {
-                            return .number(0)
+                            return 0
                         }
                     },
                     alignment: .right))
@@ -176,7 +192,11 @@ public struct BenchmarkColumn: Hashable {
         return columns
     }
 
-    static func evaluate(columns: [Column], results: [BenchmarkResult], pretty: Bool) -> [Row] {
+    /// Evaluate all cells for all columns over all results. 
+    /// Pretty argument specifies if output is meant to be human-readable.
+    static func evaluate(columns: [BenchmarkColumn], results: [BenchmarkResult], pretty: Bool)
+        -> [Row]
+    {
         var header: Row = [:]
         for column in columns {
             header[column] = column.name
@@ -187,49 +207,18 @@ public struct BenchmarkColumn: Hashable {
             var row: Row = [:]
             for column in columns {
                 var content: String
-                if !pretty {
-                    switch column.content(result) {
-                    case .string(let value):
-                        content = value
-                    case .time(let value):
-                        content = String(value)
-                    case .inverseTime(let value):
-                        content = String(value)
-                    case .percentage(let value):
-                        content = String(value)
-                    case .number(let value):
-                        content = String(value)
+                if column.name == "name" {
+                    if result.suiteName != "" {
+                        content = "\(result.suiteName).\(result.benchmarkName)"
+                    } else {
+                        content = result.benchmarkName
                     }
                 } else {
-                    switch column.content(result) {
-                    case .string(let value):
-                        content = value
-                    case .time(let value):
-                        switch result.settings.timeUnit {
-                        case .ns: content = "\(value) ns"
-                        case .us: content = "\(value/1000.0) us"
-                        case .ms: content = "\(value/1000_000.0) ms"
-                        case .s: content = "\(value/1000_000_000.0) s"
-                        }
-                    case .inverseTime(let value):
-                        switch result.settings.inverseTimeUnit {
-                        case .ns: content = "\(value) /ns"
-                        case .us: content = "\(value*1000.0) /us"
-                        case .ms: content = "\(value*1000_000.0) /ms"
-                        case .s: content = "\(value*1000_000_000.0) /s"
-                        }
-                    case .percentage(let value):
-                        content = String(format: "%6.2f %%", value)
-                    case .number(let value):
-                        let string = String(value)
-                        if string.hasSuffix(".0") {
-                            content = String(string.dropLast(2))
-                        } else {
-                            content = string
-                        }
-                    }
-                    if column.name == "std" || column.name == "std_abs" {
-                        content = "± " + content
+                    let value = column.value(result)
+                    if pretty {
+                        content = column.formatter(value, result.settings)
+                    } else {
+                        content = String(value)
                     }
                 }
                 row[column] = content
