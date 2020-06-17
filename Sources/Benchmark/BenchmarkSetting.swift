@@ -63,7 +63,7 @@ public struct MinTime: BenchmarkSetting {
     }
 }
 
-/// Time unit for reporting results.
+/// Time unit for reporting time results.
 public struct TimeUnit: BenchmarkSetting {
     public var value: Value
     public init(_ value: Value) {
@@ -77,7 +77,7 @@ public struct TimeUnit: BenchmarkSetting {
     }
 }
 
-/// Time unit for reporting results.
+/// Time unit for reporting throughput results.
 public struct InverseTimeUnit: BenchmarkSetting {
     public var value: TimeUnit.Value
     public init(_ value: TimeUnit.Value) {
