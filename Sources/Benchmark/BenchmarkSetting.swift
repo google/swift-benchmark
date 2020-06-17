@@ -188,7 +188,7 @@ public struct BenchmarkSettings {
         }
     }
 
-    /// Convenience accessor for the TimeUnit setting. 
+    /// Convenience accessor for the InverseTimeUnit setting. 
     public var inverseTimeUnit: TimeUnit.Value {
         if let value = self[InverseTimeUnit.self]?.value {
             return value
@@ -197,7 +197,7 @@ public struct BenchmarkSettings {
         }
     }
 
-    /// Convenience accessor for the TimeUnit setting. 
+    /// Convenience accessor for the Columns setting. 
     public var columns: [String]? {
         return self[Columns.self]?.value
     }
