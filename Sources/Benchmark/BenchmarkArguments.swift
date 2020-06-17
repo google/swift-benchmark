@@ -73,7 +73,8 @@ public struct BenchmarkArguments: ParsableArguments {
             result.append(InverseTimeUnit(value))
         }
         if let value = columns {
-            result.append(try! Columns(value))
+            let names = value.split(separator: ",").map { String($0) }
+            result.append(Columns(Array(names)))
         }
 
         return result
@@ -106,7 +107,11 @@ public struct BenchmarkArguments: ParsableArguments {
                 positiveNumberError(flag: "--min-time", of: "floating point number"))
         }
         if let value = columns {
-            let _ = try Columns(value)
+            for name in value.split(separator: ",") {
+                if BenchmarkColumn.registry[String(name)] == nil {
+                    throw ValidationError("Unknown output column: `\(name)`.")
+                }
+            }
         }
     }
 

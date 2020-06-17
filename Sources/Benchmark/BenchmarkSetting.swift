@@ -87,11 +87,8 @@ public struct InverseTimeUnit: BenchmarkSetting {
 
 /// Columns to show in the benchmark output.
 public struct Columns: BenchmarkSetting {
-    public var value: [BenchmarkColumn]
-    public init(_ value: String) throws {
-        self.value = try BenchmarkColumn.parse(columns: value)
-    }
-    public init(_ value: [BenchmarkColumn]) {
+    public var value: [String]
+    public init(_ value: [String]) {
         self.value = value
     }
 }
@@ -201,7 +198,7 @@ public struct BenchmarkSettings {
     }
 
     /// Convenience accessor for the TimeUnit setting. 
-    public var columns: [BenchmarkColumn]? {
+    public var columns: [String]? {
         return self[Columns.self]?.value
     }
 }

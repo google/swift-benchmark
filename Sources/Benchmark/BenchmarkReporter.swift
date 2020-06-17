@@ -49,9 +49,11 @@ struct PlainTextReporter<Target>: BenchmarkReporter where Target: TextOutputStre
     }
 
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        let columns: [Column]
-        if let value = settings.columns {
-            columns = value
+        var columns: [Column] = []
+        if let names = settings.columns {
+            for name in names {
+                columns.append(BenchmarkColumn.registry[name]!)
+            }
         } else {
             columns = BenchmarkColumn.defaults(results: results)
         }
