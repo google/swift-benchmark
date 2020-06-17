@@ -42,7 +42,7 @@ public struct BenchmarkArguments: ParsableArguments {
     @Option(help: "Inverse time unit used to report throughput results.")
     var inverseTimeUnit: TimeUnit.Value?
 
-    @Option(help: "List of columns to show.")
+    @Option(help: "Comma-separated list of column names to show.")
     var columns: String?
 
     public init() {}
