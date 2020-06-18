@@ -23,7 +23,7 @@ protocol BenchmarkReporter {
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings)
 }
 
-struct VerboseProgressReporter<Output>: ProgressReporter where Output: FlushableTextOutputStream {
+struct VerboseProgressReporter<Output: FlushableTextOutputStream>: ProgressReporter {
     var output: Output
 
     init(output: Output) {
