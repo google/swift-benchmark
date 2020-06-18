@@ -20,13 +20,15 @@
 /// it with customized benchmark measurement sections via either
 /// `start`/`end` or `measure` functions.
 public struct BenchmarkState {
-    let iterations: Int
     var startTime: UInt64
     var endTime: UInt64
     var measurements: [Double]
 
     /// A mapping from counters to their corresponding values.
     public var counters: [String: Double]
+
+    /// Number of iterations to be run. 
+    public let iterations: Int
 
     /// Aggregated settings for the current benchmark run. 
     public let settings: BenchmarkSettings
@@ -38,12 +40,12 @@ public struct BenchmarkState {
 
     @inline(__always)
     init(iterations: Int, settings: BenchmarkSettings) {
-        self.iterations = iterations
         self.startTime = 0
         self.endTime = 0
         self.measurements = []
         self.measurements.reserveCapacity(iterations)
         self.counters = [:]
+        self.iterations = iterations
         self.settings = settings
     }
 
