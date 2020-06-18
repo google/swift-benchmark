@@ -152,9 +152,9 @@ struct JSONReporter<Output>: BenchmarkReporter where Output: FlushableTextOutput
                     // escapes special characters that could be
                     // present within the benchmark name.
                     let name = row[column]!
-                    let data = try! JSONSerialization.data(
-                        withJSONObject: name, options: .fragmentsAllowed)
-                    let encoded = String(data: data, encoding: .utf8)!
+                    let data = try! JSONSerialization.data(withJSONObject: [name])
+                    var encoded = String(data: data, encoding: .utf8)!
+                    encoded = String(encoded.dropFirst().dropLast())
                     rhs = encoded
                 } else {
                     rhs = String(row[column]!)
