@@ -62,7 +62,8 @@ struct ConsoleReporter<Output>: BenchmarkReporter where Output: FlushableTextOut
     }
 
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        let (rows, columns) = BenchmarkColumn.evaluate(results: results, settings: settings, pretty: true)
+        let (rows, columns) = BenchmarkColumn.evaluate(
+            results: results, settings: settings, pretty: true)
 
         let widths: [BenchmarkColumn: Int] = Dictionary(
             uniqueKeysWithValues:
@@ -108,11 +109,12 @@ struct CSVReporter<Output>: BenchmarkReporter where Output: FlushableTextOutputS
     }
 
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        let (rows, columns) = BenchmarkColumn.evaluate(results: results, settings: settings, pretty: false)
+        let (rows, columns) = BenchmarkColumn.evaluate(
+            results: results, settings: settings, pretty: false)
 
         for row in rows {
             let components: [String] = columns.compactMap { row[$0]! }
-            let escaped = components.map { component -> String in 
+            let escaped = components.map { component -> String in
                 if component.contains(",") || component.contains("\"") || component.contains("\n") {
                     let escaped = component.replacingOccurrences(of: "\"", with: "\"\"")
                     return "\"\(escaped)\""
@@ -134,7 +136,8 @@ struct JSONReporter<Output>: BenchmarkReporter where Output: FlushableTextOutput
     }
 
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        let (rows, columns) = BenchmarkColumn.evaluate(results: results, settings: settings, pretty: false)
+        let (rows, columns) = BenchmarkColumn.evaluate(
+            results: results, settings: settings, pretty: false)
 
         print("{", to: &output)
         print("  \"benchmarks\": [", to: &output)
@@ -149,7 +152,8 @@ struct JSONReporter<Output>: BenchmarkReporter where Output: FlushableTextOutput
                     // escapes special characters that could be
                     // present within the benchmark name.
                     let name = row[column]!
-                    let data = try! JSONSerialization.data(withJSONObject: name, options: .fragmentsAllowed)
+                    let data = try! JSONSerialization.data(
+                        withJSONObject: name, options: .fragmentsAllowed)
                     let encoded = String(data: data, encoding: .utf8)!
                     rhs = encoded
                 } else {
@@ -205,5 +209,3 @@ extension String {
         return self + String(repeating: character, count: newLength - count)
     }
 }
-
-
