@@ -18,12 +18,9 @@ public func main(_ suites: [BenchmarkSuite]) {
 }
 
 public func main(_ suites: [BenchmarkSuite], settings: [BenchmarkSetting]) {
-    let reporter = PlainTextReporter(to: StdoutOutputStream())
-
     var runner = BenchmarkRunner(
         suites: suites,
-        settings: settings,
-        reporter: reporter)
+        settings: settings)
     try! runner.run()
 }
 

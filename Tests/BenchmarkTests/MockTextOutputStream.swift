@@ -12,11 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-final class MockTextOutputStream: TextOutputStream {
+@testable import Benchmark
+
+final class MockTextOutputStream: FlushableTextOutputStream {
     public private(set) var lines: [String] = []
 
     func write(_ string: String) {
         guard !string.isEmpty else { return }
         lines.append(string)
+    }
+
+    func flush() {
+    }
+
+    func result() -> String {
+        return lines.joined(separator: "\n")
     }
 }

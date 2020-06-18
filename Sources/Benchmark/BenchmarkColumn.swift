@@ -192,6 +192,25 @@ public struct BenchmarkColumn: Hashable {
         return columns
     }
 
+    /// Evaluate all cells for all columns over all results, using
+    /// columns defined in settings or defaults otherwise.
+    static func evaluate(results: [BenchmarkResult], settings: BenchmarkSettings, pretty: Bool) -> (
+        [Row], [BenchmarkColumn]
+    ) {
+        var columns: [BenchmarkColumn] = []
+        if let names = settings.columns {
+            for name in names {
+                columns.append(BenchmarkColumn.registry[name]!)
+            }
+        } else {
+            columns = BenchmarkColumn.defaults(results: results)
+        }
+
+        let rows = BenchmarkColumn.evaluate(columns: columns, results: results, pretty: pretty)
+
+        return (rows, columns)
+    }
+
     /// Evaluate all cells for all columns over all results. 
     /// Pretty argument specifies if output is meant to be human-readable.
     static func evaluate(columns: [BenchmarkColumn], results: [BenchmarkResult], pretty: Bool)
