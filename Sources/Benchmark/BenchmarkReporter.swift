@@ -54,7 +54,7 @@ struct QuietReporter: ProgressReporter, BenchmarkReporter {
     mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {}
 }
 
-struct ConsoleReporter<Output>: BenchmarkReporter where Output: FlushableTextOutputStream {
+struct ConsoleReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
     var output: Output
 
     init(output: Output) {
