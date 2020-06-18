@@ -128,7 +128,7 @@ struct CSVReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
     }
 }
 
-struct JSONReporter<Output>: BenchmarkReporter where Output: FlushableTextOutputStream {
+struct JSONReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
     var output: Output
 
     init(output: Output) {
