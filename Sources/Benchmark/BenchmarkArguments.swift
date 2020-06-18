@@ -45,7 +45,7 @@ public struct BenchmarkArguments: ParsableArguments {
     @Option(help: "Comma-separated list of column names to show.")
     var columns: String?
 
-    @Option(help: "Output format.")
+    @Option(help: "Output format (valid values are: json, csv, console, none).")
     var format: Format.Value?
 
     public init() {}
