@@ -138,3 +138,8 @@ public struct BenchmarkArguments: ParsableArguments {
         return "Value provided via \(flag) must be a non-negative \(type)."
     }
 }
+
+public func parseArguments() -> [BenchmarkSetting] {
+    let command = BenchmarkCommand.parseOrExit()
+    return command.arguments.settings
+}

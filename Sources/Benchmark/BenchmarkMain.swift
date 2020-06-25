@@ -12,18 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public func main(_ suites: [BenchmarkSuite]) {
-    let command = BenchmarkCommand.parseOrExit()
-    main(suites, settings: command.arguments.settings)
-}
-
-public func main(_ suites: [BenchmarkSuite], settings: [BenchmarkSetting]) {
+public func main(
+    _ suites: [BenchmarkSuite] = [defaultBenchmarkSuite],
+    settings: [BenchmarkSetting] = parseArguments(),
+    customDefaults: [BenchmarkSetting] = defaultSettings
+) {
     var runner = BenchmarkRunner(
         suites: suites,
-        settings: settings)
+        settings: settings,
+        customDefaults: customDefaults)
     try! runner.run()
-}
-
-public func main() {
-    main([defaultBenchmarkSuite])
 }

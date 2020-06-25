@@ -87,4 +87,4 @@ public class BenchmarkSuite {
     }
 }
 
-var defaultBenchmarkSuite = BenchmarkSuite(name: "")
+public let defaultBenchmarkSuite = BenchmarkSuite(name: "")
