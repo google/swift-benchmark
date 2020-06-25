@@ -47,6 +47,12 @@ public struct BenchmarkColumn: Hashable {
         self.formatter = formatter
     }
 
+    /// Create a copy of this column with a different name.
+    public func renamed(_ newName: String) -> BenchmarkColumn {
+        return BenchmarkColumn(
+            name: newName, value: value, alignment: alignment, formatter: formatter)
+    }
+
     /// Registry that represents a mapping from known column
     /// names to their corresponding column values. This
     /// registry can be modified to add custom user-defined
@@ -145,6 +151,11 @@ public struct BenchmarkColumn: Hashable {
 
         return result
     }()
+
+    /// Adds given column to the registry.
+    public static func register(_ column: BenchmarkColumn) {
+        registry[column.name] = column
+    }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.name == rhs.name

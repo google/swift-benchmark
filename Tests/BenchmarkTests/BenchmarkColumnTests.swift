@@ -47,6 +47,12 @@ final class BenchmarkColumnTests: XCTestCase {
         }
     }
 
+    func testRegisterColumn() {
+        BenchmarkColumn.register(
+            BenchmarkColumn.registry["time"]!.renamed("foobar"))
+        XCTAssertTrue(BenchmarkColumn.registry["foobar"] != nil)
+    }
+
     static var allTests = [
         ("testKnownColumns", testKnownColumns)
     ]
