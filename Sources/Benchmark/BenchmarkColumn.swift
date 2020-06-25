@@ -24,11 +24,20 @@ public struct BenchmarkColumn: Hashable {
     /// Function to compute a value for each cell based on results.
     public let value: (BenchmarkResult) -> Double
 
+    /// Unit of the column value.
+    public let unit: Unit
+
     /// Visual alignment to either left or right side of the column.
     public let alignment: Alignment
 
     /// Formatter function for pretty human-readable console output.
     public let formatter: Formatter
+
+    public enum Unit: Hashable {
+        case time
+        case inverseTime
+        case none
+    }
 
     public enum Alignment: Hashable {
         case left
@@ -38,13 +47,26 @@ public struct BenchmarkColumn: Hashable {
     public init(
         name: String,
         value: @escaping (BenchmarkResult) -> Double,
-        alignment: Alignment,
-        formatter: @escaping Formatter = BenchmarkFormatter.number
+        unit: Unit = .none,
+        alignment: Alignment = .right,
+        formatter optionalFormatter: Formatter? = nil 
     ) {
         self.name = name
         self.value = value
+        self.unit = unit
         self.alignment = alignment
-        self.formatter = formatter
+        if let formatter = optionalFormatter {
+            self.formatter = formatter
+        } else {
+            switch unit {
+            case .time:
+                self.formatter = BenchmarkFormatter.time
+            case .inverseTime:
+                self.formatter = BenchmarkFormatter.inverseTime
+            case .none:
+                self.formatter = BenchmarkFormatter.number
+            }
+        }
     }
 
     /// Registry that represents a mapping from known column
@@ -62,8 +84,7 @@ public struct BenchmarkColumn: Hashable {
         result["time"] = BenchmarkColumn(
             name: "time",
             value: { $0.measurements.median },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
         result["std"] = BenchmarkColumn(
             name: "std",
             value: { $0.measurements.std / $0.measurements.median * 100 },
@@ -71,21 +92,17 @@ public struct BenchmarkColumn: Hashable {
             formatter: BenchmarkFormatter.stdPercentage)
         result["iterations"] = BenchmarkColumn(
             name: "iterations",
-            value: { Double($0.measurements.count) },
-            alignment: .right,
-            formatter: BenchmarkFormatter.number)
+            value: { Double($0.measurements.count) })
         result["warmup"] = BenchmarkColumn(
             name: "warmup",
             value: { $0.warmupMeasurements.sum },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
 
         // Opt-in alternative columns.
         result["median"] = BenchmarkColumn(
             name: "median",
             value: { $0.measurements.median },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
         result["min"] = BenchmarkColumn(
             name: "min",
             value: { result in
@@ -95,8 +112,7 @@ public struct BenchmarkColumn: Hashable {
                     return (0)
                 }
             },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
         result["max"] = BenchmarkColumn(
             name: "max",
             value: { result in
@@ -106,23 +122,19 @@ public struct BenchmarkColumn: Hashable {
                     return (0)
                 }
             },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
         result["total"] = BenchmarkColumn(
             name: "total",
             value: { ($0.measurements.sum) },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
         result["avg"] = BenchmarkColumn(
             name: "avg",
             value: { ($0.measurements.average) },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
         result["average"] = BenchmarkColumn(
             name: "avg",
             value: { ($0.measurements.average) },
-            alignment: .right,
-            formatter: BenchmarkFormatter.time)
+            unit: .time)
         result["std_abs"] = BenchmarkColumn(
             name: "std_abs",
             value: { ($0.measurements.std) },
@@ -139,8 +151,7 @@ public struct BenchmarkColumn: Hashable {
             result[name] = BenchmarkColumn(
                 name: name,
                 value: { ($0.measurements.percentile(v)) },
-                alignment: .left,
-                formatter: BenchmarkFormatter.time)
+                unit: .time)
         }
 
         return result
@@ -234,10 +245,29 @@ public struct BenchmarkColumn: Hashable {
                     }
                 } else {
                     let value = column.value(result)
+                    let adjustedValue: Double
+                    switch column.unit {
+                    case .time:
+                        switch result.settings.timeUnit {
+                        case .ns: adjustedValue = value
+                        case .us: adjustedValue = value / 1000.0
+                        case .ms: adjustedValue = value / 1000_000.0
+                        case .s: adjustedValue = value / 1000_000_000.0
+                        }
+                    case .inverseTime:
+                        switch result.settings.inverseTimeUnit {
+                        case .ns: adjustedValue = value
+                        case .us: adjustedValue = value * 1000.0
+                        case .ms: adjustedValue = value * 1000_000.0
+                        case .s: adjustedValue = value * 1000_000_000.0
+                        }
+                    case .none:
+                        adjustedValue = value
+                    }
                     if pretty {
-                        content = column.formatter(value, result.settings)
+                        content = column.formatter(adjustedValue, result.settings)
                     } else {
-                        content = String(value)
+                        content = String(adjustedValue)
                     }
                 }
                 row[column] = content
