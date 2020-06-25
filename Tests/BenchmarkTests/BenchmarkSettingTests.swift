@@ -21,11 +21,13 @@ final class BenchmarkSettingTests: XCTestCase {
     func assertNumberOfIterations(
         suite: BenchmarkSuite,
         counts expected: [Int],
-        cli: [BenchmarkSetting]
+        cli: [BenchmarkSetting],
+        customDefaults: [BenchmarkSetting] = []
     ) throws {
         var settings: [BenchmarkSetting] = [Format(.none)]
         settings.append(contentsOf: cli)
-        var runner = BenchmarkRunner(suites: [suite], settings: settings)
+        var runner = BenchmarkRunner(
+            suites: [suite], settings: settings, customDefaults: customDefaults)
 
         try runner.run()
         XCTAssertEqual(runner.results.count, expected.count)
@@ -124,6 +126,54 @@ final class BenchmarkSettingTests: XCTestCase {
             cli: [Iterations(1)])
     }
 
+    func testCustomDefaults() throws {
+        let suite = BenchmarkSuite(name: "Test") { suite in
+            suite.benchmark("a") {}
+            suite.benchmark("b") {}
+        }
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [1, 1],
+            cli: [],
+            customDefaults: [Iterations(1)])
+    }
+
+    func testCustomDafaultsOverridenBySuite() throws {
+        let suite = BenchmarkSuite(name: "Test", settings: Iterations(3)) { suite in
+            suite.benchmark("a") {}
+            suite.benchmark("b") {}
+        }
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [3, 3],
+            cli: [],
+            customDefaults: [Iterations(1)])
+    }
+
+    func testCustomDafaultsOverridenByBenchmark() throws {
+        let suite = BenchmarkSuite(name: "Test", settings: Iterations(3)) { suite in
+            suite.benchmark("a") {}
+            suite.benchmark("b", settings: Iterations(4)) {}
+        }
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [3, 4],
+            cli: [],
+            customDefaults: [Iterations(1)])
+    }
+
+    func testCustomDafaultsOverridenByCli() throws {
+        let suite = BenchmarkSuite(name: "Test", settings: Iterations(3)) { suite in
+            suite.benchmark("a") {}
+            suite.benchmark("b", settings: Iterations(4)) {}
+        }
+        try assertNumberOfIterations(
+            suite: suite,
+            counts: [5, 5],
+            cli: [Iterations(5)],
+            customDefaults: [Iterations(1)])
+    }
+
     static var allTests = [
         ("testDefaultSetting", testDefaultSetting),
         ("testSuiteSetting", testSuiteSetting),
@@ -133,5 +183,9 @@ final class BenchmarkSettingTests: XCTestCase {
         ("testCliOverridesSuiteSetting", testCliOverridesSuiteSetting),
         ("testCliOverridesBenchmarkSetting", testCliOverridesBenchmarkSetting),
         ("testCliOverridesBenchmarkAndSuiteSetting", testCliOverridesBenchmarkAndSuiteSetting),
+        ("testCustomDefaults", testCustomDefaults),
+        ("testCustomDafaultsOverridenBySuite", testCustomDafaultsOverridenBySuite),
+        ("testCustomDafaultsOverridenByBenchmark", testCustomDafaultsOverridenByBenchmark),
+        ("testCustomDafaultsOverridenByCli", testCustomDafaultsOverridenByCli),
     ]
 }

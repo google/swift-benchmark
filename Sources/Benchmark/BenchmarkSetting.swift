@@ -226,7 +226,7 @@ public struct BenchmarkSettings {
     }
 }
 
-let defaultSettings: [BenchmarkSetting] = [
+public let defaultSettings: [BenchmarkSetting] = [
     MaxIterations(1_000_000),
     MinTime(seconds: 1.0),
     TimeUnit(.ns),

@@ -15,16 +15,23 @@
 public struct BenchmarkRunner {
     let suites: [BenchmarkSuite]
     let settings: [BenchmarkSetting]
+    let customDefaults: [BenchmarkSetting]
     let globalSettings: BenchmarkSettings
     var progress: ProgressReporter
     var reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
 
-    init(suites: [BenchmarkSuite], settings: [BenchmarkSetting]) {
+    init(
+        suites: [BenchmarkSuite],
+        settings: [BenchmarkSetting],
+        customDefaults: [BenchmarkSetting] = []
+    ) {
         self.suites = suites
         self.settings = settings
+        self.customDefaults = customDefaults
         self.globalSettings = BenchmarkSettings([
             defaultSettings,
+            self.customDefaults,
             self.settings,
         ])
         switch self.globalSettings.format {
@@ -61,6 +68,7 @@ public struct BenchmarkRunner {
     mutating func run(benchmark: AnyBenchmark, suite: BenchmarkSuite) throws {
         let settings = BenchmarkSettings([
             defaultSettings,
+            self.customDefaults,
             suite.settings,
             benchmark.settings,
             self.settings,
