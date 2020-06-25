@@ -28,22 +28,12 @@ public enum BenchmarkFormatter {
 
     /// Show number with the corresponding time unit.
     public static let time: Formatter = { (value, settings) in
-        switch settings.timeUnit {
-        case .ns: return "\(value) ns"
-        case .us: return "\(value/1000.0) us"
-        case .ms: return "\(value/1000_000.0) ms"
-        case .s: return "\(value/1000_000_000.0) s"
-        }
+        return "\(value) \(settings.timeUnit)"
     }
 
     /// Show number with the corresponding inverse time unit.
     public static let inverseTime: Formatter = { (value, settings) in
-        switch settings.inverseTimeUnit {
-        case .ns: return "\(value) /ns"
-        case .us: return "\(value*1000.0) /us"
-        case .ms: return "\(value*1000_000.0) /ms"
-        case .s: return "\(value*1000_000_000.0) /s"
-        }
+        return "\(value) /\(settings.inverseTimeUnit)"
     }
 
     /// Show value as percentage.
