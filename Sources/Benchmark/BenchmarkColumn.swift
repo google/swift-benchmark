@@ -49,7 +49,7 @@ public struct BenchmarkColumn: Hashable {
         value: @escaping (BenchmarkResult) -> Double,
         unit: Unit = .none,
         alignment: Alignment = .right,
-        formatter optionalFormatter: Formatter? = nil 
+        formatter optionalFormatter: Formatter? = nil
     ) {
         self.name = name
         self.value = value
@@ -214,39 +214,31 @@ public struct BenchmarkColumn: Hashable {
         return columns
     }
 
-    /// Evaluate all cells for all columns over all results, using
-    /// columns defined in settings or defaults otherwise.
-    static func evaluate(results: [BenchmarkResult], settings: BenchmarkSettings, pretty: Bool) -> (
-        [Row], [BenchmarkColumn]
-    ) {
-        var columns: [BenchmarkColumn] = []
-        if let names = settings.columns {
-            for name in names {
-                columns.append(BenchmarkColumn.registry[name]!)
-            }
-        } else {
-            columns = BenchmarkColumn.defaults(results: results)
-        }
-
-        let rows = BenchmarkColumn.evaluate(columns: columns, results: results, pretty: pretty)
-
-        return (rows, columns)
-    }
-
     /// Evaluate all cells for all columns over all results. 
     /// Pretty argument specifies if output is meant to be human-readable.
-    static func evaluate(columns: [BenchmarkColumn], results: [BenchmarkResult], pretty: Bool)
-        -> [Row]
+    static func evaluate(results: [BenchmarkResult], pretty: Bool)
+        -> ([Row], [BenchmarkColumn])
     {
+        var allColumns: [BenchmarkColumn] = []
         var header: Row = [:]
-        for column in columns {
-            header[column] = column.name
-        }
-
-        var rows: [Row] = [header]
+        var rows: [Row] = []
         for result in results {
+            var columns: [BenchmarkColumn] = []
+            if let names = result.settings.columns {
+                for name in names {
+                    columns.append(BenchmarkColumn.registry[name]!)
+                }
+            } else {
+                columns = BenchmarkColumn.defaults(results: results)
+            }
+
             var row: Row = [:]
             for column in columns {
+                if header[column] == nil {
+                    header[column] = column.name
+                    allColumns.append(column)
+                }
+
                 var content: String
                 if column.name == "name" {
                     if result.suiteName != "" {
@@ -286,6 +278,8 @@ public struct BenchmarkColumn: Hashable {
             rows.append(row)
         }
 
-        return rows
+        var result: [Row] = [header]
+        result.append(contentsOf: rows)
+        return (result, allColumns)
     }
 }

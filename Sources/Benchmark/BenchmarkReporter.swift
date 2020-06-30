@@ -20,7 +20,7 @@ protocol ProgressReporter {
 }
 
 protocol BenchmarkReporter {
-    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings)
+    mutating func report(results: [BenchmarkResult])
 }
 
 struct VerboseProgressReporter<Output: FlushableTextOutputStream>: ProgressReporter {
@@ -51,7 +51,7 @@ struct VerboseProgressReporter<Output: FlushableTextOutputStream>: ProgressRepor
 struct QuietReporter: ProgressReporter, BenchmarkReporter {
     mutating func report(running name: String, suite: String) {}
     mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {}
-    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {}
+    mutating func report(results: [BenchmarkResult]) {}
 }
 
 struct ConsoleReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
@@ -61,9 +61,8 @@ struct ConsoleReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
         self.output = output
     }
 
-    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        let (rows, columns) = BenchmarkColumn.evaluate(
-            results: results, settings: settings, pretty: true)
+    mutating func report(results: [BenchmarkResult]) {
+        let (rows, columns) = BenchmarkColumn.evaluate(results: results, pretty: true)
 
         let widths: [BenchmarkColumn: Int] = Dictionary(
             uniqueKeysWithValues:
@@ -80,7 +79,12 @@ struct ConsoleReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
         print("", to: &output)
         for (index, row) in rows.enumerated() {
             let components: [String] = columns.compactMap { column in
-                let string = row[column]!
+                var string: String
+                if let value = row[column] {
+                    string = value
+                } else {
+                    string = ""
+                }
                 let width = widths[column]!
                 let alignment = index == 0 ? .left : column.alignment
                 switch alignment {
@@ -108,12 +112,17 @@ struct CSVReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
         self.output = output
     }
 
-    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        let (rows, columns) = BenchmarkColumn.evaluate(
-            results: results, settings: settings, pretty: false)
+    mutating func report(results: [BenchmarkResult]) {
+        let (rows, columns) = BenchmarkColumn.evaluate(results: results, pretty: false)
 
         for row in rows {
-            let components: [String] = columns.compactMap { row[$0]! }
+            let components: [String] = columns.compactMap {
+                if let value = row[$0] {
+                    return value
+                } else {
+                    return ""
+                }
+            }
             let escaped = components.map { component -> String in
                 if component.contains(",") || component.contains("\"") || component.contains("\n") {
                     let escaped = component.replacingOccurrences(of: "\"", with: "\"\"")
@@ -135,9 +144,8 @@ struct JSONReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
         self.output = output
     }
 
-    mutating func report(results: [BenchmarkResult], settings: BenchmarkSettings) {
-        let (rows, columns) = BenchmarkColumn.evaluate(
-            results: results, settings: settings, pretty: false)
+    mutating func report(results: [BenchmarkResult]) {
+        let (rows, columns) = BenchmarkColumn.evaluate(results: results, pretty: false)
 
         print("{", to: &output)
         print("  \"benchmarks\": [", to: &output)
@@ -151,13 +159,22 @@ struct JSONReporter<Output: FlushableTextOutputStream>: BenchmarkReporter {
                     // performance to ensure that output properly
                     // escapes special characters that could be
                     // present within the benchmark name.
-                    let name = row[column]!
+                    let name: String
+                    if let value = row[column] {
+                        name = value
+                    } else {
+                        name = ""
+                    }
                     let data = try! JSONSerialization.data(withJSONObject: [name])
                     var encoded = String(data: data, encoding: .utf8)!
                     encoded = String(encoded.dropFirst().dropLast())
                     rhs = encoded
                 } else {
-                    rhs = String(row[column]!)
+                    if let value = row[column] {
+                        rhs = String(value)
+                    } else {
+                        continue
+                    }
                 }
                 let suffix = columnIndex != columns.count - 1 ? "," : ""
                 print("      \"\(column.name)\": \(rhs)\(suffix)", to: &output)

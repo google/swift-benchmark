@@ -17,33 +17,26 @@ import XCTest
 @testable import Benchmark
 
 final class BenchmarkReporterTests: XCTestCase {
-    func assertConsoleReported(
-        _ results: [BenchmarkResult], _ expected: String,
-        settings: BenchmarkSettings = BenchmarkSettings()
-    ) {
+    func assertConsoleReported(_ results: [BenchmarkResult], _ expected: String) {
         let output = MockTextOutputStream()
         var reporter = ConsoleReporter(output: output)
-        reporter.report(results: results, settings: settings)
+        reporter.report(results: results)
         assertReported(output.result(), expected)
     }
 
-    func assertJSONReported(
-        _ results: [BenchmarkResult], _ expected: String,
-        settings: BenchmarkSettings = BenchmarkSettings()
-    ) {
+    func assertJSONReported(_ results: [BenchmarkResult], _ expected: String) {
         let output = MockTextOutputStream()
         var reporter = JSONReporter(output: output)
-        reporter.report(results: results, settings: settings)
+        reporter.report(results: results)
         assertReported(output.result(), expected)
     }
 
     func assertCSVReported(
-        _ results: [BenchmarkResult], _ expected: String,
-        settings: BenchmarkSettings = BenchmarkSettings()
+        _ results: [BenchmarkResult], _ expected: String
     ) {
         let output = MockTextOutputStream()
         var reporter = CSVReporter(output: output)
-        reporter.report(results: results, settings: settings)
+        reporter.report(results: results)
         assertReported(output.result(), expected)
     }
 
@@ -168,6 +161,30 @@ final class BenchmarkReporterTests: XCTestCase {
         assertConsoleReported(results, expected)
     }
 
+    func testConsoleMixedColumns() throws {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "MySuite",
+                settings: BenchmarkSettings([defaultSettings, [Columns(["name", "min"])]]),
+                measurements: [1_000, 2_000],
+                warmupMeasurements: [10, 20, 30],
+                counters: [:]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "MySuite",
+                settings: BenchmarkSettings([defaultSettings, [Columns(["name", "max"])]]),
+                measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
+                counters: [:]),
+        ]
+        let expected = #"""
+            name         min       max         
+            -----------------------------------
+            MySuite.fast 1000.0 ns             
+            MySuite.slow           2000000.0 ns
+            """#
+        assertConsoleReported(results, expected)
+    }
+
     func testJSONEmpty() {
         let results: [BenchmarkResult] = []
         let expected = #"""
@@ -221,7 +238,7 @@ final class BenchmarkReporterTests: XCTestCase {
             results.append(
                 BenchmarkResult(
                     benchmarkName: name, suiteName: "",
-                    settings: BenchmarkSettings(),
+                    settings: BenchmarkSettings([defaultSettings, [Columns(["name"])]]),
                     measurements: [],
                     warmupMeasurements: [],
                     counters: [:]))
@@ -244,33 +261,40 @@ final class BenchmarkReporterTests: XCTestCase {
               ]
             }
             """#
-        let settings = BenchmarkSettings([Columns(["name"])])
-        assertJSONReported(results, expected, settings: settings)
+        assertJSONReported(results, expected)
     }
 
     func testJSONTimeUnit() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
                 benchmarkName: "ns", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.ns)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.ns), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
                 benchmarkName: "us", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.us)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.us), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
                 benchmarkName: "ms", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.ms)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.ms), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
                 benchmarkName: "s", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.s)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.s), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
@@ -297,15 +321,44 @@ final class BenchmarkReporterTests: XCTestCase {
               ]
             }
             """#
-        let settings = BenchmarkSettings([Columns(["name", "time"])])
-        assertJSONReported(results, expected, settings: settings)
+        assertJSONReported(results, expected)
+    }
+
+    func testJSONMixedColumns() throws {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "MySuite",
+                settings: BenchmarkSettings([defaultSettings, [Columns(["name", "min"])]]),
+                measurements: [1_000, 2_000],
+                warmupMeasurements: [10, 20, 30],
+                counters: [:]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "MySuite",
+                settings: BenchmarkSettings([defaultSettings, [Columns(["name", "max"])]]),
+                measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
+                counters: [:]),
+        ]
+        let expected = #"""
+            {
+              "benchmarks": [
+                {
+                  "name": "MySuite.fast",
+                  "min": 1000.0,
+                },
+                {
+                  "name": "MySuite.slow",
+                  "max": 2000000.0
+                }
+              ]
+            }
+            """#
+        assertJSONReported(results, expected)
     }
 
     func testCSVEmpty() {
         let results: [BenchmarkResult] = []
-        let expected = #"""
-            name,time,std,iterations
-            """#
+        let expected = ""
         assertCSVReported(results, expected)
     }
 
@@ -338,7 +391,7 @@ final class BenchmarkReporterTests: XCTestCase {
             results.append(
                 BenchmarkResult(
                     benchmarkName: name, suiteName: "",
-                    settings: BenchmarkSettings(),
+                    settings: BenchmarkSettings([defaultSettings, [Columns(["name", "time"])]]),
                     measurements: [1_000, 2_000],
                     warmupMeasurements: [],
                     counters: [:]))
@@ -350,33 +403,40 @@ final class BenchmarkReporterTests: XCTestCase {
             "
             ",1500.0
             """#
-        let settings = BenchmarkSettings([Columns(["name", "time"])])
-        assertCSVReported(results, expected, settings: settings)
+        assertCSVReported(results, expected)
     }
 
     func testCSVTimeUnit() throws {
         let results: [BenchmarkResult] = [
             BenchmarkResult(
                 benchmarkName: "ns", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.ns)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.ns), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
                 benchmarkName: "us", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.us)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.us), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
                 benchmarkName: "ms", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.ms)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.ms), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
             BenchmarkResult(
                 benchmarkName: "s", suiteName: "MySuite",
-                settings: BenchmarkSettings([TimeUnit(.s)]),
+                settings: BenchmarkSettings([
+                    defaultSettings, [TimeUnit(.s), Columns(["name", "time"])],
+                ]),
                 measurements: [123_456_789],
                 warmupMeasurements: [],
                 counters: [:]),
@@ -388,8 +448,30 @@ final class BenchmarkReporterTests: XCTestCase {
             MySuite.ms,123.456789
             MySuite.s,0.123456789
             """#
-        let settings = BenchmarkSettings([Columns(["name", "time"])])
-        assertCSVReported(results, expected, settings: settings)
+        assertCSVReported(results, expected)
+    }
+
+    func testCSVMixedColumns() throws {
+        let results: [BenchmarkResult] = [
+            BenchmarkResult(
+                benchmarkName: "fast", suiteName: "MySuite",
+                settings: BenchmarkSettings([defaultSettings, [Columns(["name", "min"])]]),
+                measurements: [1_000, 2_000],
+                warmupMeasurements: [10, 20, 30],
+                counters: [:]),
+            BenchmarkResult(
+                benchmarkName: "slow", suiteName: "MySuite",
+                settings: BenchmarkSettings([defaultSettings, [Columns(["name", "max"])]]),
+                measurements: [1_000_000, 2_000_000],
+                warmupMeasurements: [],
+                counters: [:]),
+        ]
+        let expected = #"""
+            name,min,max
+            MySuite.fast,1000.0,
+            MySuite.slow,,2000000.0
+            """#
+        assertCSVReported(results, expected)
     }
 
     static var allTests = [
@@ -397,13 +479,16 @@ final class BenchmarkReporterTests: XCTestCase {
         ("testConsoleCounters", testConsoleCounters),
         ("testConsoleWarmup", testConsoleWarmup),
         ("testConsoleTimeUnit", testConsoleTimeUnit),
+        ("testConsoleMixedColumns", testConsoleMixedColumns),
         ("testJSONEmpty", testJSONEmpty),
         ("testJSONBasic", testJSONBasic),
         ("testJSONEscape", testJSONEscape),
         ("testJSONTimeUnit", testJSONTimeUnit),
+        ("testJSONMixedColumns", testJSONMixedColumns),
         ("testCSVEmpty", testCSVEmpty),
         ("testCSVBasic", testCSVBasic),
         ("testCSVEscape", testCSVEscape),
         ("testCSVTimeUnit", testCSVTimeUnit),
+        ("testCSVMixedColumns", testCSVMixedColumns),
     ]
 }

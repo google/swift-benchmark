@@ -16,7 +16,6 @@ public struct BenchmarkRunner {
     let suites: [BenchmarkSuite]
     let settings: [BenchmarkSetting]
     let customDefaults: [BenchmarkSetting]
-    let globalSettings: BenchmarkSettings
     var progress: ProgressReporter
     var reporter: BenchmarkReporter
     var results: [BenchmarkResult] = []
@@ -29,18 +28,18 @@ public struct BenchmarkRunner {
         self.suites = suites
         self.settings = settings
         self.customDefaults = customDefaults
-        self.globalSettings = BenchmarkSettings([
+        let globalSettings = BenchmarkSettings([
             defaultSettings,
             self.customDefaults,
             self.settings,
         ])
-        switch self.globalSettings.format {
+        switch globalSettings.format {
         case .none:
             self.progress = QuietReporter()
         default:
             self.progress = VerboseProgressReporter(output: StderrOutputStream())
         }
-        switch self.globalSettings.format {
+        switch globalSettings.format {
         case .none:
             self.reporter = QuietReporter()
         case .console:
@@ -56,7 +55,7 @@ public struct BenchmarkRunner {
         for suite in suites {
             try run(suite: suite)
         }
-        reporter.report(results: results, settings: globalSettings)
+        reporter.report(results: results)
     }
 
     mutating func run(suite: BenchmarkSuite) throws {
