@@ -27,18 +27,26 @@ Example:
 ```terminal
 $ swift run -c release BenchmarkMinimalExample -h
 [3/3] Linking BenchmarkMinimalExample
-USAGE: benchmark-command [--allow-debug-build] [--filter <filter>] [--iterations <iterations>] [--warmup-iterations <warmup-iterations>] [--min-time <min-time>] [--max-iterations <max-iterations>]
+USAGE: benchmark-command [--allow-debug-build] [--filter <filter>] [--filter-not <filter-not>] [--iterations <iterations>] [--warmup-iterations <warmup-iterations>] [--min-time <min-time>] [--max-iterations <max-iterations>] [--time-unit <time-unit>] [--inverse-time-unit <inverse-time-unit>] [--columns <columns>] [--format <format>]
 
 OPTIONS:
   --allow-debug-build     Overrides check to verify optimized build.
   --filter <filter>       Run only benchmarks whose names match the regular expression.
+  --filter-not <filter-not>
+                          Exclude benchmarks whose names match the regular expression.
   --iterations <iterations>
                           Number of iterations to run.
   --warmup-iterations <warmup-iterations>
                           Number of warm-up iterations to run.
   --min-time <min-time>   Minimal time to run when automatically detecting number iterations.
   --max-iterations <max-iterations>
-                          Maximum number of iterations to run when automatically detecting number iterations.
+                          Maximum number of iterations to run when automatically detecting number
+                          iterations.
+  --time-unit <time-unit> Time unit used to report the timing results.
+  --inverse-time-unit <inverse-time-unit>
+                          Inverse time unit used to report throughput results.
+  --columns <columns>     Comma-separated list of column names to show.
+  --format <format>       Output format (valid values are: json, csv, console, none).
   -h, --help              Show help information.
 
 $ swift run -c release BenchmarkMinimalExample
