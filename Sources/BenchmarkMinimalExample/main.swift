@@ -14,7 +14,7 @@
 
 import Benchmark
 
-benchmark("\"quoted\"") {
+benchmark("add string no capacity") {
     var x1: String = ""
     for _ in 1...1000 {
         x1 += "hi"
