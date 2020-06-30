@@ -42,16 +42,31 @@ final class BenchmarkCommandTests: XCTestCase {
 
     func testParseFilter() throws {
         AssertParse(["--filter", "bar", "--allow-debug-build"]) { settings in
-            let filter = try! BenchmarkFilter(settings.filter)
+            let filter = try! BenchmarkFilter(settings.filter, negate: false)
             XCTAssertFalse(filter.matches(suiteName: "foo", benchmarkName: "baz"))
             XCTAssert(filter.matches(suiteName: "foo", benchmarkName: "bar"))
         }
 
         AssertParse(["--filter", "foo.bar", "--allow-debug-build"]) { settings in
-            let filter = try! BenchmarkFilter(settings.filter)
+            let filter = try! BenchmarkFilter(settings.filter, negate: false)
             XCTAssertFalse(filter.matches(suiteName: "foo", benchmarkName: "baz"))
             XCTAssertFalse(filter.matches(suiteName: "foobar", benchmarkName: "baz"))
             XCTAssert(filter.matches(suiteName: "foo", benchmarkName: "bar"))
+        }
+    }
+
+    func testParseFilterNot() throws {
+        AssertParse(["--filter-not", "bar", "--allow-debug-build"]) { settings in
+            let filter = try! BenchmarkFilter(settings.filterNot, negate: true)
+            XCTAssert(filter.matches(suiteName: "foo", benchmarkName: "baz"))
+            XCTAssertFalse(filter.matches(suiteName: "foo", benchmarkName: "bar"))
+        }
+
+        AssertParse(["--filter-not", "foo.bar", "--allow-debug-build"]) { settings in
+            let filter = try! BenchmarkFilter(settings.filterNot, negate: true)
+            XCTAssert(filter.matches(suiteName: "foo", benchmarkName: "baz"))
+            XCTAssert(filter.matches(suiteName: "foobar", benchmarkName: "baz"))
+            XCTAssertFalse(filter.matches(suiteName: "foo", benchmarkName: "bar"))
         }
     }
 
@@ -113,6 +128,7 @@ final class BenchmarkCommandTests: XCTestCase {
         ("testAllowDebugBuild", testAllowDebugBuild),
         ("testDebugBuildError", testDebugBuildError),
         ("testParseFilter", testParseFilter),
+        ("testParseFilterNot", testParseFilterNot),
         ("testParseIterations", testParseIterations),
         ("testParseZeroIterations", testParseZeroIterations),
         ("testParseWarmupIterations", testParseWarmupIterations),

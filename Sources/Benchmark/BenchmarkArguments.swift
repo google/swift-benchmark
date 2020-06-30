@@ -23,6 +23,9 @@ public struct BenchmarkArguments: ParsableArguments {
     @Option(help: "Run only benchmarks whose names match the regular expression.")
     var filter: String?
 
+    @Option(help: "Exclude benchmarks whose names match the regular expression.")
+    var filterNot: String?
+
     @Option(help: "Number of iterations to run.")
     var iterations: Int?
 
@@ -56,6 +59,9 @@ public struct BenchmarkArguments: ParsableArguments {
 
         if let value = filter {
             result.append(Filter(value))
+        }
+        if let value = filterNot {
+            result.append(FilterNot(value))
         }
         if let value = iterations {
             result.append(Iterations(value))

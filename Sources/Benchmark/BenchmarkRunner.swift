@@ -74,8 +74,13 @@ public struct BenchmarkRunner {
             self.settings,
         ])
 
-        let filter = try BenchmarkFilter(settings.filter)
+        let filter = try BenchmarkFilter(settings.filter, negate: false)
         if !filter.matches(suiteName: suite.name, benchmarkName: benchmark.name) {
+            return
+        }
+
+        let filterNot = try BenchmarkFilter(settings.filterNot, negate: true)
+        if !filterNot.matches(suiteName: suite.name, benchmarkName: benchmark.name) {
             return
         }
 

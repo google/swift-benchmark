@@ -54,6 +54,14 @@ public struct Filter: BenchmarkSetting {
     }
 }
 
+/// A regex string used to exclude benchmarks that should be run.
+public struct FilterNot: BenchmarkSetting {
+    public var value: String
+    public init(_ value: String) {
+        self.value = value
+    }
+}
+
 /// A minimal (total) time that iterations has to run
 /// to be considered significant.
 public struct MinTime: BenchmarkSetting {
@@ -182,6 +190,11 @@ public struct BenchmarkSettings {
     /// Convenience accessor for the Filter setting.
     public var filter: String? {
         return self[Filter.self]?.value
+    }
+
+    /// Convenience accessor for the Filter setting.
+    public var filterNot: String? {
+        return self[FilterNot.self]?.value
     }
 
     /// Convenience accessor for the MinTime setting.

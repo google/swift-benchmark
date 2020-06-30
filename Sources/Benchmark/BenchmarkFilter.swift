@@ -15,9 +15,11 @@
 import Foundation
 
 internal struct BenchmarkFilter {
+    let negate: Bool
     let underlying: NSRegularExpression?
 
-    init(_ regularExpression: String?) throws {
+    init(_ regularExpression: String?, negate: Bool) throws {
+        self.negate = negate
         if regularExpression != nil {
             self.underlying = try NSRegularExpression(
                 pattern: regularExpression!,
@@ -33,7 +35,9 @@ internal struct BenchmarkFilter {
         } else {
             let str = "\(suiteName).\(benchmarkName)"
             let range = NSRange(location: 0, length: str.utf16.count)
-            return underlying!.firstMatch(in: str, range: range) != nil
+            var result = underlying!.firstMatch(in: str, range: range) != nil
+            result = negate ? !result : result
+            return result
         }
     }
 }
