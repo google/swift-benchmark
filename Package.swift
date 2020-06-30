@@ -36,6 +36,9 @@ let package = Package(
         .target(
             name: "BenchmarkSuiteExample",
             dependencies: ["Benchmark"]),
+        .target(
+            name: "BenchmarkSuiteExampleMain",
+            dependencies: ["Benchmark", "BenchmarkSuiteExample"]),
         .testTarget(
             name: "BenchmarkTests",
             dependencies: ["Benchmark", "BenchmarkSuiteExample"]),
