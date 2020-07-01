@@ -67,10 +67,10 @@ final class BenchmarkReporterTests: XCTestCase {
                 counters: [:]),
         ]
         let expected = #"""
-            name         time         std        iterations
-            -----------------------------------------------
-            MySuite.fast    1500.0 ns ±  47.14 %          2
-            MySuite.slow 1500000.0 ns ±  47.14 %          2
+            name         time       std        iterations
+            ---------------------------------------------
+            MySuite.fast    1500 ns ±  47.14 %          2
+            MySuite.slow 1500000 ns ±  47.14 %          2
             """#
         assertConsoleReported(results, expected)
     }
@@ -91,10 +91,10 @@ final class BenchmarkReporterTests: XCTestCase {
                 counters: [:]),
         ]
         let expected = #"""
-            name         time         std        iterations foo
-            ---------------------------------------------------
-            MySuite.fast    1500.0 ns ±  47.14 %          2   7
-            MySuite.slow 1500000.0 ns ±  47.14 %          2   0
+            name         time       std        iterations foo
+            -------------------------------------------------
+            MySuite.fast    1500 ns ±  47.14 %          2   7
+            MySuite.slow 1500000 ns ±  47.14 %          2   0
             """#
         assertConsoleReported(results, expected)
     }
@@ -115,10 +115,10 @@ final class BenchmarkReporterTests: XCTestCase {
                 counters: [:]),
         ]
         let expected = #"""
-            name         time         std        iterations warmup 
-            -------------------------------------------------------
-            MySuite.fast    1500.0 ns ±  47.14 %          2 60.0 ns
-            MySuite.slow 1500000.0 ns ±  47.14 %          2  0.0 ns
+            name         time       std        iterations warmup
+            ----------------------------------------------------
+            MySuite.fast    1500 ns ±  47.14 %          2  60 ns
+            MySuite.slow 1500000 ns ±  47.14 %          2   0 ns
             """#
         assertConsoleReported(results, expected)
     }
@@ -151,12 +151,12 @@ final class BenchmarkReporterTests: XCTestCase {
                 counters: [:]),
         ]
         let expected = #"""
-            name       time           std        iterations
-            -----------------------------------------------
-            MySuite.ns 123456789.0 ns ±   0.00 %          1
-            MySuite.us  123456.789 us ±   0.00 %          1
-            MySuite.ms  123.456789 ms ±   0.00 %          1
-            MySuite.s   0.123456789 s ±   0.00 %          1
+            name       time          std        iterations
+            ----------------------------------------------
+            MySuite.ns  123456789 ns ±   0.00 %          1
+            MySuite.us 123456.789 us ±   0.00 %          1
+            MySuite.ms    123.457 ms ±   0.00 %          1
+            MySuite.s        0.123 s ±   0.00 %          1
             """#
         assertConsoleReported(results, expected)
     }
@@ -177,10 +177,10 @@ final class BenchmarkReporterTests: XCTestCase {
                 counters: [:]),
         ]
         let expected = #"""
-            name         min       max         
-            -----------------------------------
-            MySuite.fast 1000.0 ns             
-            MySuite.slow           2000000.0 ns
+            name         min     max       
+            -------------------------------
+            MySuite.fast 1000 ns           
+            MySuite.slow         2000000 ns
             """#
         assertConsoleReported(results, expected)
     }

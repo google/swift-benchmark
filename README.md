@@ -50,13 +50,13 @@ OPTIONS:
   -h, --help              Show help information.
 
 $ swift run -c release BenchmarkMinimalExample
-running add string no capacity... done! (1795.09 ms)
-running add string reserved capacity... done! (1815.80 ms)
+running add string no capacity... done! (1832.52 ms)
+running add string reserved capacity... done! (1813.96 ms)
 
-name                          time        std                  iterations
--------------------------------------------------------------------------
-add string no capacity        35380.0 ns  ± 5035.122635576142  38603
-add string reserved capacity  37466.0 ns  ± 4940.675061813501  36990
+name                         time     std        iterations
+-----------------------------------------------------------
+add string no capacity       37435 ns ±   6.22 %      37196
+add string reserved capacity 37022 ns ±   1.75 %      37749
 ```
 
 For more examples, see

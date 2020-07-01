@@ -22,18 +22,20 @@ public enum BenchmarkFormatter {
         if string.hasSuffix(".0") {
             return String(string.dropLast(2))
         } else {
-            return string
+            return String(format: "%.3f", value)
         }
     }
 
     /// Show number with the corresponding time unit.
     public static let time: Formatter = { (value, settings) in
-        return "\(value) \(settings.timeUnit)"
+        let num = number(value, settings)
+        return "\(num) \(settings.timeUnit)"
     }
 
     /// Show number with the corresponding inverse time unit.
     public static let inverseTime: Formatter = { (value, settings) in
-        return "\(value) /\(settings.inverseTimeUnit)"
+        let num = number(value, settings)
+        return "\(num) /\(settings.inverseTimeUnit)"
     }
 
     /// Show value as percentage.
@@ -43,7 +45,8 @@ public enum BenchmarkFormatter {
 
     /// Show value as plus or minus standard deviation.
     public static let std: Formatter = { (value, settings) in
-        return "± " + String(value)
+        let num = number(value, settings)
+        return "± \(num)"
     }
 
     /// Show value as plus or minus standard deviation in percentage.
