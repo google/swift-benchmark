@@ -72,7 +72,7 @@ public struct BenchmarkColumn: Hashable {
     /// Create a copy of this column with a different name.
     public func renamed(_ newName: String) -> BenchmarkColumn {
         return BenchmarkColumn(
-            name: newName, value: value, alignment: alignment, formatter: formatter)
+            name: newName, value: value, unit: unit, alignment: alignment, formatter: formatter)
     }
 
     /// Registry that represents a mapping from known column
