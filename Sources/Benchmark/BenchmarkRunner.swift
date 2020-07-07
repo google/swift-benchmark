@@ -33,10 +33,9 @@ public struct BenchmarkRunner {
             self.customDefaults,
             self.settings,
         ])
-        switch globalSettings.format {
-        case .none:
+        if globalSettings.quiet {
             self.progress = QuietReporter()
-        default:
+        } else {
             self.progress = VerboseProgressReporter(output: StderrOutputStream())
         }
         switch globalSettings.format {

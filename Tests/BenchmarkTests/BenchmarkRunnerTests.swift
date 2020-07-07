@@ -124,7 +124,7 @@ final class BenchmarkRunnerTests: XCTestCase {
 
 extension BenchmarkRunnerTests {
     func run(suites: [BenchmarkSuite], settings: [BenchmarkSetting]) throws -> [BenchmarkResult] {
-        var allSettings: [BenchmarkSetting] = [Format(.none)]
+        var allSettings: [BenchmarkSetting] = [Format(.none), Quiet(true)]
         allSettings.append(contentsOf: settings)
         var runner = BenchmarkRunner(
             suites: suites,

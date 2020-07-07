@@ -23,7 +23,7 @@ final class CustomBenchmarkTests: XCTestCase {
         let suite = BenchmarkSuite(name: "suite")
         suite.benchmarks = [benchmark]
 
-        var runner = BenchmarkRunner(suites: [suite], settings: [Format(.none)])
+        var runner = BenchmarkRunner(suites: [suite], settings: [Format(.none), Quiet(true)])
 
         try runner.run()
 

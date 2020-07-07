@@ -24,7 +24,7 @@ final class BenchmarkSettingTests: XCTestCase {
         cli: [BenchmarkSetting],
         customDefaults: [BenchmarkSetting] = []
     ) throws {
-        var settings: [BenchmarkSetting] = [Format(.none)]
+        var settings: [BenchmarkSetting] = [Format(.none), Quiet(true)]
         settings.append(contentsOf: cli)
         var runner = BenchmarkRunner(
             suites: [suite], settings: settings, customDefaults: customDefaults)

@@ -51,6 +51,9 @@ public struct BenchmarkArguments: ParsableArguments {
     @Option(help: "Output format (valid values are: json, csv, console, none).")
     var format: Format.Value?
 
+    @Flag(help: "Only print final benchmark results.")
+    var quiet: Bool
+
     public init() {}
 
     /// Conversion from command-line arguments to benchmark settings.
@@ -87,6 +90,9 @@ public struct BenchmarkArguments: ParsableArguments {
         }
         if let value = format {
             result.append(Format(value))
+        }
+        if quiet {
+            result.append(Quiet(true))
         }
 
         return result
