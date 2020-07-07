@@ -115,7 +115,7 @@ public struct Format: BenchmarkSetting {
     }
 }
 
-/// The output format used to show the results.
+/// If quiet is set to true, don't show intermediate progress updates.
 public struct Quiet: BenchmarkSetting {
     public var value: Bool
     public init(_ value: Bool) {
@@ -246,7 +246,7 @@ public struct BenchmarkSettings {
         }
     }
 
-    /// Convenience accessor for the TimeUnit setting. 
+    /// Convenience accessor for the Quiet setting. 
     public var quiet: Bool {
         if let value = self[Quiet.self]?.value {
             return value
