@@ -115,6 +115,14 @@ public struct Format: BenchmarkSetting {
     }
 }
 
+/// If quiet is set to true, don't show intermediate progress updates.
+public struct Quiet: BenchmarkSetting {
+    public var value: Bool
+    public init(_ value: Bool) {
+        self.value = value
+    }
+}
+
 /// An aggregate of all benchmark settings, that deduplicates
 /// the settings based on their type. A setting which is defined
 /// multiple times, only retains its last set value.
@@ -237,6 +245,15 @@ public struct BenchmarkSettings {
             fatalError("format must have a default.")
         }
     }
+
+    /// Convenience accessor for the Quiet setting. 
+    public var quiet: Bool {
+        if let value = self[Quiet.self]?.value {
+            return value
+        } else {
+            fatalError("quiet must have a default.")
+        }
+    }
 }
 
 public let defaultSettings: [BenchmarkSetting] = [
@@ -245,4 +262,5 @@ public let defaultSettings: [BenchmarkSetting] = [
     TimeUnit(.ns),
     InverseTimeUnit(.s),
     Format(.console),
+    Quiet(false),
 ]
