@@ -25,9 +25,8 @@ more details on what options are available, pass either the `-h` or `--help` com
 Example:
 
 ```terminal
-$ swift run -c release BenchmarkMinimalExample -h
-[3/3] Linking BenchmarkMinimalExample
-USAGE: benchmark-command [--allow-debug-build] [--filter <filter>] [--filter-not <filter-not>] [--iterations <iterations>] [--warmup-iterations <warmup-iterations>] [--min-time <min-time>] [--max-iterations <max-iterations>] [--time-unit <time-unit>] [--inverse-time-unit <inverse-time-unit>] [--columns <columns>] [--format <format>]
+$ swift run -c release BenchmarkMinimalExample --help
+USAGE: benchmark-command [--allow-debug-build] [--filter <filter>] [--filter-not <filter-not>] [--iterations <iterations>] [--warmup-iterations <warmup-iterations>] [--min-time <min-time>] [--max-iterations <max-iterations>] [--time-unit <time-unit>] [--inverse-time-unit <inverse-time-unit>] [--columns <columns>] [--format <format>] [--quiet]
 
 OPTIONS:
   --allow-debug-build     Overrides check to verify optimized build.
@@ -40,13 +39,13 @@ OPTIONS:
                           Number of warm-up iterations to run.
   --min-time <min-time>   Minimal time to run when automatically detecting number iterations.
   --max-iterations <max-iterations>
-                          Maximum number of iterations to run when automatically detecting number
-                          iterations.
+                          Maximum number of iterations to run when automatically detecting number iterations.
   --time-unit <time-unit> Time unit used to report the timing results.
   --inverse-time-unit <inverse-time-unit>
                           Inverse time unit used to report throughput results.
   --columns <columns>     Comma-separated list of column names to show.
   --format <format>       Output format (valid values are: json, csv, console, none).
+  --quiet                 Only print final benchmark results.
   -h, --help              Show help information.
 
 $ swift run -c release BenchmarkMinimalExample
