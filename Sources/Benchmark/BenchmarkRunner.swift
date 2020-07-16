@@ -18,9 +18,9 @@ public struct BenchmarkRunner {
     let customDefaults: [BenchmarkSetting]
     var progress: ProgressReporter
     var reporter: BenchmarkReporter
-    var results: [BenchmarkResult] = []
+    public var results: [BenchmarkResult] = []
 
-    init(
+    public init(
         suites: [BenchmarkSuite],
         settings: [BenchmarkSetting],
         customDefaults: [BenchmarkSetting] = []
@@ -50,7 +50,7 @@ public struct BenchmarkRunner {
         }
     }
 
-    mutating func run() throws {
+    public mutating func run() throws {
         for suite in suites {
             try run(suite: suite)
         }
