@@ -18,7 +18,7 @@ import ArgumentParser
 /// all of the default benchmark settings. 
 public struct BenchmarkArguments: ParsableArguments {
     @Flag(help: "Overrides check to verify optimized build.")
-    var allowDebugBuild: Bool
+    var allowDebugBuild: Bool = false
 
     @Option(help: "Run only benchmarks whose names match the regular expression.")
     var filter: String?
@@ -52,7 +52,7 @@ public struct BenchmarkArguments: ParsableArguments {
     var format: Format.Value?
 
     @Flag(help: "Only print final benchmark results.")
-    var quiet: Bool
+    var quiet: Bool = false
 
     public init() {}
 
