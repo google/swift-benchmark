@@ -74,6 +74,13 @@ def extract_values(runs):
     return (confs, values)
 
 
+def geomean(values):
+    product = 1.0
+    for value in values:
+        product *= value 
+    return product**(1.0/len(values))
+
+
 def to_table(confs, file_names, values):
     baseline_file_name = file_names[0]
     rows = [] 
@@ -90,6 +97,7 @@ def to_table(confs, file_names, values):
     rows.append(header)
 
     # Body rows.
+    relative_values = defaultdict(lambda: defaultdict(list))
     for conf in confs:
         bench_name, column = conf
         row = []
@@ -101,8 +109,32 @@ def to_table(confs, file_names, values):
             row.append("{:.2f}".format(value))
             if n != 0:
                 relative = value/base_value
+                relative_values[column][file_name].append(relative)
                 relative_percentage = (1 - relative ) * 100
                 row.append("{:.2f}".format(relative_percentage))
+        rows.append(row)
+
+    # Compute totals for each columsn as a geomean of all relative results.
+    cols = []
+    geomean_values = defaultdict(dict) 
+    for (_, col) in confs:
+        if col not in cols:
+            cols.append(col)
+            for n, file_name in enumerate(file_names):
+                if n != 0:
+                    vs = relative_values[col][file_name]
+                    geomean_values[col][file_name] = geomean(vs)
+
+    for col in cols:
+        row = []
+        row.append("")
+        row.append(col)
+        for n, file_name in enumerate(file_names):
+            row.append("")
+            if n != 0:
+                value = geomean_values[col][file_name]
+                percentage = (1 - value) * 100
+                row.append("{:.2f}".format(percentage))
         rows.append(row)
 
     return rows
@@ -118,12 +150,18 @@ def pad(base, fill, count, right = False):
 
 
 def print_table(table):
+    # Collect width of each max column.
     widths = defaultdict(lambda: 0)
     for row in table:
         for ncol, col in enumerate(row):
             widths[ncol] = max(widths[ncol], len(str(col)))
 
+    # Print results as an aligned human-readable table.
+    totals = False
     for nrow, row in enumerate(table):
+        if row[0] == '' and not totals:
+            print("-" * (sum(widths.values()) + len(widths) - 1))
+            totals = True
         line = []
         for ncol, col in enumerate(row):
             right = ncol == 0 or ncol == 1
