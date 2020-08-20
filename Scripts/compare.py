@@ -2,6 +2,7 @@ import sys
 import json
 from pprint import pprint
 from collections import defaultdict
+import argparse
 
 
 def fail(msg):
@@ -30,13 +31,10 @@ def validate(file_name, parsed):
                 require(is_num, template.format(file_name, i))
 
 
-def parse_and_validate(file_names):
-    if len(file_names) < 2:
-        fail("must provide two or more files to compare.") 
-
+def parse_and_validate(args):
     runs = []
 
-    for file_name in file_names:
+    for file_name in args.file_names:
         with open(file_name) as f:
             parsed = None
             try:
@@ -81,15 +79,15 @@ def geomean(values):
     return product**(1.0/len(values))
 
 
-def to_table(confs, file_names, values):
-    baseline_file_name = file_names[0]
+def to_table(confs, args, values):
+    baseline_file_name = args.baseline
     rows = [] 
 
     # Header row.
     header = []
     header.append("benchmark")
     header.append("column")
-    for (n, file_name) in enumerate(file_names):
+    for (n, file_name) in enumerate(args.file_names):
         name = file_name.replace(".json", "")
         header.append(name)
         if n != 0:
@@ -103,7 +101,7 @@ def to_table(confs, file_names, values):
         row = []
         row.append(bench_name)
         row.append(column)
-        for n, file_name in enumerate(file_names):
+        for n, file_name in enumerate(args.file_names):
             base_value = values[conf][baseline_file_name]
             value = values[conf][file_name]
             row.append("{:.2f}".format(value))
@@ -120,7 +118,7 @@ def to_table(confs, file_names, values):
     for (_, col) in confs:
         if col not in cols:
             cols.append(col)
-            for n, file_name in enumerate(file_names):
+            for n, file_name in enumerate(args.file_names):
                 if n != 0:
                     vs = relative_values[col][file_name]
                     geomean_values[col][file_name] = geomean(vs)
@@ -129,7 +127,7 @@ def to_table(confs, file_names, values):
         row = []
         row.append("")
         row.append(col)
-        for n, file_name in enumerate(file_names):
+        for n, file_name in enumerate(args.file_names):
             row.append("")
             if n != 0:
                 value = geomean_values[col][file_name]
@@ -171,11 +169,22 @@ def print_table(table):
             print("-" * (sum(widths.values()) + len(widths) - 1))
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Compare multiple swift-benchmark json files.")
+    parser.add_argument("baseline", help="Baseline json file to compare against.")
+    parser.add_argument("candidate", nargs="+", 
+                        help="Candidate json files to compare against baseline.") 
+    args = parser.parse_args()
+    args.file_names = [args.baseline]
+    args.file_names.extend(args.candidate)
+    return args
+
+
 def main():
-    file_names = sys.argv[1:]
-    runs = parse_and_validate(file_names)
+    args = parse_args()
+    runs = parse_and_validate(args)
     confs, values = extract_values(runs)
-    table = to_table(confs, file_names, values)
+    table = to_table(confs, args, values)
     print_table(table)
 
 
