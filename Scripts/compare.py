@@ -3,6 +3,7 @@ import json
 from pprint import pprint
 from collections import defaultdict
 import argparse
+import re
 
 
 def fail(msg):
@@ -10,8 +11,7 @@ def fail(msg):
 
 
 def require(cond, msg):
-    if not cond:
-        fail(msg)
+    if not cond: fail(msg)
 
 
 def validate(file_name, parsed):
@@ -47,14 +47,21 @@ def parse_and_validate(args):
     return runs
 
 
-def extract_values(runs):
+def collect_values(args, runs):
     baseline_name, baseline = runs[0]
+
+    include = lambda x: True
+    if args.filter:
+        regex = re.compile(args.filter)
+        include = lambda x: regex.search(x) is not None
 
     confs = []
     values = {}
 
     for benchmark in baseline["benchmarks"]:
         benchmark_name = benchmark["name"]
+        if not include(benchmark_name):
+            continue
         for column in benchmark.keys():
             if column == "name":
                 continue
@@ -174,6 +181,7 @@ def parse_args():
     parser.add_argument("baseline", help="Baseline json file to compare against.")
     parser.add_argument("candidate", nargs="+", 
                         help="Candidate json files to compare against baseline.") 
+    parser.add_argument("--filter", help="Only show benchmarks that match the regular expression")
     args = parser.parse_args()
     args.file_names = [args.baseline]
     args.file_names.extend(args.candidate)
@@ -183,7 +191,7 @@ def parse_args():
 def main():
     args = parse_args()
     runs = parse_and_validate(args)
-    confs, values = extract_values(runs)
+    confs, values = collect_values(args, runs)
     table = to_table(confs, args, values)
     print_table(table)
 
