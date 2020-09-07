@@ -47,7 +47,7 @@ def parse_and_validate(args):
     return runs
 
 
-def include_predicate(args):
+def benchmark_predicate(args):
     include = lambda x: True
 
     if args.filter:
@@ -66,17 +66,20 @@ def include_predicate(args):
 def collect_values(args, runs):
     baseline_name, baseline = runs[0]
 
-    include = include_predicate(args)
+    include_benchmark = benchmark_predicate(args)
+    include_column = lambda x: args.columns is None or x in args.columns
 
     confs = []
     values = {}
 
     for benchmark in baseline["benchmarks"]:
         benchmark_name = benchmark["name"]
-        if not include(benchmark_name):
+        if not include_benchmark(benchmark_name):
             continue
         for column in benchmark.keys():
             if column == "name":
+                continue
+            if not include_column(column):
                 continue
             conf = (benchmark_name, column)
             confs.append(conf)
@@ -196,9 +199,12 @@ def parse_args():
                         help="Candidate json files to compare against baseline.") 
     parser.add_argument("--filter", help="Only show benchmarks that match the regular expression.")
     parser.add_argument("--filter-not", help="Exclude benchmarks whose names match the regular expression.")
+    parser.add_argument("--columns", help="A comma-separated list of columns to show.")
     args = parser.parse_args()
     args.file_names = [args.baseline]
     args.file_names.extend(args.candidate)
+    if args.columns is not None:
+        args.columns = set(args.columns.split(","))
     return args
 
 
