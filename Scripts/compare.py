@@ -47,13 +47,26 @@ def parse_and_validate(args):
     return runs
 
 
+def include_predicate(args):
+    include = lambda x: True
+
+    if args.filter:
+        regex = re.compile(args.filter)
+        prev_include = include
+        include = lambda x: regex.search(x) is not None and prev_include(x)
+
+    if args.filter_not:
+        regex = re.compile(args.filter_not)
+        prev_include = include
+        include = lambda x: regex.search(x) is None and prev_include(x)
+
+    return include
+
+
 def collect_values(args, runs):
     baseline_name, baseline = runs[0]
 
-    include = lambda x: True
-    if args.filter:
-        regex = re.compile(args.filter)
-        include = lambda x: regex.search(x) is not None
+    include = include_predicate(args)
 
     confs = []
     values = {}
@@ -181,7 +194,8 @@ def parse_args():
     parser.add_argument("baseline", help="Baseline json file to compare against.")
     parser.add_argument("candidate", nargs="+", 
                         help="Candidate json files to compare against baseline.") 
-    parser.add_argument("--filter", help="Only show benchmarks that match the regular expression")
+    parser.add_argument("--filter", help="Only show benchmarks that match the regular expression.")
+    parser.add_argument("--filter-not", help="Exclude benchmarks whose names match the regular expression.")
     args = parser.parse_args()
     args.file_names = [args.baseline]
     args.file_names.extend(args.candidate)
