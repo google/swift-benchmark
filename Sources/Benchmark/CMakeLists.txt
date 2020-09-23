@@ -1,8 +1,10 @@
 add_library(Benchmark
   Benchmark.swift
   BenchmarkArguments.swift
+  BenchmarkColumn.swift
   BenchmarkCommand.swift
   BenchmarkFilter.swift
+  BenchmarkFormatter.swift
   BenchmarkMain.swift
   BenchmarkReporter.swift
   BenchmarkResult.swift

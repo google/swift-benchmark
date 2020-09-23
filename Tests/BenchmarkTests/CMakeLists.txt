@@ -1,10 +1,10 @@
 add_library(BenchmarkTests
+  BenchmarkColumnTests.swift
   BenchmarkCommandTests.swift
   BenchmarkReporterTests.swift
   BenchmarkRunnerTests.swift
   BenchmarkSettingTests.swift
   BenchmarkSuiteTests.swift
-  BlackHoleReporter.swift
   CustomBenchmarkTests.swift
   MockTextOutputStream.swift
   StatsTests.swift
