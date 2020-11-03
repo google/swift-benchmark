@@ -16,25 +16,25 @@
 public enum BenchmarkFormatter {
     public typealias Formatter = (Double, BenchmarkSettings) -> String
 
-    /// Just show a number, stripping ".0" if it's integer.
-    public static let number: Formatter = { (value, settings) in
-        let string = String(value)
-        if string.hasSuffix(".0") {
-            return String(string.dropLast(2))
-        } else {
-            return String(format: "%.3f", value)
-        }
+    /// Show an integer number without decimals.
+    public static let integer: Formatter = { (value, settings) in
+        return String(format: "%.0f", value)
+    }
+
+    /// Show a real number with decimals.
+    public static let real: Formatter = { (value, settings) in
+        return String(format: "%.3f", value)
     }
 
     /// Show number with the corresponding time unit.
     public static let time: Formatter = { (value, settings) in
-        let num = number(value, settings)
+        let num = real(value, settings)
         return "\(num) \(settings.timeUnit)"
     }
 
     /// Show number with the corresponding inverse time unit.
     public static let inverseTime: Formatter = { (value, settings) in
-        let num = number(value, settings)
+        let num = real(value, settings)
         return "\(num) /\(settings.inverseTimeUnit)"
     }
 
@@ -45,7 +45,7 @@ public enum BenchmarkFormatter {
 
     /// Show value as plus or minus standard deviation.
     public static let std: Formatter = { (value, settings) in
-        let num = number(value, settings)
+        let num = real(value, settings)
         return "± \(num)"
     }
 
