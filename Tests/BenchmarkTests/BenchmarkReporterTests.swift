@@ -17,37 +17,59 @@ import XCTest
 @testable import Benchmark
 
 final class BenchmarkReporterTests: XCTestCase {
-    func assertConsoleReported(_ results: [BenchmarkResult], _ expected: String) {
+    func assertConsoleReported(
+        _ results: [BenchmarkResult],
+        _ expected: String,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let output = MockTextOutputStream()
         var reporter = ConsoleReporter(output: output)
         reporter.report(results: results)
-        assertReported(output.result(), expected)
+        assertReported(output.result(), expected, message(), file: file, line: line)
     }
 
-    func assertJSONReported(_ results: [BenchmarkResult], _ expected: String) {
+    func assertJSONReported(
+        _ results: [BenchmarkResult],
+        _ expected: String,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let output = MockTextOutputStream()
         var reporter = JSONReporter(output: output)
         reporter.report(results: results)
-        assertReported(output.result(), expected)
+        assertReported(output.result(), expected, message(), file: file, line: line)
     }
 
     func assertCSVReported(
-        _ results: [BenchmarkResult], _ expected: String
+        _ results: [BenchmarkResult],
+        _ expected: String,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) {
         let output = MockTextOutputStream()
         var reporter = CSVReporter(output: output)
         reporter.report(results: results)
-        assertReported(output.result(), expected)
+        assertReported(output.result(), expected, message(), file: file, line: line)
     }
 
-    func assertReported(_ got: String, _ expected: String) {
+    func assertReported(
+        _ got: String,
+        _ expected: String,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let lines = Array(got.split(separator: "\n").map { String($0) })
         let expectedLines = expected.split(separator: "\n").map { String($0) }
         let actual = lines.map { $0.trimmingCharacters(in: .newlines) }
             .filter { !$0.isEmpty }
-        XCTAssertEqual(expectedLines.count, actual.count)
+        XCTAssertEqual(expectedLines.count, actual.count, message(), file: file, line: line)
         for (expectedLine, actualLine) in zip(expectedLines, actual) {
-            XCTAssertEqual(expectedLine, actualLine)
+            XCTAssertEqual(expectedLine, actualLine, message(), file: file, line: line)
         }
     }
 
