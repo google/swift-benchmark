@@ -64,7 +64,7 @@ public struct BenchmarkColumn: Hashable {
             case .inverseTime:
                 self.formatter = BenchmarkFormatter.inverseTime
             case .none:
-                self.formatter = BenchmarkFormatter.number
+                self.formatter = BenchmarkFormatter.real
             }
         }
     }
@@ -98,7 +98,8 @@ public struct BenchmarkColumn: Hashable {
             formatter: BenchmarkFormatter.stdPercentage)
         result["iterations"] = BenchmarkColumn(
             name: "iterations",
-            value: { Double($0.measurements.count) })
+            value: { Double($0.measurements.count) },
+            formatter: BenchmarkFormatter.integer)
         result["warmup"] = BenchmarkColumn(
             name: "warmup",
             value: { $0.warmupMeasurements.sum },
@@ -208,7 +209,8 @@ public struct BenchmarkColumn: Hashable {
                             return 0
                         }
                     },
-                    alignment: .right))
+                    alignment: .right,
+                    formatter: BenchmarkFormatter.integer))
         }
 
         return columns

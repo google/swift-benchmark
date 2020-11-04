@@ -77,11 +77,24 @@ public struct TimeUnit: BenchmarkSetting {
     public init(_ value: Value) {
         self.value = value
     }
-    public enum Value: String, ExpressibleByArgument {
+    public enum Value: String, ExpressibleByArgument, CustomStringConvertible {
         case ns
         case us
         case ms
         case s
+
+        public var description: String {
+            switch self {
+            case .ns:
+                return "ns"
+            case .us:
+                return "us"
+            case .ms:
+                return "ms"
+            case .s:
+                return " s"
+            }
+        }
     }
 }
 
