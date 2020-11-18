@@ -7,10 +7,14 @@ import re
 
 
 def require(cond, msg):
+    """Fails with a message if condition is not true."""
+
     if not cond: raise Exception(msg)
 
 
 def validate(file_name, parsed):
+    """Validates that given json object is a valid benchmarks result."""
+
     require("benchmarks" in parsed, 
             "{}: missing key 'benchmarks'.".format(file_name))
     require(len(parsed["benchmarks"]) > 0, 
@@ -28,6 +32,8 @@ def validate(file_name, parsed):
 
 
 def parse_and_validate(args):
+    """Parse command-line args, parse given json files and validate their contents."""
+
     runs = []
 
     for file_name in args.file_names:
@@ -44,6 +50,8 @@ def parse_and_validate(args):
 
 
 def benchmark_predicate(args):
+    """Returns a predicate used to filter benchmark columns based on cli args."""
+
     include = lambda x: True
 
     if args.filter:
@@ -60,6 +68,8 @@ def benchmark_predicate(args):
 
 
 def collect_values(args, runs):
+    """Collect benchmark values for the comparison, excluding filtered out columns."""
+
     baseline_name, baseline = runs[0]
 
     include_benchmark = benchmark_predicate(args)
@@ -92,6 +102,8 @@ def collect_values(args, runs):
 
 
 def geomean(values):
+    """Compute geometric mean for the given sequence of values."""
+
     product = 1.0
     for value in values:
         product *= value 
@@ -99,6 +111,8 @@ def geomean(values):
 
 
 def to_table(confs, args, values):
+    """Compute a table of relative results across all input files."""
+
     baseline_file_name = args.baseline
     rows = [] 
 
@@ -158,6 +172,8 @@ def to_table(confs, args, values):
 
 
 def pad(base, fill, count, right = False):
+    """Pad base string with given fill until count, on either left or right.""" 
+
     while len(base) < count:
         if right:
             base += fill
@@ -167,13 +183,15 @@ def pad(base, fill, count, right = False):
 
 
 def print_table(table):
+    """Pretty print results table as aligned human-readable text."""
+
     # Collect width of each max column.
     widths = defaultdict(lambda: 0)
     for row in table:
         for ncol, col in enumerate(row):
             widths[ncol] = max(widths[ncol], len(str(col)))
 
-    # Print results as an aligned human-readable table.
+    # Print results as an aligned text to stdout.
     totals = False
     for nrow, row in enumerate(table):
         if row[0] == '' and not totals:
@@ -189,6 +207,8 @@ def print_table(table):
 
 
 def parse_args():
+    """Parse command-line flags into a configuration object, and return it."""
+
     parser = argparse.ArgumentParser(description="Compare multiple swift-benchmark json files.")
     parser.add_argument("baseline", help="Baseline json file to compare against.")
     parser.add_argument("candidate", nargs="+", 
@@ -196,15 +216,19 @@ def parse_args():
     parser.add_argument("--filter", help="Only show benchmarks that match the regular expression.")
     parser.add_argument("--filter-not", help="Exclude benchmarks whose names match the regular expression.")
     parser.add_argument("--columns", help="A comma-separated list of columns to show.")
+
     args = parser.parse_args()
     args.file_names = [args.baseline]
     args.file_names.extend(args.candidate)
     if args.columns is not None:
         args.columns = set(args.columns.split(","))
+
     return args
 
 
 def main():
+    """Command-line entry-point."""
+
     args = parse_args()
     runs = parse_and_validate(args)
     confs, values = collect_values(args, runs)
