@@ -6,12 +6,8 @@ import argparse
 import re
 
 
-def fail(msg):
-    raise Exception(msg)
-
-
 def require(cond, msg):
-    if not cond: fail(msg)
+    if not cond: raise Exception(msg)
 
 
 def validate(file_name, parsed):
@@ -40,7 +36,7 @@ def parse_and_validate(args):
             try:
                 parsed = json.load(f)
             except Exception as err:
-                fail("failed to parse json: {}".format(err))
+                raise Exception("failed to parse json: {}".format(err))
             validate(file_name, parsed)
             runs.append((file_name, parsed))
 
