@@ -68,7 +68,7 @@ Add this library as a SwiftPM dependency:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/google/swift-benchmark", .branch("master")),
+    .package(url: "https://github.com/google/swift-benchmark", .branch("main")),
 ]
 ```
 
