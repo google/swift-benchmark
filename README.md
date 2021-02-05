@@ -78,8 +78,13 @@ The project is in an early stage and offers only a basic set of benchmarking
 utilities. Feel free to file issues and feature requests to help us prioritize
 what to do next.
 
+## License
+
+Please see [LICENSE](LICENSE) for details.
+
 ## Contributing
 
 Please see [CONTRIBUTING.md] for details.
 
 [CONTRIBUTING.md]: CONTRIBUTING.md
+
