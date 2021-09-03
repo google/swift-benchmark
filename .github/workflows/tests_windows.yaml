@@ -1,5 +1,9 @@
 name: tests-windows
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
 jobs:
   windows:
     name: windows
