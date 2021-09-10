@@ -24,7 +24,7 @@ let package = Package(
             targets: ["Benchmark"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.0.1"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.5.0"),
     ],
     targets: [
         .target(

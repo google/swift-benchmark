@@ -1,15 +1,19 @@
 name: tests-windows
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
 jobs:
   windows:
     name: windows
     runs-on: windows-latest
     steps:
-    - uses: seanmiddleditch/gha-setup-vsdevenv@master
+    - uses: seanmiddleditch/gha-setup-vsdevenv@v3
 
-    - name: Install swift-DEVELOPMENT-SNAPSHOT-2020-09-22-a
+    - name: Install Swift 5.4
       run: |
-        Install-Binary -Url "https://swift.org/builds/development/windows10/swift-DEVELOPMENT-SNAPSHOT-2020-09-22-a/swift-DEVELOPMENT-SNAPSHOT-2020-09-22-a-windows10.exe" -Name "installer.exe" -ArgumentList ("-q")
+        Install-Binary -Url "https://swift.org/builds/swift-5.4.2-release/windows10/swift-5.4.2-RELEASE/swift-5.4.2-RELEASE-windows10.exe" -Name "installer.exe" -ArgumentList ("-q")
 
     - name: Set Environment Variables
       run: |
@@ -32,7 +36,7 @@ jobs:
       run: swift --version
 
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Build
       run: swift build -v
