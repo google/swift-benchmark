@@ -73,10 +73,10 @@ def validate(file_name, parsed):
                 "{}: benchmark #{}: missing key 'name'.".format(file_name, i))
 
         for k, v in benchmark.items():
-            if k != "name":
-                is_num = isinstance(v, int) or isinstance(v, float)
-                template = "{}: benchmark #{}: values must be numbers."
-                require(is_num, template.format(file_name, i))
+            if k == "name": continue
+            is_num = isinstance(v, int) or isinstance(v, float)
+            template = "{}: benchmark #{}: values must be numbers."
+            require(is_num, template.format(file_name, i))
 
 
 def parse_and_validate(args):
@@ -155,7 +155,7 @@ def geomean(values):
     product = 1.0
     for value in values:
         product *= value
-    return product**(1.0/len(values))
+    return product**(1.0 / len(values))
 
 
 def to_table(confs, args, values):
