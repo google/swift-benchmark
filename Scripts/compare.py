@@ -12,12 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""A command-line tool to compare benchmark results in json format.
 
-import sys
-import json
-from pprint import pprint
-from collections import defaultdict
+This tool lets one to see the difference between two independent runs
+of the same benchmarks. This is is convenient whenever one develops a
+perfromance fix and wants to find out if a particula change brings
+measurable performance improvement.
+
+For example:
+
+    $ swift run -c release BenchmarkMinimalExample --format json > a.json
+
+    $ swift run -c release BenchmarkMinimalExample --format json > b.json
+
+    $ python Scripts/compare.py a.json b.json
+    benchmark                    column            a        b       %
+    -----------------------------------------------------------------
+    add string no capacity       time       37099.00 37160.00   -0.16
+    add string no capacity       std            1.13     1.30  -15.27
+    add string no capacity       iterations 37700.00 37618.00    0.22
+    add string reserved capacity time       36730.00 36743.00   -0.04
+    add string reserved capacity std            1.12     2.42 -116.30
+    add string reserved capacity iterations 38078.00 38084.00   -0.02
+    -----------------------------------------------------------------
+                                 time                           -0.10
+                                 std                           -57.90
+                                 iterations                      0.10
+
+Here one can see an output that compares two indepdendant runs `a` and
+`b` and concludes that they only differ in 0.1%, and are thus probably
+identical results.
+
+One can filter out the results in the comparison by either the benchmark
+name using `--filter` and `--filter-not` flags, and also by the column
+of the json output using `--columns`.
+"""
+
 import argparse
+from collections import defaultdict
+import json
 import re
 
 
@@ -30,9 +63,9 @@ def require(cond, msg):
 def validate(file_name, parsed):
     """Validates that given json object is a valid benchmarks result."""
 
-    require("benchmarks" in parsed, 
+    require("benchmarks" in parsed,
             "{}: missing key 'benchmarks'.".format(file_name))
-    require(len(parsed["benchmarks"]) > 0, 
+    require(len(parsed["benchmarks"]) > 0,
             "{}: must have at least one benchmark.".format(file_name))
 
     for i, benchmark in enumerate(parsed["benchmarks"]):
@@ -121,7 +154,7 @@ def geomean(values):
 
     product = 1.0
     for value in values:
-        product *= value 
+        product *= value
     return product**(1.0/len(values))
 
 
@@ -129,7 +162,7 @@ def to_table(confs, args, values):
     """Compute a table of relative results across all input files."""
 
     baseline_file_name = args.baseline
-    rows = [] 
+    rows = []
 
     # Header row.
     header = []
@@ -162,7 +195,7 @@ def to_table(confs, args, values):
 
     # Compute totals for each columsn as a geomean of all relative results.
     cols = []
-    geomean_values = defaultdict(dict) 
+    geomean_values = defaultdict(dict)
     for (_, col) in confs:
         if col not in cols:
             cols.append(col)
@@ -187,7 +220,7 @@ def to_table(confs, args, values):
 
 
 def pad(base, fill, count, right = False):
-    """Pad base string with given fill until count, on either left or right.""" 
+    """Pad base string with given fill until count, on either left or right."""
 
     while len(base) < count:
         if right:
@@ -226,8 +259,8 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description="Compare multiple swift-benchmark json files.")
     parser.add_argument("baseline", help="Baseline json file to compare against.")
-    parser.add_argument("candidate", nargs="+", 
-                        help="Candidate json files to compare against baseline.") 
+    parser.add_argument("candidate", nargs="+",
+                        help="Candidate json files to compare against baseline.")
     parser.add_argument("--filter", help="Only show benchmarks that match the regular expression.")
     parser.add_argument("--filter-not", help="Exclude benchmarks whose names match the regular expression.")
     parser.add_argument("--columns", help="A comma-separated list of columns to show.")
