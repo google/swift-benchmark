@@ -67,9 +67,21 @@ For more examples, see
 Add this library as a SwiftPM dependency:
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/google/swift-benchmark", from: "0.1.0"),
-]
+let package = Package(
+    name: ... ,
+    products: [
+        .executable(name: "Benchmarks", targets: ["Benchmarks"])
+    ],
+    dependencies: [
+      .package(url: "https://github.com/google/swift-benchmark", from: "0.1.0")
+    ],
+    targets: [
+        .target(
+            name: "Benchmarks",
+            dependencies: [.product(name: "Benchmark", package: "swift-benchmark")]
+        )
+    ]
+)
 ```
 
 ## Roadmap
