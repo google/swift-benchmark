@@ -24,6 +24,7 @@ import XCTest
             testCase(BenchmarkSettingTests.allTests),
             testCase(BenchmarkSuiteTests.allTests),
             testCase(CustomBenchmarkTests.allTests),
+            testCase(ProgressReporterTests.allTests),
             testCase(StatsTests.allTests),
         ]
     }

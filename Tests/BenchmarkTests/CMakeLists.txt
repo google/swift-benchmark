@@ -7,6 +7,7 @@ add_library(BenchmarkTests
   BenchmarkSuiteTests.swift
   CustomBenchmarkTests.swift
   MockTextOutputStream.swift
+  ProgressReporterTests.swift
   StatsTests.swift
   XCTTestManifests.swift)
 

@@ -14,9 +14,19 @@
 
 import Foundation
 
+#if canImport(OSLog)
+    import OSLog
+#endif
+
 protocol ProgressReporter {
-    mutating func report(running name: String, suite: String)
-    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64)
+    mutating func reportWillBeginBenchmark(_ benchmark: AnyBenchmark, suite: BenchmarkSuite)
+    mutating func reportFinishedBenchmark(nanosTaken: UInt64)
+
+    mutating func reportWarmingUp()
+    mutating func reportFinishedWarmup(nanosTaken: UInt64)
+
+    mutating func reportRunning()
+    mutating func reportFinishedRunning(nanosTaken: UInt64)
 }
 
 protocol BenchmarkReporter {
@@ -25,32 +35,84 @@ protocol BenchmarkReporter {
 
 struct VerboseProgressReporter<Output: FlushableTextOutputStream>: ProgressReporter {
     var output: Output
+    var currentBenchmarkQualifiedName: String
+    #if canImport(OSLog)
+        var currentOSLog: Any?
+    #endif
 
     init(output: Output) {
         self.output = output
+        self.currentBenchmarkQualifiedName = ""
+        self.currentOSLog = nil
     }
 
-    mutating func report(running name: String, suite: String) {
+    mutating func reportWillBeginBenchmark(_ benchmark: AnyBenchmark, suite: BenchmarkSuite) {
+
         let prefix: String
-        if suite != "" {
-            prefix = "\(suite): "
+        if suite.name != "" {
+            prefix = "\(suite.name): "
         } else {
             prefix = ""
         }
-        print("running \(prefix)\(name)...", terminator: "", to: &output)
-        output.flush()
+        self.currentBenchmarkQualifiedName = "\(prefix)\(benchmark.name)"
+        #if canImport(OSLog)
+            if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
+                currentOSLog = OSLog(
+                    subsystem: currentBenchmarkQualifiedName, category: .pointsOfInterest)
+            }
+        #endif
     }
 
-    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {
+    mutating func reportWarmingUp() {
+        print("Warming up... ", terminator: "", to: &output)
+        output.flush()
+        #if canImport(OSLog)
+            if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
+                os_signpost(.begin, log: currentOSLog as! OSLog, name: "Warmup")
+            }
+        #endif
+    }
+
+    mutating func reportFinishedWarmup(nanosTaken: UInt64) {
+        #if canImport(OSLog)
+            if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
+                os_signpost(.end, log: currentOSLog as! OSLog, name: "Warmup")
+            }
+        #endif
+    }
+
+    mutating func reportRunning() {
+        print("Running \(currentBenchmarkQualifiedName)... ", terminator: "", to: &output)
+        output.flush()
+        #if canImport(OSLog)
+            if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
+                os_signpost(.begin, log: currentOSLog as! OSLog, name: "Benchmark")
+            }
+        #endif
+    }
+
+    mutating func reportFinishedRunning(nanosTaken: UInt64) {
+        #if canImport(OSLog)
+            if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
+                os_signpost(.end, log: currentOSLog as! OSLog, name: "Benchmark")
+            }
+        #endif
+    }
+
+    mutating func reportFinishedBenchmark(nanosTaken: UInt64) {
         let timeDuration = String(format: "%.2f ms", Float(nanosTaken) / 1000000.0)
-        print(" done! (\(timeDuration))", to: &output)
+        print("Done! (\(timeDuration))", to: &output)
         output.flush()
     }
 }
 
 struct QuietReporter: ProgressReporter, BenchmarkReporter {
-    mutating func report(running name: String, suite: String) {}
-    mutating func report(finishedRunning name: String, suite: String, nanosTaken: UInt64) {}
+    mutating func reportWillBeginBenchmark(_ benchmark: AnyBenchmark, suite: BenchmarkSuite) {}
+    mutating func reportWarmingUp() {}
+    mutating func reportFinishedWarmup(nanosTaken: UInt64) {}
+    mutating func reportRunning() {}
+    mutating func reportFinishedRunning(nanosTaken: UInt64) {}
+    mutating func reportFinishedBenchmark(nanosTaken: UInt64) {}
     mutating func report(results: [BenchmarkResult]) {}
 }
 
