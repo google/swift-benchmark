@@ -85,14 +85,20 @@ public struct BenchmarkRunner {
             return
         }
 
-        progress.report(running: benchmark.name, suite: suite.name)
+        progress.reportWillBeginBenchmark(benchmark, suite: suite)
         let totalStart = now()
 
         var warmupState: BenchmarkState? = nil
         if settings.warmupIterations > 0 {
-            warmupState = doNIterations(
+            progress.reportWarmingUp()
+            let state = doNIterations(
                 settings.warmupIterations, benchmark: benchmark, suite: suite, settings: settings)
+            let warmupElapsed = state.endTime - state.startTime
+            progress.reportFinishedWarmup(nanosTaken: warmupElapsed)
+            warmupState = state
         }
+
+        progress.reportRunning()
 
         var state: BenchmarkState
         if let n = settings.iterations {
@@ -105,8 +111,8 @@ public struct BenchmarkRunner {
         let totalEnd = now()
         let totalElapsed = totalEnd - totalStart
 
-        progress.report(
-            finishedRunning: benchmark.name, suite: suite.name, nanosTaken: totalElapsed)
+        progress.reportFinishedRunning(nanosTaken: state.endTime - state.startTime)
+        progress.reportFinishedBenchmark(nanosTaken: totalElapsed)
 
         let result = BenchmarkResult(
             benchmarkName: benchmark.name,
